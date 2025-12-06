@@ -9,15 +9,12 @@
 }
 
 <style>
-
-    /* ---------- GLOBAL PAGE ---------- */
     .user-page {
         color: #d8e5f7;
         padding: 24px;
         font-family: "Inter", sans-serif;
     }
 
-    /* TITLE BAR */
     .page-top {
         display: flex;
         justify-content: space-between;
@@ -29,17 +26,8 @@
         font-size: 26px;
         font-weight: 700;
         color: #f5f9ff;
-        letter-spacing: .5px;
     }
 
-    /* BUTTON + SEARCH */
-    .control-panel {
-        display: flex;
-        gap: 14px;
-        align-items: center;
-    }
-
-    /* Search */
     .search-box input {
         background: #0c1525;
         border: 1px solid #26354b;
@@ -47,32 +35,16 @@
         border-radius: 8px;
         padding: 10px 14px;
         width: 220px;
-        transition: .25s;
     }
-
-        .search-box input:focus {
-            border-color: #3e79ff;
-            box-shadow: 0 0 8px rgba(62,121,255,0.4);
-        }
 
     .search-box button {
         padding: 10px 16px;
         border-radius: 8px;
-    }
-
-    .btn-search {
         background: #2663ff;
         color: #fff;
         border: none;
-        transition: .25s;
     }
 
-        .btn-search:hover {
-            background: #3f74ff;
-            transform: translateY(-2px);
-        }
-
-    /* ADD USER BUTTON */
     .btn-add-user {
         background: #14283f;
         border: 1px solid rgba(255,255,255,0.06);
@@ -81,39 +53,31 @@
         font-weight: 600;
         border-radius: 8px;
         text-decoration: none;
-        transition: .25s;
     }
 
-        .btn-add-user:hover {
-            background: #1d3b5c;
-            box-shadow: 0 6px 16px rgba(0,0,0,0.6);
-            transform: translateY(-2px);
-        }
-
-    /* ---------- TABLE WRAPPER ---------- */
     .table-wrapper {
         background: #0c1624;
         border-radius: 10px;
         border: 1px solid #1b2b41;
         overflow: hidden;
-        box-shadow: 0 8px 28px rgba(0,0,0,0.5);
     }
 
-    /* HEAD */
+    .table-users {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
     .table-users thead {
         background: #111f33;
-        backdrop-filter: blur(6px);
     }
 
     .table-users th {
         padding: 18px 16px;
         text-transform: uppercase;
-        letter-spacing: .5px;
         color: #adcae8;
         font-size: 0.78rem;
     }
 
-    /* BODY */
     .table-users td {
         padding: 18px 16px;
         border-bottom: 1px solid rgba(255,255,255,0.04);
@@ -121,18 +85,15 @@
         color: #e4edf7;
     }
 
-    /* ROW HOVER EFFECT */
     .table-users tbody tr {
         background: #0a121d;
-        transition: background .25s, transform .15s;
+        transition: background .25s;
     }
 
-        .table-users tbody tr:hover {
-            background: #162538;
-            transform: translateY(-1px);
-        }
+    .table-users tbody tr:hover {
+        background: #162538;
+    }
 
-    /* ROLE BADGE */
     .role-badge {
         padding: 8px 16px;
         font-size: .85rem;
@@ -140,19 +101,10 @@
         font-weight: 700;
     }
 
-    .role-admin {
-        background: #e95353;
-    }
+    .role-admin { background: #e95353; }
+    .role-employee { background: #4cb0ff; }
+    .role-customer { background: #22d1b3; }
 
-    .role-employee {
-        background: #4cb0ff;
-    }
-
-    .role-customer {
-        background: #22d1b3;
-    }
-
-    /* ACTION BUTTONS */
     .btn-square {
         width: 38px;
         height: 38px;
@@ -168,12 +120,10 @@
         transition: .2s;
     }
 
-        .btn-square:hover {
-            background: #1d2a41;
-            transform: translateY(-2px);
-        }
+    .btn-square:hover {
+        background: #1d2a41;
+    }
 
-    /* PAGINATION */
     .paging {
         margin-top: 22px;
         display: flex;
@@ -187,49 +137,21 @@
         border: 1px solid #1c2e49;
         color: #cfe2ff;
         text-decoration: none;
-        transition: .2s;
     }
 
-        .page-link:hover {
-            background: #12345c;
-        }
+    .page-link:hover {
+        background: #12345c;
+    }
 
-        .page-link.active {
-            background: #2563ff;
-            border-color: #2563ff;
-            color: white;
-        }
-
-    /* RESPONSIVE */
-    @@media(max-width: 768px) {
-        .table-users thead {
-            display: none;
-        }
-
-        .table-users td {
-            display: block;
-            text-align: right;
-            padding: 14px;
-        }
-
-            .table-users td::before {
-                content: attr(data-label);
-                float: left;
-                font-weight: 700;
-                color: #9fbbd8;
-            }
+    .page-link.active {
+        background: #2563ff;
+        color: white;
     }
 </style>
 
-
-
-
 <div class="user-page container-fluid">
-
-    <!-- TOP BAR -->
     <div class="page-top">
         <div class="page-title">User Management</div>
-
         <div style="display:flex; gap:12px; align-items:center;">
             <form method="get" class="search-box">
                 <input type="text" name="q" placeholder="Search user..." value="@query">
@@ -237,34 +159,19 @@
                     <i class="bi bi-search"></i>
                 </button>
             </form>
-
             <a href="@Url.Action("CreateUser","Admin")" class="btn-add-user">
                 <i class="bi bi-plus-circle"></i> Create User
             </a>
         </div>
     </div>
+
     @if (TempData["Success"] != null)
     {
-        <div style="
-            background: #11351f;
-            border: 1px solid #1a5f36;
-            color: #c8ffd9;
-            padding: 14px 18px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.4);
-        ">
-            <i class="bi bi-check-circle-fill" style="font-size: 20px; color:#4cff8f;"></i>
-            @TempData["Success"]
+        <div class="alert alert-success">
+            <i class="bi bi-check-circle-fill"></i> @TempData["Success"]
         </div>
     }
 
-
-    <!-- TABLE -->
     <div class="table-wrapper">
         <table class="table-users">
             <thead>
@@ -274,65 +181,50 @@
                     <th>Customer</th>
                     <th>Employee</th>
                     <th>Created</th>
-                    <th class="text-center">Setting</th>
+                    <th class="text-center">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @if (Model == null || !Model.Any())
                 {
                     <tr>
-                        <td colspan="6" style="padding:40px; text-align:center; color:#aac9ff;">
-                            No users found
-                        </td>
+                        <td colspan="6" style="padding:40px; text-align:center;">No users found</td>
                     </tr>
                 }
                 else
                 {
                     foreach (var u in Model)
                     {
-                       
-                            string badgeClass = "role-customer";
-
-                            if (!string.IsNullOrEmpty(u.LOAITAIKHOAN))
+                        var badgeClass = "role-customer";
+                        if (!string.IsNullOrEmpty(u.LOAITAIKHOAN))
+                        {
+                            var role = u.LOAITAIKHOAN.ToUpper();
+                            if (role.Contains("QUẢN") || role.Contains("ADMIN"))
                             {
-                                string role = u.LOAITAIKHOAN.ToUpper();
-
-                                if (role.Contains("QUẢN") || role.Contains("ADMIN"))
-                                {
-                                    badgeClass = "role-admin";
-                                }
-                                else if (role.Contains("NHÂN") || role.Contains("VIÊN"))
-                                {
-                                    badgeClass = "role-employee";
-                                }
-                                else
-                                {
-                                    badgeClass = "role-customer";
-                                }
-                            
+                                badgeClass = "role-admin";
+                            }
+                            else if (role.Contains("NHÂN") || role.Contains("VIÊN"))
+                            {
+                                badgeClass = "role-employee";
+                            }
                         }
 
                         <tr>
-                            <td data-label="User name">@u.TENTAIKHOAN</td>
-
-                            <td data-label="Role">
+                            <td>@u.TENTAIKHOAN</td>
+                            <td>
                                 <span class="role-badge @badgeClass">@u.LOAITAIKHOAN</span>
                             </td>
-
-                            <td data-label="Customer">@(!string.IsNullOrEmpty(u.MAKHACHHANG) ? u.MAKHACHHANG : "—")</td>
-                            <td data-label="Employee">@(!string.IsNullOrEmpty(u.MANHANVIEN) ? u.MANHANVIEN : "—")</td>
-
-                            <td data-label="Created">@u.NGAYTAO</td>
-
+                            <td>@(!string.IsNullOrEmpty(u.MAKHACHHANG) ? u.MAKHACHHANG : "—")</td>
+                            <td>@(!string.IsNullOrEmpty(u.MANHANVIEN) ? u.MANHANVIEN : "—")</td>
+                            <td>@u.NGAYTAO</td>
                             <td class="text-center">
-                                <a class="btn-square" href="@Url.Action("DetailsUser","Admin", new{ id = u.MATAIKHOAN })">
+                                <a class="btn-square" href="@Url.Action("DetailsUser","Admin", new{ id = u.MATAIKHOAN.Trim() })">
                                     <i class="bi bi-eye"></i>
                                 </a>
-                                <a class="btn-square" href="@Url.Action("EditUser","Admin", new{ id = u.MATAIKHOAN })">
+                                <a class="btn-square" href="@Url.Action("EditUser","Admin", new{ id = u.MATAIKHOAN.Trim() })">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                <a class="btn-square"
-                                   href="@Url.Action("DeleteUser","Admin", new{ id = u.MATAIKHOAN })"
+                                <a class="btn-square" href="@Url.Action("DeleteUser","Admin", new{ id = u.MATAIKHOAN.Trim() })" 
                                    onclick="return confirm('Delete this user?');">
                                     <i class="bi bi-trash"></i>
                                 </a>
@@ -341,28 +233,22 @@
                     }
                 }
             </tbody>
-
         </table>
     </div>
 
-
-
-
-    <!-- PAGING -->
     <div class="paging">
-        <a class="page-link @(page <= 1 ? "disabled" : "")"
+        <a class="page-link @(page <= 1 ? "disabled" : "")" 
            href="@Url.Action("Users","Admin", new { q = query, page = page - 1 })">Previous</a>
 
         @for (int i = 1; i <= totalPages; i++)
         {
-            <a class="page-link @(i == page ? "active" : "")"
+            <a class="page-link @(i == page ? "active" : "")" 
                href="@Url.Action("Users","Admin", new { q = query, page = i })">@i</a>
         }
 
-        <a class="page-link @(page >= totalPages ? "disabled" : "")"
+        <a class="page-link @(page >= totalPages ? "disabled" : "")" 
            href="@Url.Action("Users","Admin", new { q = query, page = page + 1 })">Next</a>
     </div>
-
 </div>
 
 <script>

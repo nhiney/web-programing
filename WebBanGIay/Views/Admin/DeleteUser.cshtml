@@ -4,54 +4,62 @@
     ViewBag.Title = "Delete User";
 }
 
-<div class="container mt-5" style="max-width: 600px;">
-    <div class="card shadow-lg border-0 rounded-4">
+<style>
+    .delete-card {
+        background: #0c1624;
+        border: 1px solid #1b2b41;
+        border-radius: 12px;
+        color: #e4edf7;
+    }
+    .delete-card-header {
+        background: #dc2626;
+        color: white;
+        padding: 20px;
+        border-radius: 12px 12px 0 0;
+    }
+    .delete-card-body {
+        padding: 30px;
+        text-align: center;
+    }
+</style>
 
-        <div class="card-header bg-danger text-white rounded-top py-3 d-flex align-items-center">
+<div class="container mt-5" style="max-width: 500px;">
+    <div class="delete-card shadow-lg">
+
+        <div class="delete-card-header d-flex align-items-center justify-content-center">
             <i class="bi bi-exclamation-triangle-fill me-2" style="font-size:1.5rem;"></i>
-            <h5 class="mb-0">Confirm Delete User</h5>
+            <h5 class="mb-0">Xác nhận xóa tài khoản</h5>
         </div>
 
-        <div class="card-body px-4 py-4 text-center">
+        <div class="delete-card-body">
             <p class="fs-5">
-                Are you sure you want to delete the account:
-                <strong class="text-primary">@Model.TENTAIKHOAN</strong>
-                (<strong>@Model.MATAIKHOAN</strong>)?
+                Bạn có chắc chắn muốn xóa tài khoản:
+            </p>
+            <p>
+                <strong class="text-primary fs-4">@Model.TENTAIKHOAN</strong>
+            </p>
+            <p class="text-muted small">
+                Mã: @Model.MATAIKHOAN
             </p>
 
-            <p class="text-muted">
-                <i class="bi bi-info-circle-fill me-1"></i>
-                This action <strong>cannot be undone</strong>.
-            </p>
+            <div class="alert alert-warning mt-3">
+                <i class="bi bi-info-circle me-1"></i>
+                Hành động này <strong>không thể hoàn tác</strong>!
+            </div>
 
-            @using (Html.BeginForm("DeleteUser", "Admin", FormMethod.Post))
+            @using (Html.BeginForm("DeleteUser", "Admin", new { id = Model.MATAIKHOAN }, FormMethod.Post))
             {
                 @Html.AntiForgeryToken()
-                @Html.HiddenFor(m => m.MATAIKHOAN)
 
                 <div class="d-flex justify-content-center gap-3 mt-4">
-                    <button type="submit" class="btn btn-danger px-4">
-                        <i class="bi bi-trash-fill me-1"></i> Delete
+                    <button type="submit" class="btn btn-danger px-4 py-2">
+                        <i class="bi bi-trash-fill me-1"></i> Xóa
                     </button>
-                    <a href="@Url.Action("Users","Admin")" class="btn btn-secondary px-4">
-                        <i class="bi bi-x-circle me-1"></i> Cancel
+                    <a href="@Url.Action("Users","Admin")" class="btn btn-outline-secondary px-4 py-2">
+                        <i class="bi bi-x-circle me-1"></i> Hủy
                     </a>
                 </div>
             }
         </div>
     </div>
 </div>
-
-<style>
-    .card p {
-        margin-bottom: 1rem;
-    }
-
-    .card .btn {
-        font-weight: 600;
-    }
-
-        .card .btn i {
-            vertical-align: middle;
-        }
-</style>

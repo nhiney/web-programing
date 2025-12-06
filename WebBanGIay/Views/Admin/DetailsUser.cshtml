@@ -4,70 +4,108 @@
     ViewBag.Title = "User Details";
 }
 
-@functions {
-    // Truyền thống, tương thích .NET 4.8
-    public string GetBadgeClass(string role)
-    {
-        if (role == "QUẢN TRỊ")
-            return "danger";
-        else if (role == "NHÂN VIÊN")
-            return "warning";
-        else if (role == "KHÁCH HÀNG")
-            return "success";
-        else
-            return "secondary";
+<style>
+    .details-card {
+        background: #0c1624;
+        border: 1px solid #1b2b41;
+        border-radius: 12px;
+        color: #e4edf7;
     }
-}
+    .details-card-header {
+        background: #0891b2;
+        color: white;
+        padding: 16px 20px;
+        border-radius: 12px 12px 0 0;
+    }
+    .details-card-body {
+        padding: 24px;
+    }
+    .info-row {
+        display: flex;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .info-label {
+        width: 150px;
+        color: #8aa8c8;
+        font-weight: 600;
+    }
+    .info-value {
+        flex: 1;
+        color: #fff;
+    }
+    .role-badge {
+        padding: 6px 14px;
+        border-radius: 6px;
+        font-weight: 700;
+        font-size: 0.85rem;
+    }
+    .role-admin { background: #e95353; }
+    .role-employee { background: #4cb0ff; }
+    .role-customer { background: #22d1b3; }
+</style>
 
-<div class="container mt-5" style="max-width: 700px;">
-    <div class="card shadow-lg border-0 rounded-4">
-        <div class="card-header bg-dark text-white rounded-top py-3">
-            <h4 class="mb-0"><i class="fas fa-user-circle me-2"></i>User Details</h4>
+<div class="container mt-4" style="max-width: 600px;">
+    <div class="details-card shadow-lg">
+        <div class="details-card-header d-flex align-items-center">
+            <i class="bi bi-person-badge me-2" style="font-size:1.3rem;"></i>
+            <h5 class="mb-0">Chi tiết tài khoản</h5>
         </div>
 
-        <div class="card-body px-4 py-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="fw-bold mb-0 text-primary">@Model.TENTAIKHOAN</h5>
-                <span class="badge bg-@GetBadgeClass(Model.LOAITAIKHOAN) px-3 py-2">
-                    @Model.LOAITAIKHOAN
-                </span>
+        <div class="details-card-body">
+            <div class="info-row">
+                <div class="info-label">Mã tài khoản:</div>
+                <div class="info-value text-primary fw-bold">@Model.MATAIKHOAN</div>
             </div>
 
-            <table class="table table-bordered table-striped table-hover">
-                <tbody>
-                    <tr>
-                        <th class="text-end" style="width: 35%;">Account ID</th>
-                        <td>@Model.MATAIKHOAN</td>
-                    </tr>
-                    <tr>
-                        <th class="text-end">Username</th>
-                        <td>@Model.TENTAIKHOAN</td>
-                    </tr>
-                    <tr>
-                        <th class="text-end">Role</th>
-                        <td><span class="badge bg-@GetBadgeClass(Model.LOAITAIKHOAN)">@Model.LOAITAIKHOAN</span></td>
-                    </tr>
-                    <tr>
-                        <th class="text-end">Customer ID</th>
-                        <td>@(string.IsNullOrWhiteSpace(Model.MAKHACHHANG) ? "—" : Model.MAKHACHHANG)</td>
-                    </tr>
-                    <tr>
-                        <th class="text-end">Employee ID</th>
-                        <td>@(string.IsNullOrWhiteSpace(Model.MANHANVIEN) ? "—" : Model.MANHANVIEN)</td>
-                    </tr>
-                    <tr>
-                        <th class="text-end">Created Date</th>
-                        <td>@(Model.NGAYTAO.HasValue ? Model.NGAYTAO.Value.ToString("yyyy-MM-dd") : "—")</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="info-row">
+                <div class="info-label">Tên tài khoản:</div>
+                <div class="info-value fw-bold">@Model.TENTAIKHOAN</div>
+            </div>
 
-            <div class="mt-4 text-center">
-                <a class="btn btn-secondary px-4" href="@Url.Action("Users","Admin")">
-                    <i class="fas fa-arrow-left me-1"></i> Back
+            <div class="info-row">
+                <div class="info-label">Loại tài khoản:</div>
+                <div class="info-value">
+                    @{
+                        var badgeClass = "role-customer";
+                        if (!string.IsNullOrEmpty(Model.LOAITAIKHOAN))
+                        {
+                            if (Model.LOAITAIKHOAN.Contains("QUẢN")) { 
+                                badgeClass = "role-admin"; 
+                            }
+                            else if (Model.LOAITAIKHOAN.Contains("NHÂN")) { 
+                                badgeClass = "role-employee"; 
+                            }
+                        }
+                    }
+                    <span class="role-badge @badgeClass">@Model.LOAITAIKHOAN</span>
+                </div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-label">Mã khách hàng:</div>
+                <div class="info-value">@(Model.MAKHACHHANG ?? "—")</div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-label">Mã nhân viên:</div>
+                <div class="info-value">@(Model.MANHANVIEN ?? "—")</div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-label">Ngày tạo:</div>
+                <div class="info-value">@Model.NGAYTAO</div>
+            </div>
+
+            <div class="d-flex justify-content-center gap-3 mt-4">
+                <a href="@Url.Action("EditUser", new { id = Model.MATAIKHOAN.Trim() })" class="btn btn-warning px-4 py-2">
+                    <i class="bi bi-pencil me-1"></i> Sửa
                 </a>
-                <a class="btn btn-warning px-4 ms-2" href="@Url.Action("EditUser","Admin", new { id = Model.MATAIKHOAN })">
-                    <i class="fas fa-edit me-1"></i> Edit
+                <a href="@Url.Action("DeleteUser", new { id = Model.MATAIKHOAN.Trim() })" class="btn btn-danger px-4 py-2">
+                    <i class="bi bi-trash me-1"></i> Xóa
+                </a>
+                <a href="@Url.Action("Users", "Admin")" class="btn btn-outline-secondary px-4 py-2">
+                    <i class="bi bi-arrow-left me-1"></i> Quay lại
                 </a>
             </div>
         </div>

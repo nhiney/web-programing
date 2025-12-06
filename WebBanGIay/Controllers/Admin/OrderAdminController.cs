@@ -47,7 +47,7 @@ namespace WebBanGIay.Controllers
             ViewBag.Query = q;
             ViewBag.Status = status;
             ViewBag.Page = page;
-            ViewBag.PageSize = pageSize;
+           ViewBag.PageSize = pageSize;
             ViewBag.Total = total;
             ViewBag.TotalPages = (int)Math.Ceiling((double)total / pageSize);
 
@@ -59,8 +59,23 @@ namespace WebBanGIay.Controllers
         {
             if (string.IsNullOrWhiteSpace(id)) return HttpNotFound();
 
+            id = id.Trim();
             var order = db.HOADON.Include(h => h.KHACHHANG)
                                  .Include(h => h.CHITIET_HOADON.Select(d => d.SANPHAM))
+                                 .FirstOrDefault(h => h.MAHOADON == id);
+
+            if (order == null) return HttpNotFound();
+
+            return View(order);
+        }
+
+        // ======================= EDIT ORDER (STATUS) =======================
+        public ActionResult Edit(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id)) return HttpNotFound();
+
+            id = id.Trim();
+            var order = db.HOADON.Include(h => h.KHACHHANG)
                                  .FirstOrDefault(h => h.MAHOADON == id);
 
             if (order == null) return HttpNotFound();
@@ -73,21 +88,66 @@ namespace WebBanGIay.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult UpdateStatus(string id, string status)
         {
+            id = id?.Trim();
             var order = db.HOADON.Find(id);
             if (order == null) return HttpNotFound();
 
             order.TRANGTHAI = status;
             
-            // Nếu hoàn thành, có thể update ngày giao hàng thực tế nếu cần
-            if (status == "ĐÃ GIAO" || status == "HOÀN THÀNH")
-            {
-                // Logic thêm nếu cần
-            }
-
             db.SaveChanges();
             TempData["Success"] = $"Cập nhật đơn hàng {id} sang trạng thái {status} thành công!";
             
             return RedirectToAction("Details", new { id = id });
+        }
+
+        // ======================= DELETE ORDER (GET) =======================
+        public ActionResult Delete(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id)) return HttpNotFound();
+
+            id = id.Trim();
+            var order = db.HOADON.Include(h => h.KHACHHANG)
+                                 .FirstOrDefault(h => h.MAHOADON == id);
+
+            if (order == null) return HttpNotFound();
+
+            return View(order);
+        }
+
+        // ======================= DELETE ORDER (POST) =======================
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeleteConfirmed(string id)
+        {
+            id = id?.Trim();
+            var order = db.HOADON.Find(id);
+            if (order == null) return HttpNotFound();
+
+            try
+            {
+                var details = db.CHITIET_HOADON.Where(d => d.MAHOADON == id).ToList();
+                foreach (var detail in details)
+                {
+                    db.CHITIET_HOADON.Remove(detail);
+                }
+
+                db.HOADON.Remove(order);
+                db.SaveChanges();
+
+                TempData["Success"] = $"Đã xóa đơn hàng {id} thành công!";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Không thể xóa đơn hàng: " + ex.Message;
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing) db.Dispose();
+            base.Dispose(disposing);
         }
     }
 }
