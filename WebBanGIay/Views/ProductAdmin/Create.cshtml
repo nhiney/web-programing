@@ -1,7 +1,7 @@
 ﻿@model WebBanGIay.Models.SANPHAM
 @{
     ViewBag.Title = "Add Product";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml"; // Dùng layout admin
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
 <div class="container mt-5" style="max-width: 900px;">
@@ -11,8 +11,18 @@
     <div class="card shadow-sm border-0 rounded-4">
         <div class="card-body p-4">
 
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <i class="bi bi-exclamation-triangle me-2"></i>@TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
             @using (Html.BeginForm("Create", "ProductAdmin", FormMethod.Post, new { enctype = "multipart/form-data" }))
             {
+                @Html.AntiForgeryToken()
+                
                 <div class="row g-4">
 
                     <!-- Product Name -->
