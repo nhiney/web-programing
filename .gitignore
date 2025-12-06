@@ -1,2 +1,30 @@
-bin
-obj
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.cache
+*.pdb
+*.opentdf
+*.dbmdl
+*.sln.docstates
+
+# Compiled output
+[Bb]in/
+[Oo]bj/
+
+# NuGet
+packages/
+*.nupkg
+nuget.exe
+
+# VS Code
+.vscode/*
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# System
+Thumbs.db
+.DS_Store
+Desktop.ini
+
