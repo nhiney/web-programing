@@ -10,8 +10,7 @@ namespace WebBanGIay.Controllers
 {
     public class ChatBotController : Controller
     {
-        private string connStr = "Server=DESKTOP-J6K452J;Database=QLGIAY;Trusted_Connection=True;";
-
+        private string connStr = System.Configuration.ConfigurationManager.ConnectionStrings["ChatBotContext"].ConnectionString;
         public ActionResult Index()
         {
             return View();
