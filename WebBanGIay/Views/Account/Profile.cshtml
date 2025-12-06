@@ -1,10 +1,32 @@
 ﻿@model WebBanGIay.Models.UserProfileViewModel
 @{
     ViewBag.Title = "Hồ sơ cá nhân";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    if (Model.AccountType == "QUẢN TRỊ" || Model.AccountType == "NHÂN VIÊN")
+    {
+        Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
 }
 
 <style>
+    /* Default variables for Public Layout if not defined */
+    :root {
+        --bg-card: #ffffff;
+        --border-color: #e9ecef;
+        --shadow-card: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --bg-sidebar: #f8f9fa;
+        --accent-color: var(--primary-color, #ff6b6b); /* Fallback to existing primary or specific color */
+        --text-main: #212529;
+        --text-label: #6c757d;
+        --text-muted: #6c757d;
+        --bg-body: #f8f9fa;
+        --bg-active: rgba(255, 107, 107, 0.1);
+        --light-gray: #f8f9fa;
+    }
+
     /* Profile Styles inheriting from Layout */
     .profile-card {
         background: var(--bg-card);
@@ -12,6 +34,8 @@
         border-radius: 12px;
         box-shadow: var(--shadow-card);
         overflow: hidden;
+        margin-top: 2rem; /* Add spacing for public layout */
+        margin-bottom: 2rem;
     }
 
     .profile-header {
