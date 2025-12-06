@@ -12,5 +12,10 @@ namespace WebBanGIay.Models
         public string Phone { get; set; }
         public string Address { get; set; }
         public string AvatarUrl { get; set; }
+
+        // Change Password
+        public string CurrentPassword { get; set; }
+        public string NewPassword { get; set; }
+        public string ConfirmNewPassword { get; set; }
     }
 }

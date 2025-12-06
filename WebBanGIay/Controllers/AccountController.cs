@@ -133,106 +133,137 @@ namespace WebBanGIay.Controllers
 
 
         // ====================== PROFILE ======================
-        // [HttpGet]
-        // public ActionResult Profile()
-        // {
-        //     var userId = Session["UserID"] as string;
-        //     if (userId == null)
-        //         return RedirectToAction("Login");
+        [HttpGet]
+        public ActionResult Profile()
+        {
+            var userId = Session["UserID"] as string;
+            if (userId == null)
+                return RedirectToAction("Login");
 
-        //     var user = db.TAIKHOAN.Include(u => u.KHACHHANG)
-        //                           .FirstOrDefault(u => u.MATAIKHOAN == userId);
+            var user = db.TAIKHOAN.Include(u => u.KHACHHANG)
+                                  .FirstOrDefault(u => u.MATAIKHOAN == userId);
 
-        //     if (user == null)
-        //         return RedirectToAction("Logout");
+            if (user == null)
+                return RedirectToAction("Logout");
 
-        //     var model = new UserProfileViewModel
-        //     {
-        //         UserName = user.TENTAIKHOAN,
-        //         AccountType = user.LOAITAIKHOAN,
-        //         CreatedDate = user.NGAYTAO,
-        //         FullName = user.KHACHHANG?.HOTEN,
-        //         Email = user.KHACHHANG?.EMAIL,
-        //         Phone = user.KHACHHANG?.SODIENTHOAI,
-        //         Address = user.KHACHHANG?.DIACHI,
-        //         AvatarUrl = Session["AvatarUrl"] as string
-        //     };
+            var model = new UserProfileViewModel
+            {
+                UserName = user.TENTAIKHOAN,
+                AccountType = user.LOAITAIKHOAN,
+                CreatedDate = user.NGAYTAO,
+                FullName = user.KHACHHANG?.HOTEN,
+                Email = user.KHACHHANG?.EMAIL,
+                Phone = user.KHACHHANG?.SODIENTHOAI,
+                Address = user.KHACHHANG?.DIACHI,
+                AvatarUrl = Session["AdminAvatar"] as string
+            };
 
-        //     return View(model);
-        // }
+            return View(model);
+        }
 
 
-        // [HttpPost]
-        // [ValidateAntiForgeryToken]
-        // public ActionResult Profile(UserProfileViewModel model, HttpPostedFileBase AvatarFile)
-        // {
-        //     var userId = Session["UserID"] as string;
-        //     if (userId == null)
-        //         return RedirectToAction("Login");
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Profile(UserProfileViewModel model, HttpPostedFileBase AvatarFile)
+        {
+            var userId = Session["UserID"] as string;
+            if (userId == null)
+                return RedirectToAction("Login");
 
-        //     var user = db.TAIKHOAN.Include(u => u.KHACHHANG)
-        //                           .FirstOrDefault(u => u.MATAIKHOAN == userId);
+            var user = db.TAIKHOAN.Include(u => u.KHACHHANG)
+                                  .FirstOrDefault(u => u.MATAIKHOAN == userId);
 
-        //     if (user == null)
-        //         return RedirectToAction("Logout");
+            if (user == null)
+                return RedirectToAction("Logout");
 
-        //     try
-        //     {
-        //         // Nếu khách hàng chưa tồn tại → Tạo mới
-        //         if (user.KHACHHANG == null)
-        //         {
-        //             user.MAKHACHHANG = GenerateNewCustomerId();
-        //             user.KHACHHANG = new KHACHHANG
-        //             {
-        //                 MAKHACHHANG = user.MAKHACHHANG,
-        //                 NGAYTAO = DateTime.Now
-        //             };
-        //             db.KHACHHANG.Add(user.KHACHHANG);
-        //         }
+            try
+            {
+                // 1. UPDATE INFO
+                if (user.KHACHHANG == null)
+                {
+                    user.MAKHACHHANG = GenerateNewCustomerId();
+                    user.KHACHHANG = new KHACHHANG
+                    {
+                        MAKHACHHANG = user.MAKHACHHANG,
+                        NGAYTAO = DateTime.Now
+                    };
+                    db.KHACHHANG.Add(user.KHACHHANG);
+                }
 
-        //         // Cập nhật
-        //         user.KHACHHANG.HOTEN = model.FullName;
-        //         user.KHACHHANG.EMAIL = model.Email;
-        //         user.KHACHHANG.SODIENTHOAI = model.Phone;
-        //         user.KHACHHANG.DIACHI = model.Address;
+                user.KHACHHANG.HOTEN = model.FullName;
+                user.KHACHHANG.EMAIL = model.Email;
+                user.KHACHHANG.SODIENTHOAI = model.Phone;
+                user.KHACHHANG.DIACHI = model.Address;
 
-        //         // Upload Avatar
-        //         if (AvatarFile != null && AvatarFile.ContentLength > 0)
-        //         {
-        //             var ext = Path.GetExtension(AvatarFile.FileName).ToLower();
-        //             var allowed = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+                // 2. CHANGE PASSWORD (Optional)
+                if (!string.IsNullOrEmpty(model.NewPassword))
+                {
+                    if (string.IsNullOrEmpty(model.CurrentPassword))
+                    {
+                        ModelState.AddModelError("CurrentPassword", "Cần nhập mật khẩu hiện tại để thay đổi.");
+                        return View(model);
+                    }
 
-        //             if (!allowed.Contains(ext))
-        //             {
-        //                 ModelState.AddModelError("", "File ảnh không hợp lệ!");
-        //                 return View(model);
-        //             }
+                    if (!PasswordHasher.Verify(model.CurrentPassword, user.MATKHAU))
+                    {
+                        ModelState.AddModelError("CurrentPassword", "Mật khẩu hiện tại không đúng.");
+                        return View(model);
+                    }
 
-        //             var fileName = $"{userId}_{DateTime.Now.Ticks}{ext}";
-        //             string folder = Server.MapPath("~/Content/avatars/");
-        //             if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
+                    if (model.NewPassword != model.ConfirmNewPassword)
+                    {
+                        ModelState.AddModelError("ConfirmNewPassword", "Mật khẩu xác nhận không khớp.");
+                        return View(model);
+                    }
 
-        //             AvatarFile.SaveAs(Path.Combine(folder, fileName));
+                    user.MATKHAU = PasswordHasher.Hash(model.NewPassword);
+                    TempData["SuccessPassword"] = "Đổi mật khẩu thành công!";
+                }
 
-        //             Session["AvatarUrl"] = Url.Content("~/Content/avatars/" + fileName);
-        //         }
+                // 3. UPLOAD AVATAR
+                if (AvatarFile != null && AvatarFile.ContentLength > 0)
+                {
+                    var ext = Path.GetExtension(AvatarFile.FileName).ToLower();
+                    var allowed = new[] { ".jpg", ".jpeg", ".png", ".gif" };
 
-        //         db.SaveChanges();
-        //         TempData["Success"] = "Cập nhật hồ sơ thành công!";
-        //     }
-        //     catch (DbEntityValidationException ex)
-        //     {
-        //         TempData["Error"] = string.Join(" | ",
-        //             ex.EntityValidationErrors.SelectMany(e => e.ValidationErrors)
-        //               .Select(v => v.ErrorMessage));
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         TempData["Error"] = "Lỗi: " + ex.Message;
-        //     }
+                    if (!allowed.Contains(ext))
+                    {
+                        ModelState.AddModelError("", "File ảnh không hợp lệ!");
+                        return View(model);
+                    }
 
-        //     return RedirectToAction("Profile");
-        // }
+                    // Ensure folder exists
+                    string folderName = "/Content/avatars/";
+                    string folderPath = Server.MapPath("~" + folderName);
+                    if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+
+                    // Save file
+                    string fileName = $"{userId}_{DateTime.Now.Ticks}{ext}";
+                    string fullPath = Path.Combine(folderPath, fileName);
+                    AvatarFile.SaveAs(fullPath);
+
+                    // Update Session
+                    string relativePath = folderName + fileName;
+                    Session["AdminAvatar"] = relativePath;
+                    model.AvatarUrl = relativePath;
+                }
+
+                db.SaveChanges();
+                TempData["Success"] = "Cập nhật hồ sơ thành công!";
+            }
+            catch (DbEntityValidationException ex)
+            {
+                var errors = ex.EntityValidationErrors.SelectMany(e => e.ValidationErrors)
+                               .Select(v => v.ErrorMessage);
+                TempData["Error"] = "Lỗi dữ liệu: " + string.Join("; ", errors);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Lỗi hệ thống: " + ex.Message;
+            }
+
+            return RedirectToAction("Profile");
+        }
 
 
         // ====================== TẠO MÃ KH TIẾP THEO ======================

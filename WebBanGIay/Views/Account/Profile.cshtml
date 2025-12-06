@@ -1,369 +1,265 @@
 ﻿@model WebBanGIay.Models.UserProfileViewModel
-@using WebBanGIay.Models
-
 @{
-    Layout = null;
+    ViewBag.Title = "Hồ sơ cá nhân";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Hồ Sơ - WebBanGiay</title>
 
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
+<style>
+    /* Profile Styles inheriting from Layout */
+    .profile-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        box-shadow: var(--shadow-card);
+        overflow: hidden;
+    }
 
-    <style>
-        :root {
-            --brand: #ee4d2d;
-            --brand-hover: #ff7043;
-            --muted: #6c757d;
-            --bg: #f8f9fa;
-            --card: #fff;
-            --radius: 12px;
-        }
+    .profile-header {
+        background: linear-gradient(135deg, var(--bg-sidebar), var(--bg-card));
+        padding: 30px;
+        text-align: center;
+        border-bottom: 1px solid var(--border-color);
+    }
 
-        body {
-            font-family: 'Inter', 'Roboto', sans-serif;
-            background: var(--bg);
-            margin: 0;
-        }
+    .avatar-wrapper {
+        position: relative;
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 15px;
+    }
 
-            body.dark {
-                --bg: #1e1e2f;
-                --card: #27293d;
-                --muted: #adb5bd;
-            }
+    .profile-avatar {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid var(--bg-card);
+        box-shadow: 0 0 0 2px var(--accent-color);
+    }
 
-        .container-app {
-            max-width: 1300px;
-            margin: 40px auto;
-            display: grid;
-            grid-template-columns: 280px 1fr;
-            gap: 30px;
-            padding: 0 16px;
-        }
+    .avatar-upload-btn {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        background: var(--accent-color);
+        color: white;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform 0.2s;
+        border: 2px solid var(--bg-card);
+    }
 
-        .card-surface {
-            background: var(--card);
-            border-radius: var(--radius);
-            padding: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-        }
+    .avatar-upload-btn:hover {
+        transform: scale(1.1);
+    }
 
-        .sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-        }
+    .nav-tabs-custom {
+        border-bottom: 1px solid var(--border-color);
+        padding: 0 20px;
+    }
 
-        .profile-brief {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
+    .nav-tabs-custom .nav-link {
+        color: var(--text-muted);
+        border: none;
+        border-bottom: 3px solid transparent;
+        padding: 15px 20px;
+        font-weight: 600;
+        background: transparent;
+    }
 
-        .avatar-lg {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #dee2e6;
-        }
+    .nav-tabs-custom .nav-link:hover {
+        color: var(--text-main);
+    }
 
-        .nav-menu a {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 16px;
-            border-radius: 10px;
-            text-decoration: none;
-            color: #495057;
-            transition: 0.2s;
-        }
+    .nav-tabs-custom .nav-link.active {
+        color: var(--accent-color);
+        border-bottom-color: var(--accent-color);
+        background: transparent;
+    }
 
-            .nav-menu a:hover, .nav-menu a.active {
-                background: rgba(238,77,45,0.15);
-                color: var(--brand);
-                font-weight: 600;
-            }
+    .form-label {
+        color: var(--text-label);
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
 
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
+    .form-control-profile {
+        background: var(--bg-body);
+        border: 1px solid var(--border-color);
+        color: var(--text-main);
+        padding: 12px;
+        border-radius: 8px;
+    }
 
-        .page-title {
-            font-size: 22px;
-            font-weight: 700;
-        }
+    .form-control-profile:focus {
+        background: var(--bg-body);
+        color: var(--text-main);
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 3px var(--bg-active);
+    }
 
-        .form-control {
-            border-radius: 10px;
-            height: 45px;
-        }
+    .btn-save {
+        background: var(--accent-color);
+        color: white;
+        padding: 12px 30px;
+        border-radius: 8px;
+        font-weight: 600;
+        border: none;
+        transition: all 0.2s;
+    }
 
-        textarea.form-control {
-            min-height: 100px;
-            resize: none;
-        }
+    .btn-save:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+    }
+</style>
 
-        .dropzone {
-            border: 2px dashed #dee2e6;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: #fefefe;
-        }
+<div class="container-fluid p-4">
+    
+    <!-- Success/Error Messages -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
 
-            .dropzone.hover {
-                border-color: var(--brand);
-                background: rgba(238,77,45,0.08);
-            }
-
-        .avatar-preview {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-bottom: 15px;
-            border: 2px solid #dee2e6;
-        }
-
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 360px;
-            gap: 30px;
-        }
-
-        .btn-brand {
-            background: var(--brand);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            padding: 10px 20px;
-            transition: 0.2s;
-        }
-
-            .btn-brand:hover {
-                background: var(--brand-hover);
-            }
-
-        .muted {
-            color: var(--muted);
-        }
-        /* ORDERS TAB */
-        .order-card {
-            transition: all 0.3s;
-        }
-
-            .order-card:hover {
-                box-shadow: 0 12px 30px rgba(0,0,0,0.12);
-                transform: translateY(-2px);
-            }
-
-        .progress-bar {
-            background-color: var(--brand);
-        }
-
-        @@media(max-width: 992px) {
-            .container-app {
-                grid-template-columns: 1fr;
-            }
-
-            .grid-2 {
-                grid-template-columns: 1fr;
-            }
-
-            .order-card {
-                flex-direction: column !important;
-                align-items: flex-start !important;
-            }
-
-            .text-end {
-                align-self: flex-end;
-                margin-top: 10px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container-app">
-
-        <!-- SIDEBAR -->
-        <aside class="sidebar card-surface">
-            <div class="profile-brief">
-                <img class="avatar-lg" src="@(Model.AvatarUrl ?? Url.Content("~/Content/avatars/default-avatar.png"))" alt="Avatar" />
-                <div>
-                    <div style="font-weight:700">@Model.FullName</div>
-                    <div class="muted" style="font-size:13px">@Model.Email</div>
+    <div class="row">
+        <!-- LEFT COLUMN: AVATAR & INFO -->
+        <div class="col-md-4 mb-4">
+            <div class="profile-card h-100">
+                <div class="profile-header">
+                    <form id="avatarForm" method="post" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
+                        <div class="avatar-wrapper">
+                            <img src="@(Model.AvatarUrl ?? "/source/images/shoes.png")" alt="Avatar" class="profile-avatar" id="profileAvatarDisplay" />
+                            <label for="AvatarFile" class="avatar-upload-btn" title="Đổi ảnh đại diện">
+                                <i class="bi bi-camera"></i>
+                            </label>
+                            <input type="file" id="AvatarFile" name="AvatarFile" accept="image/*" style="display:none;" onchange="this.form.submit()" />
+                        </div>
+                    </form>
+                    <h4 style="color:var(--text-main); font-weight:700; margin-bottom:5px;">@Model.FullName</h4>
+                    <p style="color:var(--text-muted); margin-bottom:15px;">@Model.Email</p>
+                    <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill">
+                        @Model.AccountType
+                    </span>
                 </div>
-            </div>
-
-            <nav class="nav-menu d-flex flex-column">
-                <a href="#tab-profile" class="active"><i class="fa fa-user"></i><span>Hồ Sơ</span></a>
-                <a href="#tab-orders"><i class="fa fa-receipt"></i><span>Đơn Mua</span></a>
-                <a href="#tab-addresses"><i class="fa fa-map-marker-alt"></i><span>Địa Chỉ</span></a>
-                <a href="#tab-security"><i class="fa fa-lock"></i><span>Bảo Mật</span></a>
-            </nav>
-
-            <div class="mt-auto">
-                <div class="d-flex justify-content-between align-items-center mt-3">
-                    <span class="muted"><i class="fa fa-moon"></i> Dark mode</span>
-                    <input id="toggleDark" type="checkbox" />
-                </div>
-            </div>
-        </aside>
-
-        <!-- MAIN -->
-        <main>
-            <div class="card-surface">
-                <div class="page-header">
-                    <div>
-                        <div class="page-title">Hồ Sơ của tôi</div>
-                        <div class="muted" style="font-size:14px">Quản lý thông tin cá nhân</div>
+                <div class="p-4">
+                    <div class="d-flex justify-content-between mb-3 border-bottom border-secondary pb-2" style="border-color:var(--border-color)!important;">
+                        <span style="color:var(--text-label)">Tài khoản</span>
+                        <span style="color:var(--text-main); font-weight:600">@Model.UserName</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3 border-bottom border-secondary pb-2" style="border-color:var(--border-color)!important;">
+                        <span style="color:var(--text-label)">Ngày tham gia</span>
+                        <span style="color:var(--text-main)">@Model.CreatedDate.Value.ToString("dd/MM/yyyy")</span>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <ul class="nav nav-tabs mb-3" id="profileTabs">
-                    <li class="nav-item"><a class="nav-link active" href="#tab-profile">Hồ Sơ</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#tab-orders">Đơn Mua</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#tab-addresses">Địa Chỉ</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#tab-security">Bảo Mật</a></li>
+        <!-- RIGHT COLUMN: EDIT FORMS -->
+        <div class="col-md-8">
+            <div class="profile-card">
+                <ul class="nav nav-tabs nav-tabs-custom" id="profileTab" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button" role="tab">
+                            <i class="bi bi-person-lines-fill me-2"></i>Thông tin cá nhân
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="password-tab" data-bs-toggle="tab" data-bs-target="#password" type="button" role="tab">
+                            <i class="bi bi-shield-lock me-2"></i>Đổi mật khẩu
+                        </button>
+                    </li>
                 </ul>
 
-                <div id="tab-content">
-                    <!-- PROFILE TAB -->
-                    <section id="tab-profile" class="tab-pane active">
-                        <div class="grid-2">
-                            <div>
-                                <form method="post" enctype="multipart/form-data">
-                                    @Html.AntiForgeryToken()
-                                    <div class="mb-3"><label>Họ tên</label><input name="FullName" value="@Model.FullName" class="form-control" /></div>
-                                    <div class="mb-3"><label>Email</label><input name="Email" value="@Model.Email" class="form-control" /></div>
-                                    <div class="mb-3"><label>SĐT</label><input name="Phone" value="@Model.Phone" class="form-control" /></div>
-                                    <div class="mb-3"><label>Địa chỉ</label><textarea name="Address" class="form-control">@Model.Address</textarea></div>
-                                    <button class="btn-brand" type="submit">Lưu thay đổi</button>
-                                </form>
-                            </div>
-                            <div>
-                                <div class="card-surface text-center">
-                                    <img id="previewAvatar" class="avatar-preview" src="@(Model.AvatarUrl ?? Url.Content("~/Content/avatars/default-avatar.png"))" alt="Avatar Preview" />
-                                    <div id="dropzone" class="dropzone">
-                                        <i class="fa fa-cloud-upload-alt fa-2x muted"></i>
-                                        <div>Kéo thả hoặc nhấn để chọn ảnh</div>
-                                        <input type="file" id="fileAvatar" name="AvatarFile" accept="image/*" hidden />
-                                    </div>
+                <div class="tab-content p-4" id="profileTabContent">
+                    
+                    <!-- TAB 1: UPDATE INFO -->
+                    <div class="tab-pane fade show active" id="info" role="tabpanel">
+                        @using (Html.BeginForm("Profile", "Account", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Họ và tên</label>
+                                    @Html.TextBoxFor(m => m.FullName, new { @class = "form-control form-control-profile" })
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Email</label>
+                                    @Html.TextBoxFor(m => m.Email, new { @class = "form-control form-control-profile" })
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Số điện thoại</label>
+                                    @Html.TextBoxFor(m => m.Phone, new { @class = "form-control form-control-profile" })
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label">Địa chỉ</label>
+                                    @Html.TextAreaFor(m => m.Address, new { @class = "form-control form-control-profile", rows = "3" })
+                                </div>
+                                <div class="col-12 mt-4 text-end">
+                                    <button type="submit" class="btn btn-save">
+                                        <i class="bi bi-save me-2"></i>Lưu thay đổi
+                                    </button>
                                 </div>
                             </div>
-                        </div>
-                    </section>
+                        }
+                    </div>
 
-                    <!-- ORDERS TAB -->
-                    @{
-                        var orders = Model.Orders ?? new List<OrderViewModel>();
-                    }
+                    <!-- TAB 2: CHANGE PASSWORD -->
+                    <div class="tab-pane fade" id="password" role="tabpanel">
+                        @if (TempData["SuccessPassword"] != null)
+                        {
+                            <div class="alert alert-success"><i class="bi bi-check-circle me-2"></i> @TempData["SuccessPassword"]</div>
+                        }
 
-                    <section id="tab-orders" class="tab-pane d-none">
-                        <div class="d-flex flex-column gap-4">
-
-                            @foreach (var order in orders)
-                            {
-                                <div class="card-surface order-card p-3 d-flex flex-column flex-md-row gap-3 align-items-center">
-                                    <img src="@order.ProductImageUrl" class="order-img" alt="Ảnh sản phẩm" style="width:100px; height:100px; object-fit:cover; border-radius:12px;" />
-                                    <div class="flex-fill d-flex flex-column justify-content-center">
-                                        <div style="font-weight:600; font-size:16px;">@order.ProductName</div>
-                                        <div class="muted" style="font-size:14px;">Số lượng: @order.Quantity</div>
-                                        <div style="font-weight:600; font-size:15px; color:#ee4d2d;">@order.TotalPrice.ToString("C0")</div>
-                                        <div class="mt-2">
-                                            <div class="progress" style="height:6px; border-radius:6px;">
-                                                <div class="progress-bar" role="progressbar" style="width:@order.Progress;" aria-valuenow="@order.Progress" aria-valuemin="0" aria-valuemax="100"></div>
-                                            </div>
-                                            <div class="muted" style="font-size:12px; margin-top:4px;">Trạng thái: @order.Status</div>
-                                        </div>
-                                    </div>
-                                    <div class="text-end">
-                                        <a href="@Url.Action("Details","Orders", new { id = order.OrderId })" class="btn btn-outline-secondary btn-sm">Xem chi tiết</a>
-                                    </div>
+                        @using (Html.BeginForm("Profile", "Account", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            <!-- Hiddens to allow ViewModel binding bypass validation for non-password fields if any (optional) -->
+                            
+                            <div class="row g-3">
+                                <div class="col-md-12">
+                                    <label class="form-label">Mật khẩu hiện tại</label>
+                                    @Html.PasswordFor(m => m.CurrentPassword, new { @class = "form-control form-control-profile" })
+                                    @Html.ValidationMessageFor(m => m.CurrentPassword, "", new { @class = "text-danger small" })
                                 </div>
-                            }
-
-                            @if (!orders.Any())
-                            {
-                                <div class="card-surface text-center p-5 muted">
-                                    <i class="fa fa-receipt fa-3x mb-3"></i>
-                                    Bạn chưa có đơn hàng nào.
+                                <div class="col-md-6">
+                                    <label class="form-label">Mật khẩu mới</label>
+                                    @Html.PasswordFor(m => m.NewPassword, new { @class = "form-control form-control-profile" })
                                 </div>
-                            }
+                                <div class="col-md-6">
+                                    <label class="form-label">Xác nhận mật khẩu mới</label>
+                                    @Html.PasswordFor(m => m.ConfirmNewPassword, new { @class = "form-control form-control-profile" })
+                                    @Html.ValidationMessageFor(m => m.ConfirmNewPassword, "", new { @class = "text-danger small" })
+                                </div>
 
-                        </div>
-                    </section>
-
-
-                    <!-- ADDRESS TAB -->
-                    <section id="tab-addresses" class="tab-pane d-none">
-                        <div class="card-surface text-center p-5 muted">
-                            <i class="fa fa-map-marker-alt fa-3x mb-3"></i>
-                            Bạn chưa cấu hình Addresses trong ViewModel.
-                        </div>
-                    </section>
-
-                    <!-- SECURITY TAB -->
-                    <section id="tab-security" class="tab-pane d-none">
-                        <div class="card-surface">
-                            <form method="post">
-                                @Html.AntiForgeryToken()
-                                <div class="mb-3"><label>Mật khẩu hiện tại</label><input type="password" name="OldPassword" class="form-control" /></div>
-                                <div class="mb-3"><label>Mật khẩu mới</label><input type="password" name="NewPassword" class="form-control" /></div>
-                                <div class="mb-3"><label>Nhập lại mật khẩu</label><input type="password" name="ConfirmPassword" class="form-control" /></div>
-                                <button class="btn-brand" type="submit">Đổi mật khẩu</button>
-                            </form>
-                        </div>
-                    </section>
+                                <div class="col-12 mt-4 text-end">
+                                    <button type="submit" class="btn btn-save">
+                                        <i class="bi bi-key me-2"></i>Đổi mật khẩu
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
 
                 </div>
             </div>
-        </main>
+        </div>
     </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Tab navigation
-        const links = document.querySelectorAll('.nav-tabs .nav-link, .nav-menu a');
-        links.forEach(l => l.onclick = e => {
-            e.preventDefault();
-            links.forEach(x => x.classList.remove('active'));
-            l.classList.add('active');
-            document.querySelectorAll('#tab-content .tab-pane').forEach(p => p.classList.add('d-none'));
-            document.querySelector(l.getAttribute('href')).classList.remove('d-none');
-        });
-
-        // Dark mode toggle
-        document.getElementById('toggleDark').onchange = function () {
-            document.body.classList.toggle('dark', this.checked);
-        };
-
-        // Avatar upload preview
-        const drop = document.getElementById('dropzone');
-        const file = document.getElementById('fileAvatar');
-        const preview = document.getElementById('previewAvatar');
-
-        function handle(f) {
-            if (!f.type.startsWith('image/')) { alert('Chọn ảnh'); return; }
-            if (f.size > 2 * 1024 * 1024) { alert('Tối đa 2MB'); return; }
-            preview.src = URL.createObjectURL(f);
-        }
-
-        drop.onclick = () => file.click();
-        drop.ondragover = e => { e.preventDefault(); drop.classList.add('hover'); };
-        drop.ondragleave = () => drop.classList.remove('hover');
-        drop.ondrop = e => { e.preventDefault(); drop.classList.remove('hover'); handle(e.dataTransfer.files[0]); };
-        file.onchange = e => handle(e.target.files[0]);
-    </script>
-</body>
-</html>
+</div>

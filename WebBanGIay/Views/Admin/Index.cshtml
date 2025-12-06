@@ -4,10 +4,120 @@
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
+<style>
+    /* Dashboard Container */
+    .dashboard-wrapper {
+        padding: 24px;
+        color: var(--text-main);
+    }
+
+    /* Summary Cards */
+    .summary-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 28px 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+        box-shadow: var(--shadow-card);
+        position: relative;
+        overflow: hidden;
+        height: 100%;
+    }
+
+    .summary-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, #4e73df, #1cc88a);
+    }
+
+    .summary-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        border-color: var(--accent-color);
+    }
+
+    .summary-card i {
+        font-size: 52px;
+        margin-bottom: 14px;
+        display: block;
+        opacity: 0.9;
+    }
+
+    .summary-card h4 {
+        font-size: 36px;
+        font-weight: 800;
+        color: var(--text-main);
+        margin: 10px 0;
+        /* text-shadow: 0 2px 8px rgba(0,0,0,0.3); Removed shadow for cleaner light mode */
+    }
+
+    .summary-card p {
+        font-size: 13px;
+        color: var(--text-label); /* changed from text-muted for better visibility */
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        margin: 0;
+        font-weight: 600;
+    }
+
+    /* Icon Colors - Keep specific colors as they look good in both modes */
+    .col-md-3:nth-child(1) .summary-card i { color: #4e73df; }
+    .col-md-3:nth-child(2) .summary-card i { color: #1cc88a; }
+    .col-md-3:nth-child(3) .summary-card i { color: #36b9cc; }
+    .col-md-3:nth-child(4) .summary-card i { color: #f6c23e; }
+
+    /* Chart Cards */
+    .card-custom {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: var(--shadow-card);
+        height: 100%;
+    }
+
+    .card-custom h5 {
+        color: var(--text-main);
+        font-weight: 700;
+        font-size: 18px;
+        margin-bottom: 20px;
+        padding-bottom: 14px;
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .chart-wrapper {
+        position: relative;
+        height: 280px;
+        padding: 10px;
+    }
+
+    .chart-wrapper canvas {
+        max-height: 100%;
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .summary-card {
+            margin-bottom: 16px;
+        }
+        
+        .chart-wrapper {
+            height: 240px;
+        }
+    }
+</style>
+
+<div class="dashboard-wrapper">
+
 <!-- SUMMARY CARDS -->
 <div class="row mb-4">
     <div class="col-md-3">
-        <div class="card-custom summary-card">
+        <div class="summary-card">
             <i class="bi bi-people"></i>
             <h4>@Model.TotalUsers</h4>
             <p>Users</p>
@@ -15,7 +125,7 @@
     </div>
 
     <div class="col-md-3">
-        <div class="card-custom summary-card">
+        <div class="summary-card">
             <i class="bi bi-bag"></i>
             <h4>@Model.TotalProducts</h4>
             <p>Products</p>
@@ -23,7 +133,7 @@
     </div>
 
     <div class="col-md-3">
-        <div class="card-custom summary-card">
+        <div class="summary-card">
             <i class="bi bi-receipt"></i>
             <h4>@Model.TotalOrders</h4>
             <p>Orders</p>
@@ -31,7 +141,7 @@
     </div>
 
     <div class="col-md-3">
-        <div class="card-custom summary-card">
+        <div class="summary-card">
             <i class="bi bi-cash"></i>
             <h4>@Model.TotalRevenue.ToString("N0") đ</h4>
             <p>Doanh thu</p>
@@ -43,36 +153,36 @@
 <!-- CHART AREA -->
 <div class="row">
 
-    <div class="col-md-6">
-        <div class="card-custom mb-4">
+    <div class="col-md-6 mb-4">
+        <div class="card-custom">
             <h5>Doanh thu (Line)</h5>
             <div class="chart-wrapper"><canvas id="revenueChart"></canvas></div>
         </div>
     </div>
 
-    <div class="col-md-6">
-        <div class="card-custom mb-4">
+    <div class="col-md-6 mb-4">
+        <div class="card-custom">
             <h5>Top Sales (Bar)</h5>
             <div class="chart-wrapper"><canvas id="salesChart"></canvas></div>
         </div>
     </div>
 
-    <div class="col-md-6">
-        <div class="card-custom mb-4">
+    <div class="col-md-6 mb-4">
+        <div class="card-custom">
             <h5>Sản phẩm bán chạy (Pie)</h5>
             <div class="chart-wrapper"><canvas id="categoryChart"></canvas></div>
         </div>
     </div>
 
-    <div class="col-md-6">
-        <div class="card-custom mb-4">
+    <div class="col-md-6 mb-4">
+        <div class="card-custom">
             <h5>Trạng thái đơn hàng</h5>
             <div class="chart-wrapper"><canvas id="orderChart"></canvas></div>
         </div>
     </div>
 
-    <div class="col-md-12">
-        <div class="card-custom mb-4">
+    <div class="col-md-12 mb-4">
+        <div class="card-custom">
             <h5>Đơn hàng theo tháng</h5>
             <div class="chart-wrapper" style="height:320px;"><canvas id="monthlyChart"></canvas></div>
         </div>
@@ -80,9 +190,10 @@
 
 </div>
 
+</div>
 
 <!-- ============================
-         CHART.JS SCRIPT
+     CHART.JS SCRIPT
 =============================== -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 

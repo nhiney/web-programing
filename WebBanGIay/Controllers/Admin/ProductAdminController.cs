@@ -75,16 +75,16 @@ namespace WebBanGIay.Controllers
             if (imageFile != null && imageFile.ContentLength > 0)
             {
                 string ext = Path.GetExtension(imageFile.FileName);
-                string fileName = model.MASANPHAM + "_" + Guid.NewGuid().ToString("N") + ext;
+                string fileName = Guid.NewGuid().ToString("N") + ext;
 
-                string folder = Server.MapPath("~/images/products");
+                string folder = Server.MapPath("~/source/images/Products");
                 if (!Directory.Exists(folder))
                     Directory.CreateDirectory(folder);
 
                 string path = Path.Combine(folder, fileName);
                 imageFile.SaveAs(path);
 
-                model.HINHANH = "/images/products/" + fileName;
+                model.HINHANH = "/source/images/Products/" + fileName;
             }
 
             model.NGAYTAO = DateTime.Now;
@@ -110,6 +110,7 @@ namespace WebBanGIay.Controllers
             if (string.IsNullOrWhiteSpace(id))
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
 
+            id = id.Trim();
             var product = db.SANPHAM.Find(id);
             if (product == null) return HttpNotFound();
 
@@ -120,6 +121,7 @@ namespace WebBanGIay.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit(SANPHAM model, HttpPostedFileBase imageFile)
         {
+            model.MASANPHAM = model.MASANPHAM?.Trim();
             var product = db.SANPHAM.Find(model.MASANPHAM);
             if (product == null) return HttpNotFound();
 
@@ -139,16 +141,16 @@ namespace WebBanGIay.Controllers
             if (imageFile != null && imageFile.ContentLength > 0)
             {
                 string ext = Path.GetExtension(imageFile.FileName);
-                string fileName = model.MASANPHAM + "_" + Guid.NewGuid().ToString("N") + ext;
+                string fileName = Guid.NewGuid().ToString("N") + ext;
 
-                string folder = Server.MapPath("~/images/products");
+                string folder = Server.MapPath("~/source/images/Products");
                 if (!Directory.Exists(folder))
                     Directory.CreateDirectory(folder);
 
                 string path = Path.Combine(folder, fileName);
                 imageFile.SaveAs(path);
 
-                product.HINHANH = "/images/products/" + fileName;
+                product.HINHANH = "/source/images/Products/" + fileName;
             }
 
             try
@@ -169,6 +171,7 @@ namespace WebBanGIay.Controllers
         {
             if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
 
+            id = id.Trim();
             var product = db.SANPHAM.Find(id);
             if (product == null) return HttpNotFound();
 
@@ -180,6 +183,7 @@ namespace WebBanGIay.Controllers
         {
             if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
 
+            id = id.Trim();
             var product = db.SANPHAM.Find(id);
             if (product == null) return HttpNotFound();
 
@@ -190,6 +194,7 @@ namespace WebBanGIay.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(string id)
         {
+            id = id?.Trim();
             var product = db.SANPHAM.Find(id);
             if (product == null) return HttpNotFound();
 

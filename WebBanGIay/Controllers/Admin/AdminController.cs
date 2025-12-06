@@ -175,7 +175,8 @@ namespace WebBanGIay.Controllers
             if (string.IsNullOrWhiteSpace(id))
                 return HttpNotFound();
 
-            var user = db.TAIKHOAN.Find(id);
+            id = id.Trim();
+            var user = db.TAIKHOAN.AsEnumerable().FirstOrDefault(t => t.MATAIKHOAN != null && t.MATAIKHOAN.Trim() == id);
             if (user == null)
                 return HttpNotFound();
 
@@ -246,7 +247,8 @@ namespace WebBanGIay.Controllers
             if (string.IsNullOrWhiteSpace(id))
                 return HttpNotFound();
 
-            var user = db.TAIKHOAN.Find(id);
+            id = id.Trim();
+            var user = db.TAIKHOAN.AsEnumerable().FirstOrDefault(t => t.MATAIKHOAN != null && t.MATAIKHOAN.Trim() == id);
             if (user == null)
                 return HttpNotFound();
 
@@ -270,6 +272,7 @@ namespace WebBanGIay.Controllers
                 return View(model);
             }
 
+            model.MATAIKHOAN = model.MATAIKHOAN?.Trim();
             var user = db.TAIKHOAN.Find(model.MATAIKHOAN);
             if (user == null) return HttpNotFound();
 
@@ -303,7 +306,8 @@ namespace WebBanGIay.Controllers
             if (string.IsNullOrWhiteSpace(id))
                 return HttpNotFound();
 
-            var user = db.TAIKHOAN.Find(id);
+            id = id.Trim();
+            var user = db.TAIKHOAN.AsEnumerable().FirstOrDefault(t => t.MATAIKHOAN != null && t.MATAIKHOAN.Trim() == id);
             if (user == null)
                 return HttpNotFound();
 
@@ -314,6 +318,7 @@ namespace WebBanGIay.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteUserConfirmed(string id)
         {
+            id = id?.Trim();
             var user = db.TAIKHOAN.Find(id);
             if (user == null)
                 return HttpNotFound();
