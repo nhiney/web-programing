@@ -14,6 +14,13 @@ namespace WebBanGIay.Controllers
     {
         private readonly QuanLyBanGiayEntities1 db = new QuanLyBanGiayEntities1();
 
+        // Set notification badge data for all admin pages
+        protected override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            base.OnActionExecuting(filterContext);
+            ViewBag.NewOrdersCount = db.HOADON.Count(o => o.TRANGTHAI == "CHỜ XỬ LÝ");
+        }
+
         // ====== HASH MẬT KHẨU ======
         private string HashPassword(string password)
         {
@@ -216,11 +223,21 @@ namespace WebBanGIay.Controllers
             model.MATKHAU = HashPassword(model.MATKHAU);
             model.NGAYTAO = DateTime.Now;
 
-            db.TAIKHOAN.Add(model);
-            db.SaveChanges();
+            try
+            {
+                db.TAIKHOAN.Add(model);
+                db.SaveChanges();
 
-            TempData["Success"] = "Tạo tài khoản thành công!";
-            return RedirectToAction("Users");
+                TempData["Success"] = "Tạo tài khoản thành công!";
+                return RedirectToAction("Users");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Lỗi khi tạo tài khoản: " + ex.Message;
+                ViewBag.KhachHangList = db.KHACHHANG.ToList();
+                ViewBag.NhanVienList = db.NHANVIEN.ToList();
+                return View(model);
+            }
         }
 
         // ====================== EDIT USER ======================
@@ -240,6 +257,7 @@ namespace WebBanGIay.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult EditUser(TAIKHOAN model)
         {
             if (string.IsNullOrWhiteSpace(model.TENTAIKHOAN))
@@ -264,10 +282,19 @@ namespace WebBanGIay.Controllers
             user.MAKHACHHANG = model.MAKHACHHANG;
             user.MANHANVIEN = model.MANHANVIEN;
 
-            db.SaveChanges();
-
-            TempData["Success"] = "Cập nhật tài khoản thành công!";
-            return RedirectToAction("Users");
+            try
+            {
+                db.SaveChanges();
+                TempData["Success"] = "Cập nhật tài khoản thành công!";
+                return RedirectToAction("Users");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Lỗi khi cập nhật tài khoản: " + ex.Message;
+                ViewBag.KhachHangList = db.KHACHHANG.ToList();
+                ViewBag.NhanVienList = db.NHANVIEN.ToList();
+                return View(model);
+            }
         }
 
         // ====================== DELETE USER ======================
@@ -284,16 +311,24 @@ namespace WebBanGIay.Controllers
         }
 
         [HttpPost, ActionName("DeleteUser")]
+        [ValidateAntiForgeryToken]
         public ActionResult DeleteUserConfirmed(string id)
         {
             var user = db.TAIKHOAN.Find(id);
             if (user == null)
                 return HttpNotFound();
 
-            db.TAIKHOAN.Remove(user);
-            db.SaveChanges();
+            try
+            {
+                db.TAIKHOAN.Remove(user);
+                db.SaveChanges();
+                TempData["Success"] = "Xóa tài khoản thành công!";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Không thể xóa tài khoản: " + ex.Message;
+            }
 
-            TempData["Success"] = "Xóa tài khoản thành công!";
             return RedirectToAction("Users");
         }
 

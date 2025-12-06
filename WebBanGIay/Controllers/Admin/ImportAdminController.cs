@@ -9,12 +9,20 @@ namespace WebBanGIay.Controllers
     {
         private readonly QuanLyBanGiayEntities1 db = new QuanLyBanGiayEntities1();
 
+        protected override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            base.OnActionExecuting(filterContext);
+            ViewBag.NewOrdersCount = db.HOADON.Count(o => o.TRANGTHAI == "CHỜ XỬ LÝ");
+        }
+
         // ======================= CREATE IMPORT SLIP =======================
         public ActionResult Create()
         {
-            ViewBag.Products = db.SANPHAM.Select(s => new {
-                s.MASANPHAM,
-                DisplayText = s.TENSANPHAM + " (" + s.SOLUONGTON + " available)"
+            // Use SelectListItem instead of anonymous type for Razor compatibility
+            ViewBag.Products = db.SANPHAM.ToList().Select(s => new SelectListItem
+            {
+                Value = s.MASANPHAM,
+                Text = s.TENSANPHAM + " (Tồn: " + (s.SOLUONGTON ?? 0) + ")"
             }).ToList();
 
             return View();
@@ -30,15 +38,15 @@ namespace WebBanGIay.Controllers
             if (SOLUONG == null || SOLUONG <= 0)
                 ModelState.AddModelError("SOLUONG", "Số lượng nhập phải lớn hơn 0!");
 
-            // Giá nhập có thể tùy chọn, nhưng nếu có thì validates
             if (GIANHAP != null && GIANHAP < 0)
                 ModelState.AddModelError("GIANHAP", "Giá nhập không hợp lệ!");
 
             if (!ModelState.IsValid)
             {
-                ViewBag.Products = db.SANPHAM.Select(s => new {
-                    s.MASANPHAM,
-                    DisplayText = s.TENSANPHAM + " (" + s.SOLUONGTON + " available)"
+                ViewBag.Products = db.SANPHAM.ToList().Select(s => new SelectListItem
+                {
+                    Value = s.MASANPHAM,
+                    Text = s.TENSANPHAM + " (Tồn: " + (s.SOLUONGTON ?? 0) + ")"
                 }).ToList();
                 return View();
             }
@@ -49,13 +57,10 @@ namespace WebBanGIay.Controllers
             // Cập nhật số lượng tồn
             product.SOLUONGTON = (product.SOLUONGTON ?? 0) + SOLUONG;
 
-            // Nếu muốn cập nhật giá bán theo giá nhập? (Thường là không, chỉ update stock)
-            // product.GIA = ...
-
             db.SaveChanges();
 
-            TempData["Success"] = $"Nhập hàng thành công! Đã thêm {SOLUONG} sản phẩm vào kho.";
-            return RedirectToAction("Index", "ProductAdmin"); // Quay về danh sách SP
+            TempData["Success"] = $"Nhập hàng thành công! Đã thêm {SOLUONG} sản phẩm '{product.TENSANPHAM}' vào kho.";
+            return RedirectToAction("Index", "ProductAdmin");
         }
     }
 }

@@ -10,6 +10,12 @@ namespace WebBanGIay.Controllers
     {
         private readonly QuanLyBanGiayEntities1 db = new QuanLyBanGiayEntities1();
 
+        protected override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            base.OnActionExecuting(filterContext);
+            ViewBag.NewOrdersCount = db.HOADON.Count(o => o.TRANGTHAI == "CHỜ XỬ LÝ");
+        }
+
         // ======================= LIST ORDERS =======================
         public ActionResult Index(string q = "", string status = "", int page = 1, int pageSize = 15)
         {

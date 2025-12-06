@@ -9,8 +9,22 @@
     <a href="@Url.Action("Create", "ProductAdmin")" class="btn btn-primary">
         <i class="fa fa-plus"></i> Add New Product
     </a>
-
 </div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fa fa-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fa fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
 
 <!-- Search Box -->
 <div class="card shadow-sm mb-3">
@@ -60,7 +74,11 @@
                     {
                         <tr>
                             <td class="text-center">
-                                <img src="@item.HINHANH" class="img-thumbnail" style="width:80px;height:80px;object-fit:cover;" />
+                                <img src="@(!string.IsNullOrEmpty(item.HINHANH) ? item.HINHANH : "/source/images/shoes.png")" 
+                                     class="img-thumbnail" 
+                                     style="width:80px;height:80px;object-fit:cover;" 
+                                     onerror="this.onerror=null; this.src='/source/images/shoes.png';" 
+                                     alt="@item.TENSANPHAM" />
                             </td>
                             <td>
                                 <strong>@item.TENSANPHAM</strong><br />

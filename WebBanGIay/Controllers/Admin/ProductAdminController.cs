@@ -12,6 +12,12 @@ namespace WebBanGIay.Controllers
     {
         private readonly QuanLyBanGiayEntities1 db = new QuanLyBanGiayEntities1();
 
+        protected override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            base.OnActionExecuting(filterContext);
+            ViewBag.NewOrdersCount = db.HOADON.Count(o => o.TRANGTHAI == "CHỜ XỬ LÝ");
+        }
+
         // ===================== LIST PRODUCTS =====================
         public ActionResult Index(string q = "", int page = 1, int pageSize = 12)
         {
@@ -83,11 +89,19 @@ namespace WebBanGIay.Controllers
 
             model.NGAYTAO = DateTime.Now;
 
-            db.SANPHAM.Add(model);
-            db.SaveChanges();
+            try
+            {
+                db.SANPHAM.Add(model);
+                db.SaveChanges();
 
-            TempData["Success"] = "Thêm sản phẩm thành công!";
-            return RedirectToAction("Index");
+                TempData["Success"] = "Thêm sản phẩm thành công!";
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Lỗi khi thêm sản phẩm: " + ex.Message;
+                return View(model);
+            }
         }
 
         // ===================== EDIT PRODUCT =====================
@@ -137,10 +151,17 @@ namespace WebBanGIay.Controllers
                 product.HINHANH = "/images/products/" + fileName;
             }
 
-            db.SaveChanges();
-
-            TempData["Success"] = "Cập nhật sản phẩm thành công!";
-            return RedirectToAction("Index");
+            try
+            {
+                db.SaveChanges();
+                TempData["Success"] = "Cập nhật sản phẩm thành công!";
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Lỗi khi cập nhật sản phẩm: " + ex.Message;
+                return View(model);
+            }
         }
 
         // ===================== DETAILS PRODUCT =====================

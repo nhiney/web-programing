@@ -322,7 +322,7 @@
                             <td data-label="Customer">@(!string.IsNullOrEmpty(u.MAKHACHHANG) ? u.MAKHACHHANG : "—")</td>
                             <td data-label="Employee">@(!string.IsNullOrEmpty(u.MANHANVIEN) ? u.MANHANVIEN : "—")</td>
 
-                            <td data-label="Created">@u.NGAYTAO?.ToString("yyyy-MM-dd")</td>
+                            <td data-label="Created">@u.NGAYTAO</td>
 
                             <td class="text-center">
                                 <a class="btn-square" href="@Url.Action("DetailsUser","Admin", new{ id = u.MATAIKHOAN })">
