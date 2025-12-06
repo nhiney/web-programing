@@ -1,0 +1,67 @@
+@model WebBanGIay.Models.HOADON
+@{
+    ViewBag.Title = "Xóa đơn hàng";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container py-4" style="color:#d8e5f7; max-width: 600px;">
+    <div class="card bg-dark border-danger shadow">
+        <div class="card-header border-danger bg-danger text-white">
+            <h4 class="mb-0 fw-bold"><i class="bi bi-exclamation-triangle"></i> Xác nhận xóa đơn hàng</h4>
+        </div>
+        <div class="card-body text-center">
+            
+            <h5 class="fw-bold text-primary mb-3">@Model.MAHOADON</h5>
+            
+            <div class="text-start mb-3 p-3 bg-secondary bg-opacity-25 rounded">
+                <div class="mb-2">
+                    <strong>Khách hàng:</strong> @(Model.KHACHHANG?.HOTEN ?? "Khách vãng lai")
+                </div>
+                <div class="mb-2">
+                    <strong>Ngày lập:</strong> @Model.NGAYLAP?.ToString("dd/MM/yyyy HH:mm")
+                </div>
+                <div class="mb-2">
+                    <strong>Tổng tiền:</strong> <span class="text-success">@string.Format("{0:N0}", Model.TONGTIEN) đ</span>
+                </div>
+                <div>
+                    <strong>Trạng thái:</strong> 
+                    @{
+                        var badgeClass = "bg-secondary";
+                        if (Model.TRANGTHAI == "HOÀN THÀNH") { 
+                            badgeClass = "bg-success"; 
+                        }
+                        else if (Model.TRANGTHAI == "CHỜ XỬ LÝ") { 
+                            badgeClass = "bg-warning text-dark"; 
+                        }
+                        else if (Model.TRANGTHAI == "ĐÃ GIAO") { 
+                            badgeClass = "bg-info text-dark"; 
+                        }
+                        else if (Model.TRANGTHAI == "ĐÃ HỦY") { 
+                            badgeClass = "bg-danger"; 
+                        }
+                    }
+                    <span class="badge @badgeClass">@Model.TRANGTHAI</span>
+                </div>
+            </div>
+
+            <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle"></i> 
+                <strong>Cảnh báo:</strong> Hành động này sẽ xóa đơn hàng và tất cả chi tiết sản phẩm. 
+                Không thể khôi phục!
+            </div>
+
+            <form method="post" action="@Url.Action("Delete", new { id = Model.MAHOADON })">
+                @Html.AntiForgeryToken()
+                
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-danger fw-bold py-2">
+                        <i class="bi bi-trash"></i> Xác nhận xóa
+                    </button>
+                    <a href="@Url.Action("Details", new { id = Model.MAHOADON })" class="btn btn-outline-secondary">
+                        Hủy bỏ
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

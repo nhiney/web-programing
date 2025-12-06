@@ -11,12 +11,10 @@
 
 <div class="container-fluid p-4" style="color:#d8e5f7;">
 
-    <!-- HEADER -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 style="color:#fff; font-weight:700;">Quản lý đơn hàng</h2>
+        <h2 style="color:#fff; font-weight:700;"><i class="bi bi-receipt"></i> Qu ản lý đơn hàng</h2>
     </div>
 
-    <!-- FILTER BAR -->
     <div class="card bg-dark border-secondary mb-4">
         <div class="card-body p-3">
             <form method="get" class="row g-3 align-items-center">
@@ -28,13 +26,13 @@
                     <select name="status" class="form-select bg-dark text-light border-secondary">
                         <option value="">-- Tất cả trạng thái --</option>
                         <option value="CHỜ XỬ LÝ" @(currentStatus == "CHỜ XỬ LÝ" ? "selected" : "")>CHỜ XỬ LÝ</option>
-                        <option value="ĐÃ GIAO" @(currentStatus == "ĐÃ GIAO" ? "selected" : "")>ĐÃ GIAO (ĐANG SHIP)</option>
+                        <option value="ĐÃ GIAO" @(currentStatus == "ĐÃ GIAO" ? "selected" : "")>ĐÃ GIAO</option>
                         <option value="HOÀN THÀNH" @(currentStatus == "HOÀN THÀNH" ? "selected" : "")>HOÀN THÀNH</option>
                         <option value="ĐÃ HỦY" @(currentStatus == "ĐÃ HỦY" ? "selected" : "")>ĐÃ HỦY</option>
                     </select>
                 </div>
                 <div class="col-auto">
-                    <button type="submit" class="btn btn-primary"><i class="bi bi-filter"></i> Lọc</button>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> Tìm kiếm</button>
                     <a href="@Url.Action("Index")" class="btn btn-outline-secondary">Reset</a>
                 </div>
             </form>
@@ -43,10 +41,19 @@
 
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success">@TempData["Success"]</div>
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            <i class="bi bi-exclamation-circle me-2"></i>@TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
     }
 
-    <!-- TABLE -->
     <div class="table-responsive rounded border border-secondary" style="background: #0c1624;">
         <table class="table table-dark table-hover mb-0">
             <thead style="background:#111f33;">
@@ -56,7 +63,7 @@
                     <th>Ngày lập</th>
                     <th>Tổng tiền</th>
                     <th>Trạng thái</th>
-                    <th class="text-center">Setting</th>
+                    <th class="text-center" style="width:160px;">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -70,7 +77,6 @@
                 {
                     foreach (var item in Model)
                     {
-                        // Color Badge logic
                         string badgeClass = "bg-secondary";
                         if (item.TRANGTHAI == "HOÀN THÀNH") { badgeClass = "bg-success"; }
                         else if (item.TRANGTHAI == "CHỜ XỬ LÝ") { badgeClass = "bg-warning text-dark"; }
@@ -96,9 +102,17 @@
                                 <span class="badge @badgeClass">@item.TRANGTHAI</span>
                             </td>
                             <td class="align-middle text-center">
-                                <a href="@Url.Action("Details", new { id = item.MAHOADON })" 
-                                   class="btn btn-sm btn-outline-light" title="Chi tiết">
-                                    <i class="bi bi-eye"></i> Detail
+                                <a href="@Url.Action("Details", new { id = item.MAHOADON.Trim() })" 
+                                   class="btn btn-sm btn-info text-white me-1" title="Chi tiết">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="@Url.Action("Edit", new { id = item.MAHOADON.Trim() })" 
+                                   class="btn btn-sm btn-warning me-1" title="Sửa">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="@Url.Action("Delete", new { id = item.MAHOADON.Trim() })" 
+                                   class="btn btn-sm btn-danger" title="Xóa">
+                                    <i class="bi bi-trash"></i>
                                 </a>
                             </td>
                         </tr>
@@ -108,7 +122,6 @@
         </table>
     </div>
 
-    <!-- PAGINATION -->
     @if (totalPages > 1)
     {
         <div class="d-flex justify-content-center mt-3">
