@@ -1,4 +1,4 @@
-@model IEnumerable<WebBanGIay.Models.DONHANG>
+@model IEnumerable<WebBanGIay.Models.HOADON>
 
 @{
     ViewBag.Title = "Quản lý đơn hàng";
@@ -185,23 +185,31 @@
                             else if (item.TRANGTHAI == "ĐÃ HỦY") { badgeClass = "status-cancelled"; }
 
                             <tr>
-                                <td class="fw-bold text-primary">#@item.MADONHANG</td>
+                                <td class="fw-bold text-primary">#@item.MAHOADON</td>
                                 <td>
                                     <div class="fw-bold">@item.KHACHHANG.HOTEN</div>
-                                    <div class="small text-muted">@item.KHACHHANG.DIENTHOAI</div>
+                                    <div class="small text-muted">@item.KHACHHANG.SODIENTHOAI</div>
                                 </td>
-                                <td>@item.NGAYDAT.Value.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>@item.NGAYLAP.Value.ToString("dd/MM/yyyy HH:mm")</td>
                                 <td><span class="status-badge @badgeClass">@item.TRANGTHAI</span></td>
                                 <td class="text-center">
-                                    <a href="@Url.Action("Details", new { id = item.MADONHANG.Trim() })" class="btn-icon" title="Chi tiết">
+                                    <a href="@Url.Action("Details", new { id = item.MAHOADON.Trim() })" class="btn-icon" title="Chi tiết">
                                         <i class="bi bi-eye"></i>
                                     </a>
-                                    <a href="@Url.Action("Edit", new { id = item.MADONHANG.Trim() })" class="btn-icon" title="Sửa">
+                                    <a href="@Url.Action("Edit", new { id = item.MAHOADON.Trim() })" class="btn-icon" title="Cập nhật trạng thái">
                                         <i class="bi bi-pencil"></i>
                                     </a>
-                                    <a href="@Url.Action("Delete", new { id = item.MADONHANG.Trim() })" class="btn-icon" title="Xóa">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
+
+                                    @if (item.TRANGTHAI == "CHỜ XỬ LÝ")
+                                    {
+                                        using (Html.BeginForm("Approve", "OrderAdmin", new { id = item.MAHOADON.Trim() }, FormMethod.Post, new { style = "display:inline;" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn-icon text-success" title="Duyệt đơn hàng" onclick="return confirm('Bạn có chắc muốn duyệt đơn hàng này?');">
+                                                <i class="bi bi-check-lg"></i>
+                                            </button>
+                                        }
+                                    }
                                 </td>
                             </tr>
                         }

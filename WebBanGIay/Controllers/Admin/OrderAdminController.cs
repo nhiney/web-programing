@@ -21,6 +21,14 @@ namespace WebBanGIay.Controllers
         {
             var query = db.HOADON.Include(h => h.KHACHHANG).AsQueryable();
 
+            ViewBag.StatusList = new SelectList(new[]
+            {
+                new { Value = "CHỜ XỬ LÝ", Text = "CHỜ XỬ LÝ" },
+                new { Value = "ĐANG GIAO", Text = "ĐANG GIAO" },
+                new { Value = "ĐÃ GIAO", Text = "ĐÃ GIAO" },
+                new { Value = "ĐÃ HỦY", Text = "ĐÃ HỦY" }
+            }, "Value", "Text", status);
+
             // Search (Mã hóa đơn, tên KH)
             if (!string.IsNullOrWhiteSpace(q))
             {
@@ -100,45 +108,28 @@ namespace WebBanGIay.Controllers
             return RedirectToAction("Details", new { id = id });
         }
 
-        // ======================= DELETE ORDER (GET) =======================
-        public ActionResult Delete(string id)
+
+
+        // ======================= APPROVE ORDER (QUICK ACTION) =======================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Approve(string id)
         {
-            if (string.IsNullOrWhiteSpace(id)) return HttpNotFound();
+            if (string.IsNullOrWhiteSpace(id)) return new HttpStatusCodeResult(400);
 
             id = id.Trim();
-            var order = db.HOADON.Include(h => h.KHACHHANG)
-                                 .FirstOrDefault(h => h.MAHOADON == id);
-
-            if (order == null) return HttpNotFound();
-
-            return View(order);
-        }
-
-        // ======================= DELETE ORDER (POST) =======================
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(string id)
-        {
-            id = id?.Trim();
             var order = db.HOADON.Find(id);
             if (order == null) return HttpNotFound();
 
-            try
+            if (order.TRANGTHAI == "CHỜ XỬ LÝ")
             {
-                var details = db.CHITIET_HOADON.Where(d => d.MAHOADON == id).ToList();
-                foreach (var detail in details)
-                {
-                    db.CHITIET_HOADON.Remove(detail);
-                }
-
-                db.HOADON.Remove(order);
+                order.TRANGTHAI = "ĐANG GIAO"; // Duyệt đơn
                 db.SaveChanges();
-
-                TempData["Success"] = $"Đã xóa đơn hàng {id} thành công!";
+                TempData["Success"] = $"Đã duyệt đơn hàng #{id} thành công!";
             }
-            catch (Exception ex)
+            else
             {
-                TempData["Error"] = "Không thể xóa đơn hàng: " + ex.Message;
+                TempData["Error"] = $"Đơn hàng #{id} đang ở trạng thái {order.TRANGTHAI}, không thể duyệt lại!";
             }
 
             return RedirectToAction("Index");
