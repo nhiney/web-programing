@@ -1,11 +1,12 @@
 {
     "version": "0.2.0",
     "configurations": [
+
         {
             "name": "Debug (Chrome)",
             "type": "pwa-chrome",
             "request": "launch",
-            "url": "http://localhost:8080",
+            "url": "http://localhost:8081",
             "webRoot": "${workspaceFolder}/WebBanGIay",
             "preLaunchTask": "Start IIS Express"
         }
