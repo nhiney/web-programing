@@ -1,0 +1,269 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - MEODIGIAY</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Font Awesome -->
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!--script cho Cart index-->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+
+    <link href="~/Css/DinhdangCSS.css" rel="stylesheet" />
+    @Styles.Render("~/Css/DinhdangCSS.css")
+</head>
+<body>
+    <div id="notificationContainer"></div>
+
+    <header class="bg-white py-2 shadow-sm sticky-top">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-5 col-md-3 d-flex align-items-center">
+                    <a href="@Url.Action("Index", "TrangChu")" class="d-flex align-items-center text-decoration-none">
+                        <img src="@Url.Content("~/source/images/logo/logo.png")" alt="MEODIGIAY" style="width: 3rem; height: 3rem; object-fit: contain;" class="mr-2">
+                        <span class="h4 mb-0 logo-text d-none d-md-block">MEODIGIAY</span>
+                    </a>
+                </div>
+
+                <div class="col-md-6 d-none d-md-flex justify-content-center">
+                    @Html.Action("MenuThuongHieu", "TrangChu")
+                </div>
+
+                <div class="col-7 col-md-3 d-flex align-items-center justify-content-end">
+                    <div class="search-container mr-2 d-none d-md-block">
+                        <input type="search" class="form-control form-control-sm" id="searchInput" placeholder="Tìm kiếm..." style="width: 140px; font-size: 0.85rem;">
+                        <div id="searchResults"></div>
+                    </div>
+
+                    <div class="d-flex align-items-center">
+                        <button type="button" class="btn btn-outline-primary btn-sm mr-1" data-toggle="modal" data-target="#loginModal">
+                            <i class="fas fa-sign-in-alt"></i> <span class="d-none d-xl-inline">Login</span>
+                        </button>
+                        <a href="@Url.Action("Index", "Cart")" class="btn btn-light border position-relative ml-2" style="width:36px;height:36px;">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span id="cartCount" class="position-absolute bg-danger text-white rounded-circle d-flex align-items-center justify-content-center" style="font-size:0.65rem;width:18px;height:18px;top:-8px;right:-8px;">0</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    @if (ViewContext.RouteData.Values["controller"].ToString() == "TrangChu" && ViewContext.RouteData.Values["action"].ToString() == "Index")
+    {
+        <div id="myCarousel" class="carousel slide" data-ride="carousel">
+            <ol class="carousel-indicators">
+                <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+                <li data-target="#myCarousel" data-slide-to="1"></li>
+                <li data-target="#myCarousel" data-slide-to="2"></li>
+            </ol>
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <img class="d-block w-100 banner-high" src="@Url.Content("~/source/images/banner/banner.jpg")" alt="Slide 1">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h2>Bộ Sưu Tập Mới Nhất</h2>
+                        <p>Khám phá các mẫu giày thời trang mới nhất với ưu đãi đặc biệt</p>
+                        <a href="#" class="btn btn-warning btn-lg">Mua Ngay</a>
+                    </div>
+                </div>
+                <div class="carousel-item">
+                    <img class="d-block w-100 banner-high" src="@Url.Content("~/source/images/banner/banner1.jpg")" alt="Slide 2">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h2>Giảm Giá Mùa Hè</h2>
+                        <p>Ưu đãi lên đến 50% cho các sản phẩm hot</p>
+                        <a href="#" class="btn btn-warning btn-lg">Xem Ngay</a>
+                    </div>
+                </div>
+                <div class="carousel-item">
+                    <img class="d-block w-100 banner-high" src="@Url.Content("~/source/images/banner/banner2.jpg")" alt="Slide 3">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h2>Thương Hiệu Nổi Tiếng</h2>
+                        <p>Các sản phẩm chính hãng từ các thương hiệu hàng đầu</p>
+                        <a href="#" class="btn btn-warning btn-lg">Khám Phá</a>
+                    </div>
+                </div>
+            </div>
+            <a class="carousel-control-prev" href="#myCarousel" role="button" data-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+            </a>
+            <a class="carousel-control-next" href="#myCarousel" role="button" data-slide="next">
+                <span class="carousel-control-next-icon"></span>
+            </a>
+        </div>
+
+        <div class="navbar navbar-light mb-5 p-3" style="background-color: white;">
+            <div class="container">
+                <a class="navbar-brand" href="#"><img src="@Url.Content("~/source/images/logo/adida.jpg")" alt="Adidas" width="100" class="hove"></a>
+                <a class="navbar-brand" href="#"><img src="@Url.Content("~/source/images/logo/converse.jpg")" alt="Converse" width="100" class="hove"></a>
+                <a class="navbar-brand" href="#"><img src="@Url.Content("~/source/images/logo/nike.jpg")" alt="Nike" width="100" class="hove"></a>
+                <a class="navbar-brand" href="#"><img src="@Url.Content("~/source/images/logo/plus.jpg")" alt="Plus" width="100" class="hove"></a>
+                <a class="navbar-brand" href="#"><img src="@Url.Content("~/source/images/logo/cros.jpg")" alt="Cros" width="100" class="hove"></a>
+                <a class="navbar-brand" href="#"><img src="@Url.Content("~/source/images/logo/fila.jpg")" alt="Fila" width="100" class="hove"></a>
+            </div>
+        </div>
+
+        <section class="py-5">
+            <div class="container">
+                <div class="row align-items-center mb-5">
+                    <div class="col-md-6">
+                        <h2>NIKE</h2>
+                        <p>Thiết kế thể thao hiện đại...</p>
+                        <a href="#" class="btn btn-warning">Tới Cửa Hàng</a>
+                    </div>
+                    <div class="col-md-6">
+                        <img src="@Url.Content("~/source/images/nike2.jpg")" alt="NIKE" class="img-fluid image-border">
+                    </div>
+                </div>
+                <div class="row align-items-center mb-5">
+                    <div class="col-md-6 order-md-2">
+                        <h2>FILA</h2>
+                        <p>Giày có thiết kế dáng dày...</p>
+                        <a href="#" class="btn btn-warning">Tới Cửa Hàng</a>
+                    </div>
+                    <div class="col-md-6 order-md-1">
+                        <img src="@Url.Content("~/source/images/fila1.jpg")" alt="FILA" class="img-fluid image-border">
+                    </div>
+                </div>
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h2>ADIDAS CAMPUS</h2>
+                        <p>Một thiết kế mang phong cách cổ điển...</p>
+                        <a href="#" class="btn btn-warning">Tới Cửa Hàng</a>
+                    </div>
+                    <div class="col-md-6">
+                        <img src="@Url.Content("~/source/images/adidas1.jpg")" alt="ADIDAS" class="img-fluid image-border">
+                    </div>
+                </div>
+            </div>
+        </section>
+    }
+    <div class="container body-content">
+        @RenderBody()
+    </div>
+
+    <section class="py-5 bg-white">
+        <div class="container">
+            <h2 class="text-center mb-5" style="color: var(--primary-color); font-weight: 700;">ƯU ĐÃI NỔI BẬT</h2>
+            <div class="row text-center">
+                <div class="col-12 col-md-4 mb-4">
+                    <div class="p-4 border rounded shadow-sm h-100">
+                        <i class="fas fa-shipping-fast fa-3x mb-3" style="color: var(--primary-color);"></i>
+                        <h5 class="font-weight-bold">Miễn phí vận chuyển</h5>
+                        <p class="text-muted">Đơn hàng từ 500.000đ trở lên</p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4 mb-4">
+                    <div class="p-4 border rounded shadow-sm h-100">
+                        <i class="fas fa-undo-alt fa-3x mb-3" style="color: var(--primary-color);"></i>
+                        <h5 class="font-weight-bold">Đổi trả dễ dàng</h5>
+                        <p class="text-muted">Trong 30 ngày nếu lỗi nhà sản xuất</p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4 mb-4">
+                    <div class="p-4 border rounded shadow-sm h-100">
+                        <i class="fas fa-headset fa-3x mb-3" style="color: var(--primary-color);"></i>
+                        <h5 class="font-weight-bold">Hỗ trợ 24/7</h5>
+                        <p class="text-muted">Tư vấn tận tình, nhanh chóng</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center mb-5" style="color: var(--primary-color); font-weight: 700;">PHƯƠNG THỨC THANH TOÁN</h2>
+            <div class="row justify-content-center align-items-center text-center">
+                <div class="col-6 col-sm-4 col-md-3 col-lg-2 mb-3">
+                    <img src="@Url.Content("~/source/images/payment/cod.png")" alt="COD" class="img-fluid" style="max-height: 50px;">
+                    <p class="mt-2 small">COD</p>
+                </div>
+                <div class="col-6 col-sm-4 col-md-3 col-lg-2 mb-3">
+                    <img src="@Url.Content("~/source/images/payment/momo.png")" alt="MoMo" class="img-fluid" style="max-height: 50px;">
+                    <p class="mt-2 small">MoMo</p>
+                </div>
+                <div class="col-6 col-sm-4 col-md-3 col-lg-2 mb-3">
+                    <img src="@Url.Content("~/source/images/payment/zalopay.png")" alt="ZaloPay" class="img-fluid" style="max-height: 50px;">
+                    <p class="mt-2 small">ZaloPay</p>
+                </div>
+                <div class="col-6 col-sm-4 col-md-3 col-lg-2 mb-3">
+                    <img src="@Url.Content("~/source/images/payment/vnpay.png")" alt="VNPay" class="img-fluid" style="max-height: 50px;">
+                    <p class="mt-2 small">VNPay</p>
+                </div>
+                <div class="col-6 col-sm-4 col-md-3 col-lg-2 mb-3">
+                    <img src="@Url.Content("~/source/images/payment/visa.png")" alt="Thẻ Quốc tế" class="img-fluid" style="max-height: 50px;">
+                    <p class="mt-2 small">Thẻ Quốc tế</p>
+                </div>
+                <div class="col-6 col-sm-4 col-md-3 col-lg-2 mb-3">
+                    <img src="@Url.Content("~/source/images/payment/atm.png")" alt="Thẻ ATM" class="img-fluid" style="max-height: 50px;">
+                    <p class="mt-2 small">Thẻ ATM</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3 footer-section">
+                    <h5>Về MEODIGIAY</h5>
+                    <ul class="footer-links list-unstyled">
+                        <li><a href="#">Giới thiệu</a></li>
+                        <li><a href="#">Tin tức</a></li>
+                        <li><a href="#">Tuyển dụng</a></li>
+                        <li><a href="#">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 footer-section">
+                    <h5>Chính sách</h5>
+                    <ul class="footer-links list-unstyled">
+                        <li><a href="#">Chính sách đổi trả</a></li>
+                        <li><a href="#">Chính sách bảo hành</a></li>
+                        <li><a href="#">Chính sách bảo mật</a></li>
+                        <li><a href="#">Điều khoản dịch vụ</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 footer-section">
+                    <h5>Hỗ trợ khách hàng</h5>
+                    <ul class="footer-links list-unstyled">
+                        <li><a href="#">Hướng dẫn mua hàng</a></li>
+                        <li><a href="#">Hướng dẫn thanh toán</a></li>
+                        <li><a href="#">Câu hỏi thường gặp</a></li>
+                        <li><a href="#">Tra cứu đơn hàng</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 footer-section">
+                    <h5>Kết nối với chúng tôi</h5>
+                    <div class="social-links mb-4">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                        <a href="#"><i class="fab fa-tiktok"></i></a>
+                    </div>
+                    <h5>Hotline hỗ trợ</h5>
+                    <p class="mb-2"><i class="fas fa-phone-alt mr-2"></i>1900 1234</p>
+                    <p><i class="fas fa-envelope mr-2"></i>support@meodigiay.com</p>
+                </div>
+            </div>
+            <hr class="mt-4 mb-4" style="background-color: rgba(255,255,255,0.1);">
+            <div class="text-center">
+                <p class="mb-0">&copy; @DateTime.Now.Year - MEODIGIAY. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>

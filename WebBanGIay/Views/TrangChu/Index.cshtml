@@ -1,0 +1,220 @@
+﻿@{
+    ViewBag.Title = "MEODIGIAY - Trang Chủ";
+    var banChay = ViewBag.SanPhamBanChay as List<WebBanGIay.Models.SANPHAM> ?? new List<WebBanGIay.Models.SANPHAM>();
+}
+@using System.Collections.Generic
+@using WebBanGIay.Models
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewBag.Title</title>
+
+    <style>
+        /* Giữ nguyên style gốc */
+        :root {
+            --primary: #ff3b30;
+            --primary-gradient: linear-gradient(135deg, #ff3b30, #ff6b6b);
+            --text-dark: #222;
+            --text-muted: #666;
+            --bg-light: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: var(--text-dark);
+        }
+
+        .section-title {
+            font-weight: 700;
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            letter-spacing: 1px;
+            color: var(--text-dark);
+        }
+
+
+        .price-container {
+            margin-top: auto;
+            padding: 0.5rem 0;
+        }
+
+        .price-old {
+            color: #999;
+            text-decoration: line-through;
+            font-size: 0.9rem;
+            display: block;
+        }
+
+        .price-new {
+            color: var(--primary);
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin: 0.3rem 0;
+        }
+
+        .btn-detail {
+            display: inline-block;
+            margin-top: 0.8rem;
+            padding: 0.5rem 1.2rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 30px;
+            background: var(--primary-gradient);
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 8px rgba(255,59,48,0.3);
+        }
+
+            .btn-detail:hover {
+                background: linear-gradient(135deg, #ff6b6b, #ff3b30);
+                transform: translateY(-2px);
+                box-shadow: 0 6px 15px rgba(255,59,48,0.4);
+                color: white;
+                text-decoration: none;
+            }
+        .btn-buy {
+
+            margin-top: 15px;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- FILTER BAR -->
+    <div class="container">
+        <div class="filter-bar">
+            <form id="filterForm" method="get" class="row g-3 align-items-end">
+                <div class="col-12 col-md-4">
+                    <label class="form-label">Hãng giày</label>
+                    <select name="hang" class="form-select">
+                        <option value="">Tất cả hãng</option>
+                        @foreach (var h in ViewBag.HangList)
+                        {
+                            <option value="@h" @(ViewBag.HangSelected == h ? "selected" : "")>@h</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-12 col-md-3">
+                    <label class="form-label">Giá từ</label>
+                    <select name="giaTu" class="form-select">
+                        <option value="">Không giới hạn</option>
+                        <option value="0" @(ViewBag.GiaTu == "0" ? "selected" : "")>Dưới 2 triệu</option>
+                        <option value="2000000" @(ViewBag.GiaTu == "2000000" ? "selected" : "")>Từ 2 triệu</option>
+                        <option value="4000000" @(ViewBag.GiaTu == "4000000" ? "selected" : "")>Từ 4 triệu</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-3">
+                    <label class="form-label">Giá đến</label>
+                    <select name="giaDen" class="form-select">
+                        <option value="">Không giới hạn</option>
+                        <option value="2000000" @(ViewBag.GiaDen == "2000000" ? "selected" : "")>Dưới 2 triệu</option>
+                        <option value="4000000" @(ViewBag.GiaDen == "4000000" ? "selected" : "")>Dưới 4 triệu</option>
+                        <option value="999999999" @(ViewBag.GiaDen == "999999999" ? "selected" : "")>Trên 4 triệu</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-2">
+                    <button type="submit" class="btn btn-danger w-100">
+                        Lọc
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- DANH SÁCH SẢN PHẨM -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <h2 class="section-title">Tất cả sản phẩm</h2>
+            <div id="sanPhamList" class="row">
+                @if (banChay.Any())
+                {
+                    foreach (var sp in banChay)
+                    {
+                        // Tính phần trăm giảm giá an toàn
+                        double phanTramGiamSP = 0;
+                        if (sp.GIA > 0 && sp.GIAKHUYENMAI > 0 && sp.GIAKHUYENMAI < sp.GIA)
+                        {
+                            phanTramGiamSP = Math.Round((double)((sp.GIA - sp.GIAKHUYENMAI) / sp.GIA * 100));
+                        }
+
+                        <div class="col-6 col-md-4 col-lg-3 mb-4">
+                            <div class="product-item">
+                                <div class="product-img-container">
+                                    @if (sp.GIAKHUYENMAI > 0 && sp.GIAKHUYENMAI < sp.GIA)
+                                    {
+                                        <div class="product-discount-tag">
+                                            -@phanTramGiamSP%
+                                        </div>
+                                    }
+                                    <a href="/Products/ChiTiet/@sp.MASANPHAM">
+                                        <img src="@(string.IsNullOrWhiteSpace(sp.HINHANH) ? "/source/images/products/no-image.jpg" : "/source/images/products/" + sp.HINHANH)"
+                                             alt="@sp.TENSANPHAM"
+                                             class="product-img"
+                                             loading="lazy">
+                                    </a>
+                                </div>
+                                <p class="product-name">@sp.TENSANPHAM</p>
+                                <div class="price-container">
+                                    @if (sp.GIAKHUYENMAI > 0 && sp.GIAKHUYENMAI < sp.GIA)
+                                    {
+                                        <span class="price-old">@String.Format("{0:N0}", sp.GIA)đ</span>
+                                        <div class="price-new">@String.Format("{0:N0}", sp.GIAKHUYENMAI)đ</div>
+                                    }
+                                    else
+                                    {
+                                        <div class="price-new">@String.Format("{0:N0}", sp.GIA)đ</div>
+                                    }
+                                </div>
+                                    <a href="/Products/ChiTiet/@sp.MASANPHAM" class="btn btn-outline-danger btn-buy btn-sm">Xem chi tiết</a>
+                    
+
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="col-12 text-center py-5">
+                        <p class="text-muted fs-5">Không tìm thấy sản phẩm phù hợp.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- jQuery + AJAX + Giữ vị trí cuộn -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            let currentScroll = 0;
+
+            $('#filterForm').on('submit', function (e) {
+                e.preventDefault();
+                currentScroll = $(window).scrollTop();
+                const formData = $(this).serialize();
+
+                $.get(window.location.pathname, formData, function (data) {
+                    $('#sanPhamList').html($(data).find('#sanPhamList').html());
+                    setTimeout(() => $(window).scrollTop(currentScroll), 100);
+                    const newUrl = window.location.pathname + '?' + formData;
+                    history.replaceState(null, null, newUrl);
+                }).fail(function (xhr, status, error) {
+                    console.error('Lỗi tải dữ liệu:', error);
+                    alert('Có lỗi xảy ra khi tải sản phẩm. Vui lòng thử lại.');
+                });
+            });
+
+            if (window.location.search) {
+                $('#filterForm').trigger('submit');
+            }
+        });
+    </script>
+</body>
+</html>

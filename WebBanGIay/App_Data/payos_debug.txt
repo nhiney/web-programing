@@ -1,0 +1,1 @@
+{"code":"214","desc":"Cổng thanh toán không tồn tại hoặc đã tạm dừng, vui lòng chọn cổng khác","data":null}

@@ -1,0 +1,409 @@
+﻿@model WebBanGIay.Models.SANPHAM
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Chi tiết sản phẩm";
+    var listLienQuan = ViewBag.SanPhamLienQuan as List<WebBanGIay.Models.SANPHAM>;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@Model.TENSANPHAM | @ViewBag.Title</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <!-- Breadcrumb và nút quay lại -->
+
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="/" class="text-decoration-none text-dark hover-primary">
+                        <i class="fas fa-home me-1"></i>Trang chủ
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="/" class="text-decoration-none text-dark hover-primary">
+                       @Model.TENSANPHAM
+                    </a>
+                </li>
+            </ol>
+        </nav>
+
+        <a href="javascript:history.back()" class="back-button">
+            <i class="fas fa-arrow-left me-2"></i> Quay lại
+        </a>
+
+        <!-- Thông tin sản phẩm -->
+        <div class="row">
+            <!-- Hình ảnh sản phẩm -->
+            <div class="col-md-6 mb-4">
+                <div class="product-image">
+                    <img src="@(string.IsNullOrWhiteSpace(Model.HINHANH) ? "/source/images/products/no-image.jpg" : "/source/images/products/" + Model.HINHANH)"
+                         alt="@Model.TENSANPHAM"
+                         class="img-fluid w-100" />
+                </div>
+
+                <!-- Hình ảnh phụ (nếu có) -->
+                <div class="d-flex mt-3 gap-2">
+                    <div class="col-3">
+                        <img src="@(string.IsNullOrWhiteSpace(Model.HINHANH) ? "/source/images/products/no-image.jpg" : "/source/images/products/" + Model.HINHANH)"
+                             alt="@Model.TENSANPHAM"
+                             class="img-fluid rounded border" style="cursor: pointer;" />
+                    </div>
+                    <!-- Thêm các hình ảnh phụ khác ở đây -->
+                </div>
+            </div>
+
+            <!-- Chi tiết sản phẩm -->
+            <div class="col-md-6">
+                <h1 class="product-title">@Model.TENSANPHAM</h1>
+                <p class="brand-name">Thương hiệu: <span class="text-dark fw-semibold">@Model.NHACUNGCAP.TENNHACUNGCAP</span></p>
+
+                <div class="product-meta">
+                    <span><i class="fas fa-check-circle text-success"></i> Còn hàng</span>
+                    <span><i class="fas fa-shipping-fast"></i> Giao hàng miễn phí</span>
+                    <span><i class="fas fa-undo"></i> Đổi trả trong 30 ngày</span>
+                </div>
+
+                <div class="price-section">
+                    @if (Model.GIAKHUYENMAI > 0 && Model.GIAKHUYENMAI < Model.GIA)
+                    {
+                        <div>
+                            <span class="original-price">@String.Format("{0:N0}", Model.GIA)đ</span>
+                            <span class="price-new">@String.Format("{0:N0}", Model.GIAKHUYENMAI)đ</span>
+                        </div>
+                        <div class="mt-1">
+                            <span class="badge bg-danger">Tiết kiệm @String.Format("{0:N0}", Model.GIA - Model.GIAKHUYENMAI)đ</span>
+                        </div>
+                    }
+                    else
+                    {
+                        <span class="current-price">@String.Format("{0:N0}", Model.GIA)đ</span>
+                    }
+                </div>
+
+                <!-- Chọn kích thước -->
+                <div class="size-selector">
+                    <h6 class="fw-semibold">Kích thước:</h6>
+                    <div class="size-options">
+                        <div class="size-option active">36</div>
+                        <div class="size-option">37</div>
+                        <div class="size-option">38</div>
+                        <div class="size-option">39</div>
+                        <div class="size-option">40</div>
+                        <div class="size-option">41</div>
+                        <div class="size-option">42</div>
+                    </div>
+                </div>
+
+                <!-- Chọn số lượng -->
+                <div class="quantity-selector">
+                    <h6 class="fw-semibold mb-0">Số lượng:</h6>
+                    <div class="d-flex align-items-center">
+                        <div class="quantity-btn"><i class="fas fa-minus"></i></div>
+                        <input type="text" class="quantity-input mx-2" value="1">
+                        <div class="quantity-btn"><i class="fas fa-plus"></i></div>
+                    </div>
+                </div>
+
+                <!-- Nút hành động -->
+                <div class="action-buttons d-flex gap-3">
+                    <form action="@Url.Action("Add", "Cart")" method="get">
+                        <input type="hidden" name="id" value="@Model.MASANPHAM" />
+
+                        <label>Số lượng:</label>
+                        <input type="number" name="soLuong" value="1" min="1" />
+
+                        <button class="btn btn-add-to-cart flex-fill">
+                            <i class="fas fa-bolt me-2"></i> Thêm vào giỏ
+                        </button>
+                    </form>
+
+                </div>
+
+                <!-- Thông tin bổ sung -->
+                <div class="mt-4">
+                    <div class="d-flex mb-2">
+                        <div class="me-3"><i class="fas fa-shield-alt text-primary"></i></div>
+                        <div>
+                            <h6 class="mb-0 fw-semibold">Bảo hành chính hãng</h6>
+                            <p class="mb-0 small text-muted">Bảo hành 12 tháng từ nhà sản xuất</p>
+                        </div>
+                    </div>
+                    <div class="d-flex mb-2">
+                        <div class="me-3"><i class="fas fa-truck text-primary"></i></div>
+                        <div>
+                            <h6 class="mb-0 fw-semibold">Giao hàng nhanh</h6>
+                            <p class="mb-0 small text-muted">Giao hàng trong 2-4 ngày làm việc</p>
+                        </div>
+                    </div>
+                    <div class="d-flex">
+                        <div class="me-3"><i class="fas fa-undo-alt text-primary"></i></div>
+                        <div>
+                            <h6 class="mb-0 fw-semibold">Đổi trả dễ dàng</h6>
+                            <p class="mb-0 small text-muted">Đổi trả trong vòng 30 ngày nếu không hài lòng</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab thông tin chi tiết và đánh giá -->
+        <div class="product-details-tabs">
+            <ul class="nav nav-tabs" id="productTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab" aria-controls="description" aria-selected="true">Mô tả sản phẩm</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="specs-tab" data-bs-toggle="tab" data-bs-target="#specs" type="button" role="tab" aria-controls="specs" aria-selected="false">Thông số kỹ thuật</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab" aria-controls="reviews" aria-selected="false">Đánh giá (@ViewBag.TotalReviews)</button>
+                </li>
+            </ul>
+            <div class="tab-content p-4 border border-top-0 rounded-bottom" id="productTabsContent">
+                <!-- Tab mô tả -->
+                <div class="tab-pane fade show active" id="description" role="tabpanel" aria-labelledby="description-tab">
+                    <div class="product-description">
+                        @Html.Raw(Model.MOTA)
+                    </div>
+                </div>
+
+                <!-- Tab thông số kỹ thuật -->
+                <div class="tab-pane fade" id="specs" role="tabpanel" aria-labelledby="specs-tab">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-striped">
+                                <tbody>
+                                    <tr>
+                                        <td class="fw-semibold">Thương hiệu</td>
+                                        <td>@Model.NHACUNGCAP.TENNHACUNGCAP</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-semibold">Xuất xứ</td>
+                                        <td>Việt Nam</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-semibold">Chất liệu</td>
+                                        <td>Da thật</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-striped">
+                                <tbody>
+                                    <tr>
+                                        <td class="fw-semibold">Màu sắc</td>
+                                        <td>Đen</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-semibold">Kiểu dáng</td>
+                                        <td>Thể thao</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-semibold">Bảo hành</td>
+                                        <td>12 tháng</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab đánh giá -->
+                <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab">
+                    <div class="rating-summary">
+                        <div class="row align-items-center">
+                            <div class="col-md-4 text-center">
+                                <div class="average-rating">@ViewBag.AverageRating.ToString("0.0")</div>
+                                <div class="rating-stars mb-2">
+                                    @{
+                                        double avgRating = ViewBag.AverageRating ?? 0.0;
+                                        int fullStars = (int)avgRating;
+                                        bool hasHalfStar = (avgRating - fullStars) >= 0.5;
+                                    }
+                                    @for (int i = 0; i < fullStars; i++)
+                                    {
+                                        <i class="fas fa-star"></i>
+                                    }
+                                    @if (hasHalfStar)
+                                    {
+                                        <i class="fas fa-star-half-alt"></i>
+                                    }
+                                    @for (int i = 0; i < 5 - fullStars - (hasHalfStar ? 1 : 0); i++)
+                                    {
+                                        <i class="far fa-star"></i>
+                                    }
+                                </div>
+                                <div class="rating-count">Dựa trên @ViewBag.TotalReviews đánh giá</div>
+                            </div>
+                            <div class="col-md-8">
+                                <!-- Thanh tiến trình đánh giá theo sao -->
+                                @for (int i = 5; i >= 1; i--)
+                                {
+                                    <div class="row align-items-center mb-1">
+                                        <div class="col-2">
+                                            <span class="small">@i <i class="fas fa-star text-warning"></i></span>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="progress" style="height: 8px;">
+                                                <div class="progress-bar bg-warning" role="progressbar"
+                                                     style="width: @(i == 5 ? "70" : i == 4 ? "20" : i == 3 ? "7" : i == 2 ? "2" : "1")%;"
+                                                     aria-valuenow="@(i == 5 ? "70" : i == 4 ? "20" : i == 3 ? "7" : i == 2 ? "2" : "1")"
+                                                     aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-2">
+                                            <span class="small text-muted">@(i == 5 ? "70" : i == 4 ? "20" : i == 3 ? "7" : i == 2 ? "2" : "1")%</span>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Danh sách đánh giá -->
+                    <div class="reviews-list">
+                        @if (ViewBag.DanhGiaList != null && ((List<WebBanGIay.Models.DANHGIASANPHAM>)ViewBag.DanhGiaList).Any())
+                        {
+                            foreach (var dg in (List<WebBanGIay.Models.DANHGIASANPHAM>)ViewBag.DanhGiaList)
+                            {
+                                <div class="review-item">
+                                    <div class="review-header">
+                                        <div>
+                                            <h6 class="review-author mb-0">@dg.KHACHHANG.HOTEN</h6>
+                                            <div class="rating-stars">
+                                                @{
+                                                    // Fix: Convert nullable int to int
+                                                    int rating = dg.DIEM ?? 0;
+                                                }
+                                                @for (int i = 0; i < rating; i++)
+                                                {
+                                                    <i class="fas fa-star"></i>
+                                                }
+                                                @for (int i = rating; i < 5; i++)
+                                                {
+                                                    <i class="far fa-star"></i>
+                                                }
+                                            </div>
+                                        </div>
+                                        <span class="review-date">@(dg.NGAYDANHGIA?.ToString("dd/MM/yyyy") ?? "Chưa xác định")</span>
+                                    </div>
+                                    <p class="mb-0 mt-2">@dg.BINHLUAN</p>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="text-center py-4">
+                                <i class="far fa-comment-dots fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">Chưa có đánh giá nào cho sản phẩm này.</p>
+                                <button class="btn btn-outline-primary">Viết đánh giá đầu tiên</button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sản phẩm liên quan -->
+        <section class="py-5 bg-light">
+            <div class="container">
+                <h2 class="section-title">Các sản phẩm liên quan</h2>
+                <div id="sanPhamList" class="row">
+
+                    @if (listLienQuan != null && listLienQuan.Any())
+                    {
+                        foreach (var sp in listLienQuan)
+                        {
+                            // Tính phần trăm giảm giá an toàn
+                            double phanTramGiamSP = 0;
+                            if (sp.GIA > 0 && sp.GIAKHUYENMAI > 0 && sp.GIAKHUYENMAI < sp.GIA)
+                            {
+                                phanTramGiamSP = Math.Round((double)((sp.GIA - sp.GIAKHUYENMAI) / sp.GIA * 100));
+                            }
+
+                            <div class="col-6 col-md-4 col-lg-3 mb-4">
+                                <div class="product-item">
+                                    <div class="product-img-container">
+                                        @if (sp.GIAKHUYENMAI > 0 && sp.GIAKHUYENMAI < sp.GIA)
+                                        {
+                                            <div class="product-discount-tag">
+                                                -@phanTramGiamSP%
+                                            </div>
+                                        }
+                                        <a href="/Products/ChiTiet/@sp.MASANPHAM">
+                                            <img src="@(string.IsNullOrWhiteSpace(sp.HINHANH) ? "/source/images/products/no-image.jpg" : "/source/images/products/" + sp.HINHANH)"
+                                                 alt="@sp.TENSANPHAM"
+                                                 class="product-img"
+                                                 loading="lazy">
+                                        </a>
+                                    </div>
+                                    <p class="product-name">@sp.TENSANPHAM</p>
+                                    <div class="price-container">
+                                        @if (sp.GIAKHUYENMAI > 0 && sp.GIAKHUYENMAI < sp.GIA)
+                                        {
+                                            <span class="price-old">@String.Format("{0:N0}", sp.GIA)đ</span>
+                                            <div class="price-new">@String.Format("{0:N0}", sp.GIAKHUYENMAI)đ</div>
+                                        }
+                                        else
+                                        {
+                                            <div class="price-new">@String.Format("{0:N0}", sp.GIA)đ</div>
+                                        }
+                                    </div>
+
+                                    <a href="/Products/ChiTiet/@sp.MASANPHAM" class="btn btn-outline-danger btn-buy btn-sm">
+                                        Xem chi tiết
+                                    </a>
+
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="col-12 text-center py-5">
+                            <p class="text-muted fs-5">Không tìm thấy sản phẩm phù hợp.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </section>
+    </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            // Xử lý chọn kích thước
+            document.querySelectorAll('.size-option').forEach(option => {
+                option.addEventListener('click', function () {
+                    document.querySelectorAll('.size-option').forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                });
+            });
+
+            // Xử lý tăng/giảm số lượng
+            document.querySelector('.quantity-btn:first-child').addEventListener('click', function () {
+                const input = document.querySelector('.quantity-input');
+                let value = parseInt(input.value);
+                if (value > 1) {
+                    input.value = value - 1;
+                }
+            });
+
+            document.querySelector('.quantity-btn:last-child').addEventListener('click', function () {
+                const input = document.querySelector('.quantity-input');
+                let value = parseInt(input.value);
+                input.value = value + 1;
+            });
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

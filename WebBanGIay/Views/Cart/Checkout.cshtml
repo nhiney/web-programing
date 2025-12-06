@@ -1,0 +1,45 @@
+﻿@model List<WebBanGIay.Models.CartItem>
+@{
+    ViewBag.Title = "Checkout";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Thanh toán</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Sản phẩm</th>
+            <th>Đơn giá</th>
+            <th>Số lượng</th>
+            <th>Thành tiền</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.TenSP</td>
+                <td>@item.DonGia.ToString("N0") đ</td>
+                <td>@item.SoLuong</td>
+                <td>@item.ThanhTien.ToString("N0") đ</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@{
+    decimal tongTien = Model.Sum(x => x.ThanhTien);
+}
+
+<h3 class="text-end mt-3">
+    Tổng tiền: <strong>@tongTien.ToString("N0") đ</strong>
+</h3>
+
+<div class="text-end">
+    <a href="/Payment/Payment?amount=@((long)tongTien)"
+       class="btn btn-success btn-lg">
+        Thanh toán PayOS
+    </a>
+</div>

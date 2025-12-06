@@ -1,0 +1,24 @@
+﻿@model IEnumerable<WebBanGIay.Models.NHACUNGCAP>
+
+
+<ul class="nav justify-content-center">
+    @if (Model != null && Model.Any())
+    {
+        foreach (var item in Model)
+        {
+            <li class="nav-item mx-1">
+                @Html.ActionLink(
+                    item.TENNHACUNGCAP,                 // 1. Tên hiển thị (Link Text)
+                    "SPhamTHuongHieu",            // 2. Tên Action (Hàm trong Controller)
+                    "Products",                          // 3. Tên Controller
+                    new { maNhaCungCap = item.MANHACUNGCAP?.Trim() }, // 4. Tham số gửi đi (Route Values) - Nhớ Trim() lỗi char
+                    new { @class = "nav-link text-uppercase font-weight-bold text-dark" } // 5. Class CSS (HTML Attributes)
+                )
+            </li>
+        }
+    }
+    else
+    {
+        <li class="nav-item"><span class="text-muted">Không có thương hiệu</span></li>
+    }
+</ul>

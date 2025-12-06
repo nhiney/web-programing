@@ -1,0 +1,5 @@
+﻿RequestRaw:
+vnp_Amount=130000000&vnp_Command=pay&vnp_CreateDate=20251205042422&vnp_CurrCode=VND&vnp_IpAddr=::1&vnp_Locale=vn&vnp_OrderInfo=Thanh toan don hang&vnp_OrderType=other&vnp_ReturnUrl=https://localhost:44300/Payment/Return&vnp_TmnCode=2QXUI4J4&vnp_TxnRef=31f34551e84742f89a4be522fa032e76&vnp_Version=2.1.0
+
+RequestHash:
+00780000331cd63c85e929d7d7522c038a55caae40309aaa5fd160b75fce12f5c1117444c1341307ff903153a576127153634ebd1a16cd96c98c24c826bbc387

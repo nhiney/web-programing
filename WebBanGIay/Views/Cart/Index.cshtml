@@ -1,0 +1,286 @@
+﻿@model List<WebBanGIay.Models.CartItem>
+@{
+    ViewBag.Title = "Giỏ hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    // Ép kiểu an toàn
+    var listGoiY = ViewBag.SanPhamGoiY as List<WebBanGIay.Models.SANPHAM>;
+    decimal tongTienHang = ViewBag.TongTien != null ? (decimal)ViewBag.TongTien : 0;
+}
+
+<style>
+    /* Bổ sung thêm class .cart-right cho khớp layout grid cha */
+
+</style>
+
+<body>
+    <div class="cart-header" style="position: relative; height: 60px; margin-bottom: 20px;">
+        <h2 style="margin-left: 20px; line-height: 60px;">Giỏ hàng của bạn</h2>
+        <div class="cart-icon">
+            🛒
+            <span class="cart-count">@Model.Sum(x => x.SoLuong)</span>
+        </div>
+    </div>
+
+    @if (Model != null && Model.Count > 0)
+    {
+        <div class="cart-container">
+            <div class="cart-left">
+                @foreach (var item in Model)
+                {
+                    <div class="cart-item" data-price="@item.DonGia">
+                        <div style="display: flex; justify-content: center;">
+                            <input type="checkbox" class="item-checkbox" checked
+                                   style="width: 18px; height: 18px; accent-color: #ff5722;">
+                        </div>
+
+                        <a href="/Products/ChiTiet/@item.MaSP">
+                            <img src="@(string.IsNullOrWhiteSpace(item.HinhAnh) ? "/source/images/products/no-image.jpg" : "/source/images/products/" + item.HinhAnh)"
+                                 alt="@item.TenSP"
+                                 class="product-img"
+                                 loading="lazy">
+                        </a>
+
+                        <div>
+                            <div class="item-name">
+                                <a href="/Products/ChiTiet/@item.MaSP" style="text-decoration: none; color: inherit;">
+                                    @item.TenSP
+                                </a>
+                            </div>
+                            <div class="item-code">Mã: @item.MaSP</div>
+                        </div>
+
+                        <form action="@Url.Action("Update", "Cart")" method="post" class="qty-box">
+                            <input type="hidden" name="id" value="@item.MaSP" />
+                            <button type="button" class="decrease">-</button>
+                            <input type="text" name="soLuong" class="qty-input" value="@item.SoLuong" readonly />
+                            <button type="button" class="increase">+</button>
+                        </form>
+
+                        <div class="subtotal" style="font-weight: bold;">
+                            <span class="summary-total">Tổng tiền sản phẩm</span>
+                            @item.ThanhTien.ToString("N0") đ
+                        </div>
+
+                        <div style="text-align: center;">
+                            <a href="@Url.Action("Remove", "Cart", new { id = item.MaSP })"
+                               class="remove-btn"
+                               onclick="return confirm('Xóa sản phẩm này?');">
+                                &times;
+                            </a>
+                        </div>
+                    </div>
+                }
+
+                <div style="margin-top: 20px;">
+                    <a href="@Url.Action("Clear", "Cart")" style="color: #888; text-decoration: underline; font-size: 14px;" onclick="return confirm('Bạn chắc chắn muốn xóa hết giỏ hàng?');">Xóa tất cả</a>
+                </div>
+            </div>
+
+            <div class="cart-right">
+
+                <div style="border-top: 1px solid #eee; margin: 20px 0;"></div>
+
+                <div class="summary-row">
+                    <span>Tạm tính</span>
+                    <span id="subtotal-display" style="font-weight: 700;">
+                        @tongTienHang.ToString("N0") đ
+                    </span>
+                </div>
+                <div class="summary-row">
+                    <span>Phí vận chuyển</span>
+                    <span>Miễn phí</span>
+                </div>
+                <div style="border-top: 1px solid #eee; margin: 20px 0;"></div>
+
+                <div class="summary-row">
+                    
+
+                    <span class="summary-total" style="color: #ff5722; text-align: left; display: inline-block;">
+                        <span class="summary-total">Tổng cộng</span>
+
+                        <span id="total-price-display">@tongTienHang.ToString("N0") đ</span>
+
+                    </span>
+                </div>
+
+                <a href="@Url.Action("Checkout", "Cart")" class="checkout-btn" style=" text-decoration: none; color: white;">
+                    MUA NGAY
+                </a>
+
+                <div style="text-align: center; margin-top: 15px;">
+                    <a href="/" style="color: #913737; font-size: 14px; text-decoration: none;">← Tiếp tục xem sản phẩm</a>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        /* === GIỎ HÀNG RỖNG === */
+        <div style="text-align: center; padding: 50px;">
+            <img src="https://cdn-icons-png.flaticon.com/512/11329/11329060.png" style="width: 120px; opacity: 0.8; margin-bottom: 20px;" />
+            <h3>Giỏ hàng trống trơn!</h3>
+            <p style="color: #888;">Bạn chưa chọn mua sản phẩm nào.</p>
+            <a href="/" class="btn-checkout" style="display: inline-block; width: auto; padding: 10px 30px; margin-top: 10px; text-decoration: none;">
+                Mua sắm ngay
+            </a>
+        </div>
+
+        /* === GỢI Ý SẢN PHẨM === */
+        if (listGoiY != null && listGoiY.Count > 0)
+        {
+        <section class="py-5 bg-light">
+            <div class="container">
+                <h2 class="section-title">Có thể bạn sẽ thích</h2>
+                <div id="sanPhamList" class="row">
+                        @foreach (var sp in listGoiY)
+                        {
+                            // Tính phần trăm giảm giá an toàn
+                            double phanTramGiamSP = 0;
+                            if (sp.GIA > 0 && sp.GIAKHUYENMAI > 0 && sp.GIAKHUYENMAI < sp.GIA)
+                            {
+                                phanTramGiamSP = Math.Round((double)((sp.GIA - sp.GIAKHUYENMAI) / sp.GIA * 100));
+                            }
+
+                            <div class="col-6 col-md-4 col-lg-3 mb-4">
+                                <div class="product-item">
+                                    <div class="product-img-container">
+                                        @if (sp.GIAKHUYENMAI > 0 && sp.GIAKHUYENMAI < sp.GIA)
+                                        {
+                                            <div class="product-discount-tag">
+                                                -@phanTramGiamSP%
+                                            </div>
+                                        }
+                                        <a href="/Products/ChiTiet/@sp.MASANPHAM">
+                                            <img src="@(string.IsNullOrWhiteSpace(sp.HINHANH) ? "/source/images/products/no-image.jpg" : "/source/images/products/" + sp.HINHANH)"
+                                                 alt="@sp.TENSANPHAM"
+                                                 class="product-img"
+                                                 loading="lazy">
+                                        </a>
+                                    </div>
+                                    <p class="product-name">@sp.TENSANPHAM</p>
+                                    <div class="price-container">
+                                        @if (sp.GIAKHUYENMAI > 0 && sp.GIAKHUYENMAI < sp.GIA)
+                                        {
+                                            <span class="price-old">@String.Format("{0:N0}", sp.GIA)đ</span>
+                                            <div class="price-new">@String.Format("{0:N0}", sp.GIAKHUYENMAI)đ</div>
+                                        }
+                                        else
+                                        {
+                                            <div class="price-new">@String.Format("{0:N0}", sp.GIA)đ</div>
+                                        }
+                                    </div>
+                                        <a href="/Products/ChiTiet/@sp.MASANPHAM" class="btn btn-outline-danger btn-buy btn-sm">Xem chi tiết</a>
+                    
+
+                                </div>
+                            </div>
+                        }
+                </div>
+            </div>
+        </section>       
+        }
+    }
+
+    <div class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close">&times;</button>
+            <img src="" class="modal-img" />
+            <h3 class="modal-title"></h3>
+            <div class="modal-price"></div>
+            <div class="modal-desc"></div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+
+        $(document).ready(function () {
+            console.log("--> Script bắt đầu chạy!");
+
+            function updateCartTotal() {
+                var grandTotal = 0;
+                $('.cart-item').each(function () {
+                    // 1. Lấy giá trị thô (Vẫn lấy số trần để tính toán)
+                    var price = parseFloat($(this).attr('data-price')) || 0;
+                    var qty = parseInt($(this).find('.qty-input').val()) || 0;
+                    var checkbox = $(this).find('.item-checkbox');
+
+                    // 2. Tính tiền
+                    var itemTotal = price * qty;
+
+                    // --- SỬA CHỖ NÀY (1): Format tiền từng món ---
+                    // .toLocaleString('vi-VN') sẽ tự động thêm dấu chấm: 1.000.000
+                    $(this).find('.subtotal').text(itemTotal.toLocaleString('vi-VN') + ' đ');
+
+                    // 3. Cộng tổng (chỉ khi check)
+                    if (checkbox.is(':checked')) {
+                        grandTotal += itemTotal;
+                    }
+                });
+
+                var textHienThi = grandTotal.toLocaleString('vi-VN') + ' đ';
+                // Cập nhật hiển thị
+                $('#total-price-display').text(textHienThi);
+                $('#subtotal-display').text(textHienThi);
+            }
+
+            // Gán sự kiện
+            $(document).on('change', '.item-checkbox', function () {
+                console.log("--> Đã bấm Checkbox");
+                updateCartTotal();
+            });
+
+            // Chạy lần đầu
+            updateCartTotal();
+        });
+            // --- SỰ KIỆN 1: KHI BẤM CHECKBOX ---
+            $('.item-checkbox').change(function () {
+                updateCartTotal(); // Tính lại ngay lập tức
+            });
+
+            // --- SỰ KIỆN 2: KHI TĂNG/GIẢM SỐ LƯỢNG ---
+            $('.decrease').click(function () {
+                var input = $(this).next('.qty-input');
+                var val = parseInt(input.val());
+                if (val > 1) {
+                    input.val(val - 1);
+                    // Lưu ý: Nếu bạn muốn gửi về server để lưu Session thì giữ dòng submit này
+                    $(this).closest('form').submit();
+                }
+            });
+
+            $('.increase').click(function () {
+                var input = $(this).prev('.qty-input');
+                var val = parseInt(input.val());
+                if (val < 100) {
+                    input.val(val + 1);
+                    // Lưu ý: Nếu bạn muốn gửi về server để lưu Session thì giữ dòng submit này
+                    $(this).closest('form').submit();
+                }
+            });
+
+            // Chạy hàm 1 lần khi trang vừa load xong để đảm bảo số đúng
+            updateCartTotal();
+            // Nút giảm
+            $('.decrease').click(function () {
+                var input = $(this).next('.qty-input');
+                var val = parseInt(input.val());
+                if (val > 1) {
+                    input.val(val - 1);
+                    $(this).closest('form').submit(); // Submit form ngay lập tức
+                }
+            });
+
+            // Nút tăng
+            $('.increase').click(function () {
+                var input = $(this).prev('.qty-input');
+                var val = parseInt(input.val());
+                // Giả sử max là 100, sau này bạn có thể lấy từ data-attribute
+                if (val < 100) {
+                    input.val(val + 1);
+                    $(this).closest('form').submit(); // Submit form ngay lập tức
+                }
+            });
+    </script>
+</body>

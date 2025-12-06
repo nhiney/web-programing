@@ -1,0 +1,74 @@
+﻿@model IEnumerable<WebBanGIay.Models.SANPHAM>
+
+@{
+    ViewData["Title"] = ViewBag.TenThuongHieu ?? "Sản phẩm";
+    Layout = "~/Views/Shared/_Layout.cshtml"; // Kế thừa Layout chứa menu của bạn
+}
+
+
+<section class=" py-5 bg-light">
+    <div class="container py-5">
+        <div class="row">
+            @if (Model != null && Model.Any())
+            {
+                foreach (var sp in Model)
+                {
+                    // Tính phần trăm giảm giá an toàn
+                    double phanTramGiamSP = 0;
+                    if (sp.GIA > 0 && sp.GIAKHUYENMAI > 0 && sp.GIAKHUYENMAI < sp.GIA)
+                    {
+                        phanTramGiamSP = Math.Round((double)((sp.GIA - sp.GIAKHUYENMAI) / sp.GIA * 100));
+                    }
+                    <div class="col-6 col-md-4 col-lg-3 mb-4">
+                        <div class="product-item">
+                            <div class="product-img-container">
+                                <img src="@(string.IsNullOrWhiteSpace(sp.HINHANH) ? "/source/images/products/no-image.jpg" : "/source/images/products/" + sp.HINHANH)"
+                                     class="product-img"
+                                     alt="@sp.TENSANPHAM"
+                                     loading="lazy">
+                            </div>
+
+                            <a>
+                                <div class="product-name">@sp.TENSANPHAM</div>
+                            </a>
+                            @if (sp.GIAKHUYENMAI > 0 && sp.GIAKHUYENMAI < sp.GIA)
+                            {
+                                <div class="product-discount-tag">
+                                    -@phanTramGiamSP%
+                                </div>
+                            }
+                            <div class="price-container">
+                                @if (sp.GIAKHUYENMAI > 0 && sp.GIAKHUYENMAI < sp.GIA)
+                                {
+                                    <span class="price-old">@String.Format("{0:N0}", sp.GIA)đ</span>
+                                    <div class="price-new">@String.Format("{0:N0}", sp.GIAKHUYENMAI)đ</div>
+                                }
+                                else
+                                {
+                                    <div class="price-new">@String.Format("{0:N0}", sp.GIA)đ</div>
+                                }
+                            </div>
+
+                            <a href="/Products/ChiTiet/@sp.MASANPHAM" class="btn btn-outline-danger btn-buy btn-sm">
+                                Xem chi tiết
+                            </a>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-12 text-center py-5">
+                    <p class="text-muted" style="font-size: 1.2rem;">
+                        <i class="fa fa-search mb-3" style="font-size: 2rem;"></i><br>
+                        Không tìm thấy sản phẩm nào thuộc thương hiệu này.
+                    </p>
+                    <a href="/" class="btn btn-primary">Về trang chủ</a>
+                </div>
+            }
+        </div>
+        <a href="javascript:history.back()" class="back-button">
+            <i class="fas fa-arrow-left me-2"></i> Quay lại
+        </a>
+    </div>
+</section>

@@ -1,0 +1,2 @@
+Gửi đi: {"orderCode":639006028386506864,"amount":2200000,"description":"Thanh toán đơn hàng","returnUrl":"https://localhost:44300/Payment/Return","cancelUrl":"https://localhost:44300/Payment/Cancel","signature":"5a049f719b5000bdbb2f52e5760074e672ac5c35e3e85f58b791a56ae4164a4d"}
+Nhận về: {"code":"201","desc":"Mã kiểm tra(signature) không hợp lệ","data":null}
