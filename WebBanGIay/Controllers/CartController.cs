@@ -15,6 +15,11 @@ namespace WebBanGIay.Controllers
 
         public ActionResult Index()
         {
+            if (Session["UserID"] == null)
+            {
+                return RedirectToAction("Login", "Account", new { returnUrl = Request.Url.AbsoluteUri });
+            }
+
             var cart = cartService.GetCart();
             ViewBag.TongTien = cartService.TongTien();
             if (cart == null || cart.Count == 0)
@@ -35,6 +40,11 @@ namespace WebBanGIay.Controllers
 
         public ActionResult Add(string id, int soLuong, string sizeId) // <<< THÊM string sizeId VÀO ĐÂY
         {
+            if (Session["UserID"] == null)
+            {
+                return RedirectToAction("Login", "Account", new { returnUrl = Request.Url.AbsoluteUri });
+            }
+
             // 1. Kiểm tra tham số đầu vào (id: Mã sản phẩm, sizeId: Kích cỡ)
             if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(sizeId))
                 return new HttpStatusCodeResult(400);

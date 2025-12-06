@@ -13,6 +13,11 @@ namespace WebBanGIay.Controllers
         QuanLyBanGiayEntities1 db = new QuanLyBanGiayEntities1();
         public ActionResult Index(string hang = "", string giaTu = "", string giaDen = "")
         {
+            // if (Session["UserID"] == null)
+            // {
+            //     return RedirectToAction("Login", "Account", new { returnUrl = Request.Url.AbsoluteUri });
+            // }
+
             var query = db.SANPHAM.AsQueryable();
 
             // LỌC THEO HÃNG
