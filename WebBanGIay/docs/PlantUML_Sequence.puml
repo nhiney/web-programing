@@ -1,0 +1,38 @@
+@startuml
+
+title Web Admin Sequence Diagram
+
+actor User
+participant View
+participant Controller
+database Database
+
+== Login Process ==
+User -> View: Access Login Page
+View -> Controller: GET /Account/Login
+Controller -> View: Return Login Form
+User -> View: Enter Username/Password
+View -> Controller: POST /Account/Login
+Controller -> Database: Query TAIKHOAN
+Database --> Controller: Return User Info
+alt Valid Credentials
+    Controller -> Controller: Set Session
+    Controller -> View: Redirect to Home/Admin
+else Invalid
+    Controller -> View: Show Error
+end
+
+== Order Management Flow ==
+User -> View: Access Order List
+View -> Controller: GET /OrderAdmin/Index
+Controller -> Database: Load HOADON (Include KHACHHANG)
+Database --> Controller: Returns List
+Controller -> View: Display Table
+
+User -> View: Update Order Status
+View -> Controller: POST /OrderAdmin/UpdateStatus
+Controller -> Database: Update HOADON.TRANGTHAI
+Database --> Controller: Success
+Controller -> View: Redirect to Details
+
+@enduml

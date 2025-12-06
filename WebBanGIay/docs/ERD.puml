@@ -1,0 +1,55 @@
+@startuml
+
+title Database Entity Relationship Diagram (ERD)
+
+entity TAIKHOAN {
+    *MATAIKHOAN (PK)
+    --
+    TENTAIKHOAN
+    MATKHAU
+    LOAITAIKHOAN
+    MAKHACHHANG (FK)
+    MANHANVIEN (FK)
+}
+
+entity KHACHHANG {
+    *MAKHACHHANG (PK)
+    --
+    HOTEN
+    EMAIL
+    SODIENTHOAI
+    DIACHI
+}
+
+entity SANPHAM {
+    *MASANPHAM (PK)
+    --
+    TENSANPHAM
+    GIA
+    SOLUONGTON
+    HINHANH
+}
+
+entity HOADON {
+    *MAHOADON (PK)
+    --
+    NGAYLAP
+    TONGTIEN
+    TRANGTHAI
+    MAKHACHHANG (FK)
+}
+
+entity CHITIET_HOADON {
+    *MAHOADON (PK, FK)
+    *MASANPHAM (PK, FK)
+    --
+    SOLUONG
+    GIA
+}
+
+TAIKHOAN }|..|| KHACHHANG : "is"
+KHACHHANG ||..|{ HOADON : "places"
+HOADON ||..|{ CHITIET_HOADON : "contains"
+SANPHAM ||..|{ CHITIET_HOADON : "part of"
+
+@enduml
