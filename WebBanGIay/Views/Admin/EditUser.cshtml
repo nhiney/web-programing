@@ -1,0 +1,82 @@
+﻿@model WebBanGIay.Models.TAIKHOAN
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Edit User";
+    var khList = ViewBag.KhachHangList as IEnumerable<WebBanGIay.Models.KHACHHANG>;
+    var nvList = ViewBag.NhanVienList as IEnumerable<WebBanGIay.Models.NHANVIEN>;
+}
+
+<div class="container mt-4" style="max-width: 700px;">
+    <div class="card shadow-lg border-0 rounded-4">
+
+        <div class="card-header bg-primary text-white rounded-top py-3 d-flex align-items-center">
+            <i class="bi bi-pencil-square me-2" style="font-size:1.3rem;"></i>
+            <h5 class="mb-0">Edit User (@Model.MATAIKHOAN)</h5>
+        </div>
+
+        <div class="card-body px-4 py-4">
+            @using (Html.BeginForm("EditUser", "Admin", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.MATAIKHOAN)
+
+                <div class="mb-3">
+                    @Html.LabelFor(m => m.TENTAIKHOAN, "Username", htmlAttributes: new { @class = "form-label fw-bold" })
+                    @Html.TextBoxFor(m => m.TENTAIKHOAN, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.TENTAIKHOAN, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="mb-3">
+                    @Html.Label("Password (leave blank if not changing)", htmlAttributes: new { @class = "form-label fw-bold" })
+                    @Html.PasswordFor(m => m.MATKHAU, new { @class = "form-control", value = "" })
+                </div>
+
+                <div class="mb-3">
+                    @Html.LabelFor(m => m.LOAITAIKHOAN, "Role", htmlAttributes: new { @class = "form-label fw-bold" })
+                    @Html.DropDownListFor(m => m.LOAITAIKHOAN, new SelectList(new[] {
+                        new { Value = "KHÁCH HÀNG", Text = "KHÁCH HÀNG"},
+                        new { Value = "NHÂN VIÊN", Text = "NHÂN VIÊN"},
+                        new { Value = "QUẢN TRỊ", Text = "QUẢN TRỊ"}
+                    }, "Value", "Text", Model.LOAITAIKHOAN), "Select role", new { @class = "form-select" })
+                </div>
+
+                <div class="mb-3">
+                    @Html.LabelFor(m => m.MAKHACHHANG, "Customer", htmlAttributes: new { @class = "form-label fw-bold" })
+                    @Html.DropDownListFor(m => m.MAKHACHHANG, new SelectList(khList, "MAKHACHHANG", "HOTEN", Model.MAKHACHHANG), "-- select customer (optional) --", new { @class = "form-select" })
+                </div>
+
+                <div class="mb-3">
+                    @Html.LabelFor(m => m.MANHANVIEN, "Employee", htmlAttributes: new { @class = "form-label fw-bold" })
+                    @Html.DropDownListFor(m => m.MANHANVIEN, new SelectList(nvList, "MANHANVIEN", "HOTEN", Model.MANHANVIEN), "-- select employee (optional) --", new { @class = "form-select" })
+                </div>
+
+                <div class="d-flex justify-content-center gap-3 mt-4">
+                    <button type="submit" class="btn btn-success px-4">
+                        <i class="bi bi-check-circle me-1"></i> Save
+                    </button>
+                    <a href="@Url.Action("Users","Admin")" class="btn btn-secondary px-4">
+                        <i class="bi bi-x-circle me-1"></i> Cancel
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .card .form-label {
+        font-size: 0.95rem;
+    }
+
+    .card .btn i {
+        vertical-align: middle;
+    }
+
+    .card .btn-success:hover {
+        background-color: #28a745;
+    }
+
+    .card .btn-secondary:hover {
+        background-color: #6c757d;
+    }
+</style>

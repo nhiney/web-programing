@@ -1,0 +1,96 @@
+﻿@model WebBanGIay.Models.SANPHAM
+@{
+    ViewBag.Title = "Add Product";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml"; // Dùng layout admin
+}
+
+<div class="container mt-5" style="max-width: 900px;">
+
+    <h2 class="fw-bold mb-4 text-primary"><i class="bi bi-plus-circle me-2"></i> Add New Product</h2>
+
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-4">
+
+            @using (Html.BeginForm("Create", "ProductAdmin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            {
+                <div class="row g-4">
+
+                    <!-- Product Name -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Product Name</label>
+                        @Html.TextBoxFor(m => m.TENSANPHAM,
+                            new { @class = "form-control form-control-lg", placeholder = "Enter product name" })
+                        @Html.ValidationMessageFor(m => m.TENSANPHAM, "", new { @class = "text-danger" })
+                    </div>
+
+                    <!-- Price -->
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Price (VNĐ)</label>
+                        @Html.TextBoxFor(m => m.GIA, new
+                        {
+                            @class = "form-control form-control-lg",
+                            type = "number",
+                            min = "0",
+                            placeholder = "0"
+                        })
+                        @Html.ValidationMessageFor(m => m.GIA, "", new { @class = "text-danger" })
+                    </div>
+
+                    <!-- Quantity -->
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Quantity</label>
+                        @Html.TextBoxFor(m => m.SOLUONGTON, new
+                        {
+                            @class = "form-control form-control-lg",
+                            type = "number",
+                            min = "0",
+                            placeholder = "0"
+                        })
+                        @Html.ValidationMessageFor(m => m.SOLUONGTON, "", new { @class = "text-danger" })
+                    </div>
+
+                    <!-- Description -->
+                    <div class="col-12">
+                        <label class="form-label fw-bold">Description</label>
+                        @Html.TextAreaFor(m => m.MOTA,
+                            new { @class = "form-control", rows = 4, placeholder = "Product description..." })
+                        @Html.ValidationMessageFor(m => m.MOTA, "", new { @class = "text-danger" })
+                    </div>
+
+                    <!-- Upload Image -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Product Image</label>
+                        <input type="file" name="imageFile" class="form-control"
+                               onchange="previewImage(event)" accept="image/*" />
+                        <div class="mt-3">
+                            <img id="preview" class="rounded-4 shadow-sm" style="width:180px; height:180px; object-fit:cover; display:none;">
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="mt-4 d-flex gap-3">
+                    <button type="submit" class="btn btn-primary px-4 py-2 fw-bold">
+                        <i class="bi bi-save me-2"></i> Save
+                    </button>
+                    <a href="@Url.Action("Index", "ProductAdmin")" class="btn btn-secondary px-4 py-2">
+                        <i class="bi bi-x-circle me-2"></i> Cancel
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    function previewImage(e) {
+        const img = document.getElementById("preview");
+        if (e.target.files.length > 0) {
+            img.src = URL.createObjectURL(e.target.files[0]);
+            img.style.display = "block";
+        } else {
+            img.src = '';
+            img.style.display = "none";
+        }
+    }
+</script>

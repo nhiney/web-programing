@@ -1,0 +1,75 @@
+﻿@model WebBanGIay.Models.TAIKHOAN
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "User Details";
+}
+
+@functions {
+    // Truyền thống, tương thích .NET 4.8
+    public string GetBadgeClass(string role)
+    {
+        if (role == "QUẢN TRỊ")
+            return "danger";
+        else if (role == "NHÂN VIÊN")
+            return "warning";
+        else if (role == "KHÁCH HÀNG")
+            return "success";
+        else
+            return "secondary";
+    }
+}
+
+<div class="container mt-5" style="max-width: 700px;">
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-header bg-dark text-white rounded-top py-3">
+            <h4 class="mb-0"><i class="fas fa-user-circle me-2"></i>User Details</h4>
+        </div>
+
+        <div class="card-body px-4 py-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0 text-primary">@Model.TENTAIKHOAN</h5>
+                <span class="badge bg-@GetBadgeClass(Model.LOAITAIKHOAN) px-3 py-2">
+                    @Model.LOAITAIKHOAN
+                </span>
+            </div>
+
+            <table class="table table-bordered table-striped table-hover">
+                <tbody>
+                    <tr>
+                        <th class="text-end" style="width: 35%;">Account ID</th>
+                        <td>@Model.MATAIKHOAN</td>
+                    </tr>
+                    <tr>
+                        <th class="text-end">Username</th>
+                        <td>@Model.TENTAIKHOAN</td>
+                    </tr>
+                    <tr>
+                        <th class="text-end">Role</th>
+                        <td><span class="badge bg-@GetBadgeClass(Model.LOAITAIKHOAN)">@Model.LOAITAIKHOAN</span></td>
+                    </tr>
+                    <tr>
+                        <th class="text-end">Customer ID</th>
+                        <td>@(string.IsNullOrWhiteSpace(Model.MAKHACHHANG) ? "—" : Model.MAKHACHHANG)</td>
+                    </tr>
+                    <tr>
+                        <th class="text-end">Employee ID</th>
+                        <td>@(string.IsNullOrWhiteSpace(Model.MANHANVIEN) ? "—" : Model.MANHANVIEN)</td>
+                    </tr>
+                    <tr>
+                        <th class="text-end">Created Date</th>
+                        <td>@(Model.NGAYTAO.HasValue ? Model.NGAYTAO.Value.ToString("yyyy-MM-dd") : "—")</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="mt-4 text-center">
+                <a class="btn btn-secondary px-4" href="@Url.Action("Users","Admin")">
+                    <i class="fas fa-arrow-left me-1"></i> Back
+                </a>
+                <a class="btn btn-warning px-4 ms-2" href="@Url.Action("EditUser","Admin", new { id = Model.MATAIKHOAN })">
+                    <i class="fas fa-edit me-1"></i> Edit
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

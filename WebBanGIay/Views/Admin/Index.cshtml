@@ -1,0 +1,155 @@
+﻿@{
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<!-- SUMMARY CARDS -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card-custom summary-card">
+            <i class="bi bi-people"></i>
+            <h4>@ViewBag.TotalUsers</h4>
+            <p>Users</p>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card-custom summary-card">
+            <i class="bi bi-bag"></i>
+            <h4>@ViewBag.TotalProducts</h4>
+            <p>Products</p>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card-custom summary-card">
+            <i class="bi bi-receipt"></i>
+            <h4>@ViewBag.TotalOrders</h4>
+            <p>Orders</p>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card-custom summary-card">
+            <i class="bi bi-cash"></i>
+            <h4>@ViewBag.TotalRevenue</h4>
+            <p>Revenue</p>
+        </div>
+    </div>
+</div>
+
+
+<!-- CHART AREA -->
+<div class="row">
+
+    <div class="col-md-6">
+        <div class="card-custom mb-4">
+            <h5>Doanh thu (Line)</h5>
+            <div class="chart-wrapper"><canvas id="revenueChart"></canvas></div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card-custom mb-4">
+            <h5>Top Sales (Bar)</h5>
+            <div class="chart-wrapper"><canvas id="salesChart"></canvas></div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card-custom mb-4">
+            <h5>Danh mục bán chạy (Pie)</h5>
+            <div class="chart-wrapper"><canvas id="categoryChart"></canvas></div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card-custom mb-4">
+            <h5>Order Status</h5>
+            <div class="chart-wrapper"><canvas id="orderChart"></canvas></div>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <div class="card-custom mb-4">
+            <h5>Orders by Month</h5>
+            <div class="chart-wrapper" style="height:320px;"><canvas id="monthlyChart"></canvas></div>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- ============================
+         CHART.JS SCRIPT
+=============================== -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // LINE - Revenue
+    new Chart(document.getElementById('revenueChart'), {
+        type: 'line',
+        data: {
+            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            datasets: [{
+                label: "Revenue",
+                data: [120, 190, 300, 500, 200, 300],
+                borderWidth: 3,
+                tension: 0.4
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+
+    // BAR - Top Sales
+    new Chart(document.getElementById('salesChart'), {
+        type: 'bar',
+        data: {
+            labels: ["A", "B", "C", "D"],
+            datasets: [{
+                label: "Sales",
+                data: [55, 90, 40, 80],
+                borderWidth: 1
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+
+    // PIE - Category
+    new Chart(document.getElementById('categoryChart'), {
+        type: 'pie',
+        data: {
+            labels: ["Giày", "Áo", "Quần", "Phụ kiện"],
+            datasets: [{
+                data: [40, 25, 20, 15]
+            }]
+        },
+        options: { responsive: true }
+    });
+
+    // DOUGHNUT – Order Status
+    new Chart(document.getElementById('orderChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ["Pending", "Shipping", "Completed", "Cancel"],
+            datasets: [{
+                data: [30, 45, 90, 20]
+            }]
+        }
+    });
+
+    // LINE – Monthly Orders
+    new Chart(document.getElementById('monthlyChart'), {
+        type: 'line',
+        data: {
+            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            datasets: [{
+                label: "Orders",
+                data: [20, 40, 35, 60, 80, 75],
+                borderWidth: 3,
+                tension: 0.35
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+</script>

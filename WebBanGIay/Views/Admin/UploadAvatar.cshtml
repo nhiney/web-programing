@@ -1,0 +1,18 @@
+﻿@{
+    ViewBag.Title = "Upload Avatar";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container mt-5" style="max-width: 450px;">
+    <div class="card p-4 text-center">
+
+        <h3 class="mb-3">Upload Avatar</h3>
+
+        <form action="/User/UploadAvatar" method="post" enctype="multipart/form-data">
+            <label class="form-label">Chọn ảnh:</label>
+            <input type="file" name="avatarFile" class="form-control mb-3" accept="image/*" required />
+
+            <button class="btn btn-primary w-100">Upload</button>
+        </form>
+    </div>
+</div>

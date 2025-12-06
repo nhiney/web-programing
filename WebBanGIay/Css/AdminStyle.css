@@ -1,0 +1,199 @@
+  /* ============================================================
+           THEME MODE
+        ============================================================ */
+  body.light-mode {
+      --bg-main: #f2f4f8;
+      --bg-sidebar: #ffffff;
+      --bg-card: #ffffff;
+      --bg-topbar: #ffffff;
+      --text-color: #222;
+      --icon-color: #333;
+  }
+
+  body.dark-mode {
+      --bg-main: #0f1c33;
+      --bg-sidebar: #0b1324;
+      --bg-card: #112042;
+      --bg-topbar: #112042;
+      --text-color: #fff;
+      --icon-color: #bfc9dc;
+  }
+
+  body {
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--bg-main);
+      color: var(--text-color);
+      transition: .35s;
+  }
+
+  /* ============================================================
+           SIDEBAR
+        ============================================================ */
+  .sidebar {
+      width: 270px;
+      height: 100vh;
+      background: var(--bg-sidebar);
+      position: fixed;
+      padding: 25px 20px;
+      overflow-y: auto;
+      box-shadow: 4px 0 20px rgba(0, 0, 0, 0.35);
+      transition: .35s ease-in-out;
+  }
+
+  .sidebar.collapsed {
+      width: 85px;
+  }
+
+  .sidebar.collapsed .menu-title,
+  .sidebar.collapsed h5 {
+      display: none;
+  }
+
+  .logo {
+      text-align: center;
+      font-size: 26px;
+      font-weight: bold;
+      margin-bottom: 25px;
+      color: var(--text-color);
+      transition: .3s;
+  }
+
+  #sidebarAvatar {
+      width: 85px;
+      height: 85px;
+      border-radius: 50%;
+      object-fit: cover;
+      cursor: pointer;
+      border: 3px solid #23345e;
+      transition: 0.25s;
+  }
+
+  #sidebarAvatar:hover {
+      transform: scale(1.05);
+  }
+
+  #sidebarUpload {
+      display: none;
+  }
+
+  .menu-title {
+      margin: 15px 10px 8px;
+      text-transform: uppercase;
+      font-size: 11px;
+      color: #7f8da4;
+      font-weight: bold;
+  }
+
+  .sidebar a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      border-radius: 12px;
+      color: var(--text-color);
+      text-decoration: none;
+      transition: .25s;
+      font-size: 15px;
+  }
+
+  .sidebar a:hover,
+  .sidebar a.active {
+      background: #162447;
+      color: #fff;
+      transform: translateX(4px);
+  }
+
+  /* ============================================================
+           TOPBAR
+        ============================================================ */
+  .topbar {
+      margin-left: 290px;
+      background: var(--bg-topbar);
+      padding: 14px 25px;
+      border-radius: 14px;
+      margin-top: 18px;
+      margin-right: 18px;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: .35s;
+  }
+
+  .topbar.collapsed {
+      margin-left: 100px !important;
+  }
+
+  #toggleSidebar {
+      background: #0c1a36;
+      border: none;
+      color: #fff;
+      border-radius: 50%;
+      width: 42px;
+      height: 42px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-right: 12px;
+      cursor: pointer;
+      transition: .25s;
+  }
+
+  .search-box input {
+      background: #0c1a36;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 25px;
+      width: 240px;
+      color: #fff;
+  }
+
+  .top-icons {
+      display: flex;
+      align-items: center;
+      gap: 26px;
+      padding-right: 8px;
+  }
+
+  .top-icons i {
+      font-size: 22px;
+      padding: 10px;
+      border-radius: 50%;
+      transition: 0.25s;
+      cursor: pointer;
+      color: var(--icon-color);
+  }
+
+  .top-icons i:hover {
+      background: #1d2d53;
+      color: #fff;
+      transform: scale(1.15);
+  }
+
+  /* ============================================================
+           CONTENT
+        ============================================================ */
+  .content {
+      margin-left: 290px;
+      padding: 25px;
+      transition: .35s;
+  }
+
+  .content.collapsed {
+      margin-left: 100px;
+  }
+
+  .card-custom {
+      background: var(--bg-card);
+      border-radius: 18px;
+      padding: 25px;
+      color: var(--text-color);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+      transition: .25s;
+  }
+
+  .card-custom:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+  }

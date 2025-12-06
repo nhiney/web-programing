@@ -1,0 +1,199 @@
+﻿@model WebBanGIay.Models.TAIKHOAN
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Create User";
+
+    var khList = ViewBag.KhachHangList as IEnumerable<WebBanGIay.Models.KHACHHANG>;
+    var nvList = ViewBag.NhanVienList as IEnumerable<WebBanGIay.Models.NHANVIEN>;
+
+    var roleList = new List<SelectListItem>
+    {
+        new SelectListItem { Value = "KHÁCH HÀNG", Text = "Khách hàng" },
+        new SelectListItem { Value = "NHÂN VIÊN", Text = "Nhân viên" },
+        new SelectListItem { Value = "QUẢN TRỊ", Text = "Quản trị" }
+    };
+}
+
+<style>
+    .page-dark {
+        color: #e7eef6;
+        padding: 20px;
+    }
+
+    .dark-card {
+        background: #0b1824;
+        border: 1px solid #1b2d41;
+        border-radius: 10px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+        overflow: hidden;
+    }
+
+    .dark-card-header {
+        background: #102030;
+        color: #fff;
+        padding: 16px;
+        text-align: center;
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: .5px;
+    }
+
+    .dark-input,
+    .dark-select {
+        background: #0b1220 !important;
+        border: 1px solid #243347 !important;
+        color: #dbe9ff !important;
+        padding: 10px !important;
+        border-radius: 6px !important;
+    }
+
+        .dark-input:focus,
+        .dark-select:focus {
+            border-color: #3a5275 !important;
+            box-shadow: 0 0 0 3px rgba(0,136,255,0.2) !important;
+        }
+
+    .btn-dark-success {
+        background: #0f6d4a;
+        border: 1px solid #1d8f62;
+        color: #fff;
+        padding: 10px 24px;
+        border-radius: 6px;
+        font-weight: 600;
+        transition: .25s;
+    }
+
+        .btn-dark-success:hover {
+            background: #15a56e;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.45);
+        }
+
+    .btn-dark-secondary {
+        background: #1e293b;
+        border: 1px solid #334155;
+        color: #fff;
+        padding: 10px 24px;
+        border-radius: 6px;
+        font-weight: 600;
+        transition: .25s;
+    }
+
+        .btn-dark-secondary:hover {
+            background: #334155;
+            transform: translateY(-2px);
+        }
+
+    .dark-label {
+        font-weight: 600;
+        margin-bottom: 6px;
+        color: #bcd7ff;
+    }
+</style>
+
+
+<div class="container page-dark" style="max-width: 650px;">
+
+    <div class="dark-card">
+        <div class="dark-card-header">
+            <i class="bi bi-person-plus me-2"></i> Create New User
+        </div>
+
+        <div class="p-4">
+            @using (Html.BeginForm("CreateUser", "Admin", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <label class="dark-label">Username</label>
+                    @Html.TextBoxFor(m => m.TENTAIKHOAN, new { @class = "form-control dark-input", placeholder = "Enter username..." })
+                    <small class="text-danger">@Html.ValidationMessageFor(m => m.TENTAIKHOAN)</small>
+                </div>
+
+                <div class="mb-3">
+                    <label class="dark-label">Password</label>
+                    @Html.PasswordFor(m => m.MATKHAU, new { @class = "form-control dark-input", id = "password", placeholder = "Enter password..." })
+                </div>
+
+                <div class="mb-3">
+                    <label class="dark-label">Confirm Password</label>
+                    <input id="passwordConfirm" name="ConfirmPassword" type="password" class="form-control dark-input" placeholder="Confirm password..." />
+                    <small id="pwError" class="text-danger d-none">Passwords do not match!</small>
+                </div>
+
+                <div class="mb-3">
+                    <label class="dark-label">Role</label>
+                    @Html.DropDownListFor(
+                        m => m.LOAITAIKHOAN,
+                        roleList,
+                        "Select role",
+                        new { @class = "form-select dark-select", id = "roleSelect" }
+                    )
+                </div>
+
+                
+
+                <div id="khSection" class="mb-3 d-none">
+                    <label class="dark-label">Customer</label>
+                    @Html.DropDownListFor(
+                        m => m.MAKHACHHANG,
+                        new SelectList(khList, "MAKHACHHANG", "HOTEN", Model.MAKHACHHANG),
+                        "-- select customer --",
+                        new { @class = "form-select dark-select" }
+                    )
+                </div>
+
+                <div id="nvSection" class="mb-3 d-none">
+                    <label class="dark-label">Employee</label>
+                    @Html.DropDownListFor(
+                        m => m.MANHANVIEN,
+                        new SelectList(nvList, "MANHANVIEN", "HOTEN", Model.MANHANVIEN),
+                        "-- select employee --",
+                        new { @class = "form-select dark-select" }
+                    )
+                </div>
+
+                <div class="text-center mt-4">
+                    <button id="btnSubmit" type="submit" class="btn-dark-success">
+                        <i class="bi bi-check2-circle me-1"></i> Create
+                    </button>
+
+                    <a href="@Url.Action("Users", "Admin")" class="btn-dark-secondary ms-2">
+                        Cancel
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+<script>
+    document.getElementById("btnSubmit").addEventListener("click", function (e) {
+        let pw = document.getElementById("password").value;
+        let pwc = document.getElementById("passwordConfirm").value;
+
+        if (pw !== pwc) {
+            e.preventDefault();
+            document.getElementById("pwError").classList.remove("d-none");
+        }
+    });
+
+    function updateRoleSections() {
+        let role = document.getElementById("roleSelect").value;
+
+        document.getElementById("khSection").classList.add("d-none");
+        document.getElementById("nvSection").classList.add("d-none");
+
+        if (role === "KHÁCH HÀNG") {
+            document.getElementById("khSection").classList.remove("d-none");
+        }
+        else if (role === "NHÂN VIÊN") {
+            document.getElementById("nvSection").classList.remove("d-none");
+        }
+    }
+
+    updateRoleSections();
+    document.getElementById("roleSelect").addEventListener("change", updateRoleSections);
+</script>

@@ -1,0 +1,117 @@
+﻿@{
+    ViewBag.Title = "Đăng ký";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - MEODIGIAY</title>
+
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            height: 100vh;
+            background: linear-gradient(135deg, #4ecdc4, #ff6b6b);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .register-card {
+            width: 100%;
+            max-width: 450px;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            padding: 30px;
+        }
+
+            .register-card h3 {
+                font-weight: 700;
+                color: #4ecdc4;
+            }
+
+        .form-control {
+            border-radius: 50px;
+            padding-left: 40px;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #4ecdc4;
+        }
+
+        .btn-register {
+            background: #4ecdc4;
+            border: none;
+            border-radius: 50px;
+            padding: 10px 0;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+            .btn-register:hover {
+                background: #3ac9c1;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(58,201,193,0.3);
+            }
+
+        .text-center a {
+            color: #4ecdc4;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+            .text-center a:hover {
+                text-decoration: underline;
+            }
+
+        .alert {
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-card position-relative">
+        <h3 class="text-center mb-4">Đăng ký</h3>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger">@ViewBag.Error</div>
+        }
+
+        <form method="post" action="@Url.Action("Register", "Account")">
+            @Html.AntiForgeryToken()
+
+            <div class="form-group position-relative mb-3">
+                <i class="fas fa-user input-icon"></i>
+                <input type="text" name="TENTAIKHOAN" class="form-control" placeholder="Tên tài khoản" required />
+            </div>
+
+            <div class="form-group position-relative mb-3">
+                <i class="fas fa-lock input-icon"></i>
+                <input type="password" name="MATKHAU" class="form-control" placeholder="Mật khẩu" required />
+            </div>
+
+            <div class="form-group position-relative mb-4">
+                <i class="fas fa-lock input-icon"></i>
+                <input type="password" name="passwordConfirm" class="form-control" placeholder="Nhập lại mật khẩu" required />
+            </div>
+
+            <button type="submit" class="btn btn-register btn-block">Đăng ký</button>
+        </form>
+
+        <p class="text-center mt-3">
+            Đã có tài khoản? <a href="@Url.Action("Login","Account")">Đăng nhập</a>
+        </p>
+    </div>
+</body>
+</html>
