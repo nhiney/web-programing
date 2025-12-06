@@ -226,13 +226,28 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+
+    
+    <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\Admin\AdminController.cs" />
+    <Compile Include="Controllers\Admin\ProductAdminController.cs" />
+    <Compile Include="Controllers\Admin\OrderAdminController.cs" />
+    <Compile Include="Controllers\Admin\ImportAdminController.cs" />
+
     <Compile Include="Controllers\CartController.cs" />
     <Compile Include="Controllers\PaymentController.cs" />
     <Compile Include="Controllers\ProductsController.cs" />
     <Compile Include="Controllers\TrangChuController.cs" />
+
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+
+    <Compile Include="Models\Admin\AddressViewModel.cs" />
+    <Compile Include="Models\Admin\AdminDashboardViewModel.cs" />
+    <Compile Include="Models\DashboardViewModel.cs" />
+    <Compile Include="Models\UserProfileViewModel.cs" />
+
     <Compile Include="Models\Cart.cs" />
     <Compile Include="Models\CheckoutVM.cs" />
     <Compile Include="Models\CHITIET_HOADON.cs">
@@ -254,6 +269,7 @@
     <Compile Include="Models\NHANVIEN.cs">
       <DependentUpon>QuanLyBanGiay.tt</DependentUpon>
     </Compile>
+
     <Compile Include="Models\QuanLyBanGiay.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -275,7 +291,20 @@
     <Compile Include="Models\TAIKHOAN.cs">
       <DependentUpon>QuanLyBanGiay.tt</DependentUpon>
     </Compile>
+    
+    <Compile Include="Models\vw_HoaDonDayDu.cs">
+      <DependentUpon>QuanLyBanGiay.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\vw_SanPham_NCC.cs">
+      <DependentUpon>QuanLyBanGiay.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\vw_UserCart.cs">
+      <DependentUpon>QuanLyBanGiay.tt</DependentUpon>
+    </Compile>
+
     <Compile Include="Properties\AssemblyInfo.cs" />
+
+    <Compile Include="Security\PasswordHasher.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap-theme.css" />
@@ -391,6 +420,29 @@
     <Content Include="Views\TrangChu\Index.cshtml" />
     <Content Include="Views\TrangChu\MenuThuongHieu.cshtml" />
     <Content Include="Views\Products\ChiTiet.cshtml" />
+
+    <Content Include="Views\Account\Login.cshtml" />
+    <Content Include="Views\Account\Register.cshtml" />
+    <Content Include="Views\Account\Profile.cshtml" />
+    <Content Include="Views\Admin\Index.cshtml" />
+    <Content Include="Views\Shared\_AdminLayout.cshtml" />
+    <Content Include="Views\Admin\Users.cshtml" />
+    <Content Include="Views\Admin\CreateUser.cshtml" />
+    <Content Include="Views\Admin\EditUser.cshtml" />
+    <Content Include="Views\Admin\DetailsUser.cshtml" />
+    <Content Include="Views\Admin\DeleteUser.cshtml" />
+    <Content Include="Views\ProductAdmin\Index.cshtml" />
+    <Content Include="Views\ProductAdmin\Create.cshtml" />
+    <Content Include="Views\ProductAdmin\Edit.cshtml" />
+    <Content Include="Views\ProductAdmin\Details.cshtml" />
+    <Content Include="Views\ProductAdmin\Delete.cshtml" />
+    <Content Include="Views\Admin\UploadAvatar.cshtml" />
+
+    <Content Include="Views\OrderAdmin\Index.cshtml" />
+    <Content Include="Views\OrderAdmin\Details.cshtml" />
+
+    <Content Include="Views\ImportAdmin\Create.cshtml" />
+
     <Content Include="Views\Products\SPhamTHuongHieu.cshtml" />
     <Content Include="Views\Payment\Return.cshtml" />
     <Content Include="Views\Cart\Index.cshtml" />

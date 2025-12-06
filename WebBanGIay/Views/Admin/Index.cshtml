@@ -1,4 +1,5 @@
-﻿@{
+﻿@model WebBanGIay.Models.DashboardViewModel
+@{
     ViewBag.Title = "Dashboard";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
@@ -8,7 +9,7 @@
     <div class="col-md-3">
         <div class="card-custom summary-card">
             <i class="bi bi-people"></i>
-            <h4>@ViewBag.TotalUsers</h4>
+            <h4>@Model.TotalUsers</h4>
             <p>Users</p>
         </div>
     </div>
@@ -16,7 +17,7 @@
     <div class="col-md-3">
         <div class="card-custom summary-card">
             <i class="bi bi-bag"></i>
-            <h4>@ViewBag.TotalProducts</h4>
+            <h4>@Model.TotalProducts</h4>
             <p>Products</p>
         </div>
     </div>
@@ -24,7 +25,7 @@
     <div class="col-md-3">
         <div class="card-custom summary-card">
             <i class="bi bi-receipt"></i>
-            <h4>@ViewBag.TotalOrders</h4>
+            <h4>@Model.TotalOrders</h4>
             <p>Orders</p>
         </div>
     </div>
@@ -32,8 +33,8 @@
     <div class="col-md-3">
         <div class="card-custom summary-card">
             <i class="bi bi-cash"></i>
-            <h4>@ViewBag.TotalRevenue</h4>
-            <p>Revenue</p>
+            <h4>@Model.TotalRevenue.ToString("N0") đ</h4>
+            <p>Doanh thu</p>
         </div>
     </div>
 </div>
@@ -58,21 +59,21 @@
 
     <div class="col-md-6">
         <div class="card-custom mb-4">
-            <h5>Danh mục bán chạy (Pie)</h5>
+            <h5>Sản phẩm bán chạy (Pie)</h5>
             <div class="chart-wrapper"><canvas id="categoryChart"></canvas></div>
         </div>
     </div>
 
     <div class="col-md-6">
         <div class="card-custom mb-4">
-            <h5>Order Status</h5>
+            <h5>Trạng thái đơn hàng</h5>
             <div class="chart-wrapper"><canvas id="orderChart"></canvas></div>
         </div>
     </div>
 
     <div class="col-md-12">
         <div class="card-custom mb-4">
-            <h5>Orders by Month</h5>
+            <h5>Đơn hàng theo tháng</h5>
             <div class="chart-wrapper" style="height:320px;"><canvas id="monthlyChart"></canvas></div>
         </div>
     </div>
@@ -86,16 +87,35 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
+    // PARSE DATA FROM SERVER
+    var revenueLabels = @Html.Raw(Json.Encode(Model.RevenueLabels));
+    var revenueData = @Html.Raw(Json.Encode(Model.RevenueData));
+
+    var topLabels = @Html.Raw(Json.Encode(Model.TopProductLabels));
+    var topData = @Html.Raw(Json.Encode(Model.TopProductData));
+
+    var catLabels = @Html.Raw(Json.Encode(Model.CategoryLabels));
+    var catData = @Html.Raw(Json.Encode(Model.CategoryData));
+
+    var orderLabels = @Html.Raw(Json.Encode(Model.OrderStatusLabels));
+    var orderData = @Html.Raw(Json.Encode(Model.OrderStatusData));
+
+    var monthLabels = @Html.Raw(Json.Encode(Model.MonthlyOrderLabels));
+    var monthData = @Html.Raw(Json.Encode(Model.MonthlyOrderData));
+
     // LINE - Revenue
     new Chart(document.getElementById('revenueChart'), {
         type: 'line',
         data: {
-            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            labels: revenueLabels,
             datasets: [{
-                label: "Revenue",
-                data: [120, 190, 300, 500, 200, 300],
+                label: "Doanh thu",
+                data: revenueData,
+                borderColor: '#4e73df',
+                backgroundColor: 'rgba(78, 115, 223, 0.05)',
                 borderWidth: 3,
-                tension: 0.4
+                tension: 0.4,
+                fill: true
             }]
         },
         options: { responsive: true, maintainAspectRatio: false }
@@ -105,49 +125,56 @@
     new Chart(document.getElementById('salesChart'), {
         type: 'bar',
         data: {
-            labels: ["A", "B", "C", "D"],
+            labels: topLabels,
             datasets: [{
-                label: "Sales",
-                data: [55, 90, 40, 80],
+                label: "Số lượng bán",
+                data: topData,
+                backgroundColor: '#1cc88a',
                 borderWidth: 1
             }]
         },
         options: { responsive: true, maintainAspectRatio: false }
     });
 
-    // PIE - Category
+    // PIE - Category (Product)
     new Chart(document.getElementById('categoryChart'), {
         type: 'pie',
         data: {
-            labels: ["Giày", "Áo", "Quần", "Phụ kiện"],
+            labels: catLabels,
             datasets: [{
-                data: [40, 25, 20, 15]
+                data: catData,
+                backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b']
             }]
         },
-        options: { responsive: true }
+        options: { responsive: true, maintainAspectRatio: false }
     });
 
     // DOUGHNUT – Order Status
     new Chart(document.getElementById('orderChart'), {
         type: 'doughnut',
         data: {
-            labels: ["Pending", "Shipping", "Completed", "Cancel"],
+            labels: orderLabels,
             datasets: [{
-                data: [30, 45, 90, 20]
+                data: orderData,
+                backgroundColor: ['#f6c23e', '#36b9cc', '#1cc88a', '#e74a3b']
             }]
-        }
+        },
+        options: { responsive: true, maintainAspectRatio: false }
     });
 
     // LINE – Monthly Orders
     new Chart(document.getElementById('monthlyChart'), {
         type: 'line',
         data: {
-            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            labels: monthLabels,
             datasets: [{
-                label: "Orders",
-                data: [20, 40, 35, 60, 80, 75],
+                label: "Đơn hàng",
+                data: monthData,
+                borderColor: '#36b9cc',
+                backgroundColor: 'rgba(54, 185, 204, 0.05)',
                 borderWidth: 3,
-                tension: 0.35
+                tension: 0.35,
+                fill: true
             }]
         },
         options: { responsive: true, maintainAspectRatio: false }

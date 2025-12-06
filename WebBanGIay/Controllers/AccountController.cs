@@ -3,7 +3,6 @@ using System.Data.Entity;
 using System.Data.Entity.Validation;
 using System.IO;
 using System.Linq;
-using System.Transactions;
 using System.Web;
 using System.Web.Mvc;
 using WebBanGIay.Models;
@@ -48,7 +47,7 @@ namespace WebBanGIay.Controllers
             string newAccountId = "TK" + DateTime.Now.Ticks;
             string newCustomerId = GenerateNewCustomerId();
 
-            using (var scope = new TransactionScope()) 
+            using (var transaction = db.Database.BeginTransaction())
             {
                 try
                 {
@@ -73,11 +72,12 @@ namespace WebBanGIay.Controllers
                     db.TAIKHOAN.Add(tk);
 
                     db.SaveChanges();
-                    scope.Complete();
+                    transaction.Commit();
                 }
                 catch (Exception ex)
                 {
-                    ViewBag.Error = "Lỗi ghi dữ liệu (Transaction rollback): " + ex.Message;
+                    transaction.Rollback();
+                    ViewBag.Error = "Lỗi ghi dữ liệu: " + ex.Message;
                     return View();
                 }
             }
@@ -133,106 +133,106 @@ namespace WebBanGIay.Controllers
 
 
         // ====================== PROFILE ======================
-        [HttpGet]
-        public ActionResult Profile()
-        {
-            var userId = Session["UserID"] as string;
-            if (userId == null)
-                return RedirectToAction("Login");
+        // [HttpGet]
+        // public ActionResult Profile()
+        // {
+        //     var userId = Session["UserID"] as string;
+        //     if (userId == null)
+        //         return RedirectToAction("Login");
 
-            var user = db.TAIKHOAN.Include(u => u.KHACHHANG)
-                                  .FirstOrDefault(u => u.MATAIKHOAN == userId);
+        //     var user = db.TAIKHOAN.Include(u => u.KHACHHANG)
+        //                           .FirstOrDefault(u => u.MATAIKHOAN == userId);
 
-            if (user == null)
-                return RedirectToAction("Logout");
+        //     if (user == null)
+        //         return RedirectToAction("Logout");
 
-            var model = new UserProfileViewModel
-            {
-                UserName = user.TENTAIKHOAN,
-                AccountType = user.LOAITAIKHOAN,
-                CreatedDate = user.NGAYTAO,
-                FullName = user.KHACHHANG?.HOTEN,
-                Email = user.KHACHHANG?.EMAIL,
-                Phone = user.KHACHHANG?.SODIENTHOAI,
-                Address = user.KHACHHANG?.DIACHI,
-                AvatarUrl = Session["AvatarUrl"] as string
-            };
+        //     var model = new UserProfileViewModel
+        //     {
+        //         UserName = user.TENTAIKHOAN,
+        //         AccountType = user.LOAITAIKHOAN,
+        //         CreatedDate = user.NGAYTAO,
+        //         FullName = user.KHACHHANG?.HOTEN,
+        //         Email = user.KHACHHANG?.EMAIL,
+        //         Phone = user.KHACHHANG?.SODIENTHOAI,
+        //         Address = user.KHACHHANG?.DIACHI,
+        //         AvatarUrl = Session["AvatarUrl"] as string
+        //     };
 
-            return View(model);
-        }
+        //     return View(model);
+        // }
 
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Profile(UserProfileViewModel model, HttpPostedFileBase AvatarFile)
-        {
-            var userId = Session["UserID"] as string;
-            if (userId == null)
-                return RedirectToAction("Login");
+        // [HttpPost]
+        // [ValidateAntiForgeryToken]
+        // public ActionResult Profile(UserProfileViewModel model, HttpPostedFileBase AvatarFile)
+        // {
+        //     var userId = Session["UserID"] as string;
+        //     if (userId == null)
+        //         return RedirectToAction("Login");
 
-            var user = db.TAIKHOAN.Include(u => u.KHACHHANG)
-                                  .FirstOrDefault(u => u.MATAIKHOAN == userId);
+        //     var user = db.TAIKHOAN.Include(u => u.KHACHHANG)
+        //                           .FirstOrDefault(u => u.MATAIKHOAN == userId);
 
-            if (user == null)
-                return RedirectToAction("Logout");
+        //     if (user == null)
+        //         return RedirectToAction("Logout");
 
-            try
-            {
-                // Nếu khách hàng chưa tồn tại → Tạo mới
-                if (user.KHACHHANG == null)
-                {
-                    user.MAKHACHHANG = GenerateNewCustomerId();
-                    user.KHACHHANG = new KHACHHANG
-                    {
-                        MAKHACHHANG = user.MAKHACHHANG,
-                        NGAYTAO = DateTime.Now
-                    };
-                    db.KHACHHANG.Add(user.KHACHHANG);
-                }
+        //     try
+        //     {
+        //         // Nếu khách hàng chưa tồn tại → Tạo mới
+        //         if (user.KHACHHANG == null)
+        //         {
+        //             user.MAKHACHHANG = GenerateNewCustomerId();
+        //             user.KHACHHANG = new KHACHHANG
+        //             {
+        //                 MAKHACHHANG = user.MAKHACHHANG,
+        //                 NGAYTAO = DateTime.Now
+        //             };
+        //             db.KHACHHANG.Add(user.KHACHHANG);
+        //         }
 
-                // Cập nhật
-                user.KHACHHANG.HOTEN = model.FullName;
-                user.KHACHHANG.EMAIL = model.Email;
-                user.KHACHHANG.SODIENTHOAI = model.Phone;
-                user.KHACHHANG.DIACHI = model.Address;
+        //         // Cập nhật
+        //         user.KHACHHANG.HOTEN = model.FullName;
+        //         user.KHACHHANG.EMAIL = model.Email;
+        //         user.KHACHHANG.SODIENTHOAI = model.Phone;
+        //         user.KHACHHANG.DIACHI = model.Address;
 
-                // Upload Avatar
-                if (AvatarFile != null && AvatarFile.ContentLength > 0)
-                {
-                    var ext = Path.GetExtension(AvatarFile.FileName).ToLower();
-                    var allowed = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+        //         // Upload Avatar
+        //         if (AvatarFile != null && AvatarFile.ContentLength > 0)
+        //         {
+        //             var ext = Path.GetExtension(AvatarFile.FileName).ToLower();
+        //             var allowed = new[] { ".jpg", ".jpeg", ".png", ".gif" };
 
-                    if (!allowed.Contains(ext))
-                    {
-                        ModelState.AddModelError("", "File ảnh không hợp lệ!");
-                        return View(model);
-                    }
+        //             if (!allowed.Contains(ext))
+        //             {
+        //                 ModelState.AddModelError("", "File ảnh không hợp lệ!");
+        //                 return View(model);
+        //             }
 
-                    var fileName = $"{userId}_{DateTime.Now.Ticks}{ext}";
-                    string folder = Server.MapPath("~/Content/avatars/");
-                    if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
+        //             var fileName = $"{userId}_{DateTime.Now.Ticks}{ext}";
+        //             string folder = Server.MapPath("~/Content/avatars/");
+        //             if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
 
-                    AvatarFile.SaveAs(Path.Combine(folder, fileName));
+        //             AvatarFile.SaveAs(Path.Combine(folder, fileName));
 
-                    Session["AvatarUrl"] = Url.Content("~/Content/avatars/" + fileName);
-                }
+        //             Session["AvatarUrl"] = Url.Content("~/Content/avatars/" + fileName);
+        //         }
 
-                db.SaveChanges();
-                TempData["Success"] = "Cập nhật hồ sơ thành công!";
-            }
-            catch (DbEntityValidationException ex)
-            {
-                TempData["Error"] = string.Join(" | ",
-                    ex.EntityValidationErrors.SelectMany(e => e.ValidationErrors)
-                      .Select(v => v.ErrorMessage));
-            }
-            catch (Exception ex)
-            {
-                TempData["Error"] = "Lỗi: " + ex.Message;
-            }
+        //         db.SaveChanges();
+        //         TempData["Success"] = "Cập nhật hồ sơ thành công!";
+        //     }
+        //     catch (DbEntityValidationException ex)
+        //     {
+        //         TempData["Error"] = string.Join(" | ",
+        //             ex.EntityValidationErrors.SelectMany(e => e.ValidationErrors)
+        //               .Select(v => v.ErrorMessage));
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         TempData["Error"] = "Lỗi: " + ex.Message;
+        //     }
 
-            return RedirectToAction("Profile");
-        }
+        //     return RedirectToAction("Profile");
+        // }
 
 
         // ====================== TẠO MÃ KH TIẾP THEO ======================

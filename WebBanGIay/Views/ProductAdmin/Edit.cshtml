@@ -1,0 +1,75 @@
+@model WebBanGIay.Models.SANPHAM
+@{
+    ViewBag.Title = "Sửa sản phẩm";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container py-4" style="color:#d8e5f7; max-width: 700px;">
+    <div class="card bg-dark border-secondary shadow">
+        <div class="card-header border-secondary bg-warning text-dark">
+            <h4 class="mb-0 fw-bold"><i class="bi bi-pencil"></i> Sửa sản phẩm</h4>
+        </div>
+        <div class="card-body">
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger">@TempData["Error"]</div>
+            }
+
+            <form method="post" action="@Url.Action("Edit")" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="MASANPHAM" value="@Model.MASANPHAM" />
+
+                <div class="mb-3">
+                    <label class="form-label">Mã sản phẩm</label>
+                    <input type="text" class="form-control bg-secondary text-light border-0" value="@Model.MASANPHAM" disabled />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Tên sản phẩm</label>
+                    <input type="text" name="TENSANPHAM" class="form-control bg-dark text-light border-secondary" value="@Model.TENSANPHAM" required />
+                    @Html.ValidationMessage("TENSANPHAM", new { @class = "text-danger small" })
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Giá (VNĐ)</label>
+                        <input type="number" name="GIA" class="form-control bg-dark text-light border-secondary" value="@Model.GIA" min="0" required />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Số lượng tồn</label>
+                        <input type="number" name="SOLUONGTON" class="form-control bg-dark text-light border-secondary" value="@Model.SOLUONGTON" min="0" />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Mô tả</label>
+                    <textarea name="MOTA" class="form-control bg-dark text-light border-secondary" rows="3">@Model.MOTA</textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Hình ảnh hiện tại</label>
+                    @if (!string.IsNullOrEmpty(Model.HINHANH))
+                    {
+                        <div><img src="@Model.HINHANH" style="max-width:150px;max-height:150px;" class="rounded border" /></div>
+                    }
+                    else
+                    {
+                        <div class="text-muted">Chưa có hình</div>
+                    }
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Đổi hình ảnh mới</label>
+                    <input type="file" name="imageFile" class="form-control bg-dark text-light border-secondary" accept="image/*" />
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-warning fw-bold py-2">
+                        <i class="bi bi-save"></i> Lưu thay đổi
+                    </button>
+                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">Hủy bỏ</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

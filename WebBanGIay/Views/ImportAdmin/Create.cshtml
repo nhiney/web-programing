@@ -1,0 +1,54 @@
+@{
+    ViewBag.Title = "Tạo phiếu nhập hàng";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container py-4" style="color:#d8e5f7; max-width: 600px;">
+    
+    <div class="card bg-dark border-secondary shadow">
+        <div class="card-header border-secondary bg-primary text-white">
+            <h4 class="mb-0 fw-bold"><i class="bi bi-box-seam"></i> Tạo Phiếu Nhập Hàng</h4>
+        </div>
+        <div class="card-body">
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger">@TempData["Error"]</div>
+            }
+
+            <form method="post" action="@Url.Action("Create")">
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <label class="form-label">Chọn sản phẩm</label>
+                    <select name="MASANPHAM" class="form-select bg-dark text-light border-secondary" required>
+                        <option value="">-- Chọn sản phẩm --</option>
+                        @foreach (var item in ViewBag.Products)
+                        {
+                            <option value="@item.MASANPHAM">@item.DisplayText</option>
+                        }
+                    </select>
+                    @Html.ValidationMessage("MASANPHAM", new { @class = "text-danger small" })
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Số lượng nhập</label>
+                    <input type="number" name="SOLUONG" class="form-control bg-dark text-light border-secondary" min="1" required />
+                    @Html.ValidationMessage("SOLUONG", new { @class = "text-danger small" })
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Giá nhập (VNĐ) <span class="text-muted small">(Tùy chọn)</span></label>
+                    <input type="number" name="GIANHAP" class="form-control bg-dark text-light border-secondary" min="0" step="1000" />
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-success fw-bold py-2">
+                        <i class="bi bi-plus-lg"></i> Nhập kho
+                    </button>
+                    <a href="@Url.Action("Index", "ProductAdmin")" class="btn btn-outline-secondary">Hủy bỏ</a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>

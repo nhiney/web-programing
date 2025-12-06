@@ -1,0 +1,150 @@
+@model WebBanGIay.Models.HOADON
+@{
+    ViewBag.Title = "Chi tiết đơn hàng " + Model.MAHOADON;
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container py-4" style="color:#e4edf7;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3>
+            <a href="@Url.Action("Index")" class="text-decoration-none text-light me-2"><i class="bi bi-arrow-left"></i></a>
+            Đơn hàng #@Model.MAHOADON
+        </h3>
+        <div>
+            @if (Model.TRANGTHAI == "CHỜ XỬ LÝ")
+            {
+                <span class="badge bg-warning text-dark fs-6">CHỜ XỬ LÝ</span>
+            }
+            else if (Model.TRANGTHAI == "ĐÃ GIAO")
+            {
+                <span class="badge bg-info text-dark fs-6">ĐÃ GIAO (SHIP)</span>
+            }
+            else if (Model.TRANGTHAI == "HOÀN THÀNH")
+            {
+                <span class="badge bg-success fs-6">HOÀN THÀNH</span>
+            }
+            else
+            {
+                <span class="badge bg-danger fs-6">@Model.TRANGTHAI</span>
+            }
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="row">
+        <!-- LEFT: Customer & Order Info -->
+        <div class="col-md-8">
+            <div class="card mb-4 bg-dark border-secondary text-light">
+                <div class="card-header border-secondary fw-bold">Thông tin sản phẩm</div>
+                <div class="card-body p-0">
+                    <table class="table table-dark table-striped mb-0">
+                        <thead>
+                            <tr>
+                                <th>Sản phẩm</th>
+                                <th class="text-center">Số lượng</th>
+                                <th class="text-end">Đơn giá</th>
+                                <th class="text-end">Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var details in Model.CHITIET_HOADON)
+                            {
+                                var sp = details.SANPHAM;
+                                decimal total = (decimal)(details.GIA * details.SOLUONG);
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            @if (!string.IsNullOrEmpty(sp.HINHANH))
+                                            {
+                                                <img src="@sp.HINHANH" style="width:40px;height:40px;object-fit:cover;" class="rounded me-2" />
+                                            }
+                                            <div>
+                                                <div class="fw-bold">@sp.TENSANPHAM</div>
+                                                <small class="text-muted">@sp.MASANPHAM</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center align-middle">@details.SOLUONG</td>
+                                    <td class="text-end align-middle">@string.Format("{0:N0}", details.GIA) đ</td>
+                                    <td class="text-end align-middle fw-bold">@string.Format("{0:N0}", total) đ</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" class="text-end fw-bold">TỔNG CỘNG:</td>
+                                <td class="text-end fw-bold fs-5 text-warning">@string.Format("{0:N0}", Model.TONGTIEN) đ</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Customer Info & Actions -->
+        <div class="col-md-4">
+            <div class="card mb-4 bg-dark border-secondary text-light">
+                <div class="card-header border-secondary fw-bold">Khách hàng</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="text-muted small">Họ tên:</label>
+                        <div class="fw-bold fs-5">@Model.KHACHHANG.HOTEN</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted small">Số điện thoại:</label>
+                        <div><a href="tel:@Model.KHACHHANG.SODIENTHOAI" class="text-info text-decoration-none">@Model.KHACHHANG.SODIENTHOAI</a></div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted small">Địa chỉ:</label>
+                        <div>@Model.KHACHHANG.DIACHI</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted small">Ngày đặt:</label>
+                        <div>@Model.NGAYLAP.Value.ToString("dd/MM/yyyy HH:mm")</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card bg-dark border-secondary text-light">
+                <div class="card-header border-secondary fw-bold">Cập nhật trạng thái</div>
+                <div class="card-body">
+                    <form action="@Url.Action("UpdateStatus", "OrderAdmin")" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.MAHOADON" />
+                        
+                        <div class="d-grid gap-2">
+                            @if (Model.TRANGTHAI == "CHỜ XỬ LÝ")
+                            {
+                                <button type="submit" name="status" value="ĐÃ GIAO" class="btn btn-primary">
+                                    <i class="bi bi-truck"></i> Xác nhận giao hàng
+                                </button>
+                                <button type="submit" name="status" value="ĐÃ HỦY" class="btn btn-outline-danger" onclick="return confirm('Hủy đơn hàng này?');">
+                                    <i class="bi bi-x-circle"></i> Hủy đơn hàng
+                                </button>
+                            }
+                            else if (Model.TRANGTHAI == "ĐÃ GIAO")
+                            {
+                                <button type="submit" name="status" value="HOÀN THÀNH" class="btn btn-success">
+                                    <i class="bi bi-check-circle"></i> Hoàn thành đơn hàng
+                                </button>
+                                <button type="submit" name="status" value="ĐÃ HỦY" class="btn btn-outline-danger" onclick="return confirm('Hủy đơn hàng này?');">
+                                    <i class="bi bi-x-circle"></i> Hủy đơn hàng
+                                </button>
+                            }
+                            else
+                            {
+                                <div class="alert alert-secondary text-center small mb-0">
+                                    Đơn hàng đã kết thúc (@Model.TRANGTHAI).
+                                </div>
+                            }
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

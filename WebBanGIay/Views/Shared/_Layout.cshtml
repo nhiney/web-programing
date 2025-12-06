@@ -44,9 +44,47 @@
                     </div>
 
                     <div class="d-flex align-items-center">
-                        <button type="button" class="btn btn-outline-primary btn-sm mr-1" data-toggle="modal" data-target="#loginModal">
+
+                        <!-- LOGIN / REGISTER / USER DROPDOWN -->
+                        @if (Session["UserName"] == null)
+                        {
+                            <a href="@Url.Action("Login", "Account")" class="btn btn-outline-primary btn-login me-2">
+                                <i class="fas fa-sign-in-alt me-1"></i>Login
+                            </a>
+                            <a href="@Url.Action("Register", "Account")" class="btn btn-primary btn-register me-2">
+                                <i class="fas fa-user-plus me-1"></i>Đăng ký
+                            </a>
+                        }
+                        else
+                        {
+                            <div class="dropdown me-3">
+                                <button class="btn btn-light btn-user dropdown-toggle" type="button"
+                                        id="userMenu" data-bs-toggle="dropdown">
+                                    <i class="fas fa-user-circle me-2"></i>@Session["UserName"]
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow rounded-3" aria-labelledby="userMenu">
+                                    <li>
+                                        <a class="dropdown-item d-flex align-items-center" href="@Url.Action("Profile", "Account")">
+                                            <i class="fas fa-user me-2"></i>Thông tin tài khoản
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item d-flex align-items-center" href="@Url.Action("Logout", "Account")">
+                                            <i class="fas fa-sign-out-alt me-2"></i>Đăng xuất
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        }
+
+
+
+                        @* <button type="button" class="btn btn-outline-primary btn-sm mr-1" data-toggle="modal" data-target="#loginModal">
                             <i class="fas fa-sign-in-alt"></i> <span class="d-none d-xl-inline">Login</span>
-                        </button>
+                        </button> *@
+
+
+
                         <a href="@Url.Action("Index", "Cart")" class="btn btn-light border position-relative ml-2" style="width:36px;height:36px;">
                             <i class="fas fa-shopping-cart"></i>
                             <span id="cartCount" class="position-absolute bg-danger text-white rounded-circle d-flex align-items-center justify-content-center" style="font-size:0.65rem;width:18px;height:18px;top:-8px;right:-8px;">0</span>
@@ -260,9 +298,8 @@
         </div>
     </footer>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     @RenderSection("scripts", required: false)
 </body>

@@ -6,193 +6,190 @@ using System.Web;
 using System.Web.Mvc;
 using WebBanGIay.Models;
 
-public class ProductAdminController : Controller
+namespace WebBanGIay.Controllers
 {
-    private readonly QuanLyBanGiayEntities1 db = new QuanLyBanGiayEntities1();
-
-    // ===================== LIST PRODUCTS =====================
-    public ActionResult Index(string q = "", int page = 1, int pageSize = 12)
+    public class ProductAdminController : Controller
     {
-        var query = db.SANPHAM.AsQueryable();
+        private readonly QuanLyBanGiayEntities1 db = new QuanLyBanGiayEntities1();
 
-        // Search (tên + mã)
-        if (!string.IsNullOrWhiteSpace(q))
+        // ===================== LIST PRODUCTS =====================
+        public ActionResult Index(string q = "", int page = 1, int pageSize = 12)
         {
-            string k = q.Trim();
-            query = query.Where(p => p.TENSANPHAM.Contains(k) || p.MASANPHAM.Contains(k));
+            var query = db.SANPHAM.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                string k = q.Trim();
+                query = query.Where(p => p.TENSANPHAM.Contains(k) || p.MASANPHAM.Contains(k));
+            }
+
+            int total = query.Count();
+
+            var products = query
+                .OrderByDescending(p => p.NGAYTAO)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            ViewBag.Query = q;
+            ViewBag.Page = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.Total = total;
+            ViewBag.TotalPages = (int)Math.Ceiling((double)total / pageSize);
+
+            return View(products);
         }
 
-        int total = query.Count();
-
-        var products = query
-            .OrderByDescending(p => p.NGAYTAO)
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .ToList();
-
-        ViewBag.Query = q;
-        ViewBag.Page = page;
-        ViewBag.PageSize = pageSize;
-        ViewBag.Total = total;
-        ViewBag.TotalPages = (int)Math.Ceiling((double)total / pageSize);
-
-        return View(products);
-    }
-
-    // ===================== CREATE PRODUCT =====================
-    public ActionResult Create()
-    {
-        return View();
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public ActionResult Create(SANPHAM model, HttpPostedFileBase imageFile)
-    {
-        // Validate
-        if (string.IsNullOrWhiteSpace(model.TENSANPHAM))
-            ModelState.AddModelError("TENSANPHAM", "Tên sản phẩm không được để trống");
-
-        if (model.GIA == null || model.GIA <= 0)
-            ModelState.AddModelError("GIA", "Giá không hợp lệ");
-
-        if (!ModelState.IsValid)
+        // ===================== CREATE PRODUCT =====================
+        public ActionResult Create()
         {
-            return View(model);
+            return View();
         }
 
-        // Auto generate MASP
-        if (string.IsNullOrWhiteSpace(model.MASANPHAM))
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Create(SANPHAM model, HttpPostedFileBase imageFile)
         {
-            model.MASANPHAM = "SP" + DateTime.Now.Ticks.ToString().Substring(6);
-        }
+            if (string.IsNullOrWhiteSpace(model.TENSANPHAM))
+                ModelState.AddModelError("TENSANPHAM", "Tên sản phẩm không được để trống");
 
-        // Upload image
-        if (imageFile != null && imageFile.ContentLength > 0)
-        {
-            string ext = Path.GetExtension(imageFile.FileName);
-            string fileName = model.MASANPHAM + "_" + Guid.NewGuid().ToString("N") + ext;
+            if (model.GIA == null || model.GIA <= 0)
+                ModelState.AddModelError("GIA", "Giá không hợp lệ");
 
-            string folder = Server.MapPath("~/images/products");
-            if (!Directory.Exists(folder))
-                Directory.CreateDirectory(folder);
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
 
-            string path = Path.Combine(folder, fileName);
-            imageFile.SaveAs(path);
+            if (string.IsNullOrWhiteSpace(model.MASANPHAM))
+            {
+                model.MASANPHAM = "SP" + DateTime.Now.Ticks.ToString().Substring(6);
+            }
 
-            model.HINHANH = "/images/products/" + fileName;
-        }
+            if (imageFile != null && imageFile.ContentLength > 0)
+            {
+                string ext = Path.GetExtension(imageFile.FileName);
+                string fileName = model.MASANPHAM + "_" + Guid.NewGuid().ToString("N") + ext;
 
-        model.NGAYTAO = DateTime.Now;
+                string folder = Server.MapPath("~/images/products");
+                if (!Directory.Exists(folder))
+                    Directory.CreateDirectory(folder);
 
-        db.SANPHAM.Add(model);
-        db.SaveChanges();
+                string path = Path.Combine(folder, fileName);
+                imageFile.SaveAs(path);
 
-        TempData["Success"] = "Thêm sản phẩm thành công!";
-        return RedirectToAction("Index");
-    }
+                model.HINHANH = "/images/products/" + fileName;
+            }
 
-    // ===================== EDIT PRODUCT =====================
-    public ActionResult Edit(string id)
-    {
-        if (string.IsNullOrWhiteSpace(id))
-            return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            model.NGAYTAO = DateTime.Now;
 
-        var product = db.SANPHAM.Find(id);
-        if (product == null) return HttpNotFound();
-
-        return View(product);
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public ActionResult Edit(SANPHAM model, HttpPostedFileBase imageFile)
-    {
-        var product = db.SANPHAM.Find(model.MASANPHAM);
-        if (product == null) return HttpNotFound();
-
-        if (string.IsNullOrWhiteSpace(model.TENSANPHAM))
-            ModelState.AddModelError("TENSANPHAM", "Tên sản phẩm không được để trống");
-
-        if (!ModelState.IsValid)
-        {
-            return View(model);
-        }
-
-        // Update fields
-        product.TENSANPHAM = model.TENSANPHAM;
-        product.GIA = model.GIA;
-        product.MOTA = model.MOTA;
-        product.SOLUONGTON = model.SOLUONGTON;
-
-        // Upload new image
-        if (imageFile != null && imageFile.ContentLength > 0)
-        {
-            string ext = Path.GetExtension(imageFile.FileName);
-            string fileName = model.MASANPHAM + "_" + Guid.NewGuid().ToString("N") + ext;
-
-            string folder = Server.MapPath("~/images/products");
-            if (!Directory.Exists(folder))
-                Directory.CreateDirectory(folder);
-
-            string path = Path.Combine(folder, fileName);
-            imageFile.SaveAs(path);
-
-            product.HINHANH = "/images/products/" + fileName;
-        }
-
-        db.SaveChanges();
-
-        TempData["Success"] = "Cập nhật sản phẩm thành công!";
-        return RedirectToAction("Index");
-    }
-
-    // ===================== DETAILS PRODUCT =====================
-    public ActionResult Details(string id)
-    {
-        if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-
-        var product = db.SANPHAM.Find(id);
-        if (product == null) return HttpNotFound();
-
-        return View(product);
-    }
-
-    // ===================== DELETE PRODUCT =====================
-    public ActionResult Delete(string id)
-    {
-        if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-
-        var product = db.SANPHAM.Find(id);
-        if (product == null) return HttpNotFound();
-
-        return View(product);
-    }
-
-    [HttpPost, ActionName("Delete")]
-    [ValidateAntiForgeryToken]
-    public ActionResult DeleteConfirmed(string id)
-    {
-        var product = db.SANPHAM.Find(id);
-        if (product == null) return HttpNotFound();
-
-        try
-        {
-            db.SANPHAM.Remove(product);
+            db.SANPHAM.Add(model);
             db.SaveChanges();
-            TempData["Success"] = "Xóa sản phẩm thành công!";
+
+            TempData["Success"] = "Thêm sản phẩm thành công!";
+            return RedirectToAction("Index");
         }
-        catch
+
+        // ===================== EDIT PRODUCT =====================
+        public ActionResult Edit(string id)
         {
-            TempData["Error"] = "Không thể xóa sản phẩm vì đang có đơn hàng liên quan.";
+            if (string.IsNullOrWhiteSpace(id))
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+
+            var product = db.SANPHAM.Find(id);
+            if (product == null) return HttpNotFound();
+
+            return View(product);
         }
 
-        return RedirectToAction("Index");
-    }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit(SANPHAM model, HttpPostedFileBase imageFile)
+        {
+            var product = db.SANPHAM.Find(model.MASANPHAM);
+            if (product == null) return HttpNotFound();
 
-    protected override void Dispose(bool disposing)
-    {
-        if (disposing) db.Dispose();
-        base.Dispose(disposing);
+            if (string.IsNullOrWhiteSpace(model.TENSANPHAM))
+                ModelState.AddModelError("TENSANPHAM", "Tên sản phẩm không được để trống");
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            product.TENSANPHAM = model.TENSANPHAM;
+            product.GIA = model.GIA;
+            product.MOTA = model.MOTA;
+            product.SOLUONGTON = model.SOLUONGTON;
+
+            if (imageFile != null && imageFile.ContentLength > 0)
+            {
+                string ext = Path.GetExtension(imageFile.FileName);
+                string fileName = model.MASANPHAM + "_" + Guid.NewGuid().ToString("N") + ext;
+
+                string folder = Server.MapPath("~/images/products");
+                if (!Directory.Exists(folder))
+                    Directory.CreateDirectory(folder);
+
+                string path = Path.Combine(folder, fileName);
+                imageFile.SaveAs(path);
+
+                product.HINHANH = "/images/products/" + fileName;
+            }
+
+            db.SaveChanges();
+
+            TempData["Success"] = "Cập nhật sản phẩm thành công!";
+            return RedirectToAction("Index");
+        }
+
+        // ===================== DETAILS PRODUCT =====================
+        public ActionResult Details(string id)
+        {
+            if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+
+            var product = db.SANPHAM.Find(id);
+            if (product == null) return HttpNotFound();
+
+            return View(product);
+        }
+
+        // ===================== DELETE PRODUCT =====================
+        public ActionResult Delete(string id)
+        {
+            if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+
+            var product = db.SANPHAM.Find(id);
+            if (product == null) return HttpNotFound();
+
+            return View(product);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeleteConfirmed(string id)
+        {
+            var product = db.SANPHAM.Find(id);
+            if (product == null) return HttpNotFound();
+
+            try
+            {
+                db.SANPHAM.Remove(product);
+                db.SaveChanges();
+                TempData["Success"] = "Xóa sản phẩm thành công!";
+            }
+            catch
+            {
+                TempData["Error"] = "Không thể xóa sản phẩm vì đang có đơn hàng liên quan.";
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing) db.Dispose();
+            base.Dispose(disposing);
+        }
     }
 }
