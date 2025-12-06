@@ -10,20 +10,35 @@
             <h4 class="mb-0 fw-bold"><i class="bi bi-trash"></i> Xác nhận xóa sản phẩm</h4>
         </div>
         <div class="card-body text-center">
-            @if (!string.IsNullOrEmpty(Model.HINHANH))
-            {
-                <img src="@Model.HINHANH" class="img-fluid rounded mb-3" style="max-height:120px;" />
+            @{
+                var imgPath = "/source/images/shoes.png";
+                if (!string.IsNullOrEmpty(Model.HINHANH))
+                {
+                    if (Model.HINHANH.StartsWith("/"))
+                    {
+                        imgPath = Model.HINHANH;
+                    }
+                    else if (Model.HINHANH.StartsWith("source/"))
+                    {
+                        imgPath = "/" + Model.HINHANH;
+                    }
+                    else
+                    {
+                        imgPath = "/source/images/Products/" + Model.HINHANH;
+                    }
+                }
             }
+            <img src="@imgPath" class="img-fluid rounded mb-3" style="max-height:120px;" onerror="this.onerror=null; this.src='/source/images/shoes.png';" />
 
             <h5 class="fw-bold">@Model.TENSANPHAM</h5>
-            <p class="text-muted">Mã: @Model.MASANPHAM</p>
+            <p class="text-muted">Mã: @Model.MASANPHAM.Trim()</p>
             <p class="text-success fw-bold">@string.Format("{0:N0}", Model.GIA) đ</p>
 
             <div class="alert alert-warning mt-3">
                 <i class="bi bi-exclamation-triangle"></i> Bạn có chắc chắn muốn xóa sản phẩm này không?
             </div>
 
-            <form method="post" action="@Url.Action("Delete", new { id = Model.MASANPHAM })">
+            <form method="post" action="@Url.Action("Delete", new { id = Model.MASANPHAM.Trim() })">
                 @Html.AntiForgeryToken()
                 <div class="d-grid gap-2">
                     <button type="submit" class="btn btn-danger fw-bold py-2">

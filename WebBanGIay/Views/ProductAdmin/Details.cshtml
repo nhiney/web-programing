@@ -12,22 +12,31 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-4 text-center mb-3">
-                    @if (!string.IsNullOrEmpty(Model.HINHANH))
-                    {
-                        <img src="@Model.HINHANH" class="img-fluid rounded border" style="max-height:200px;" />
+                    @{
+                        var imgPath = "/source/images/shoes.png"; // Default
+                        if (!string.IsNullOrEmpty(Model.HINHANH))
+                        {
+                            if (Model.HINHANH.StartsWith("/"))
+                            {
+                                imgPath = Model.HINHANH; // Full path
+                            }
+                            else if (Model.HINHANH.StartsWith("source/"))
+                            {
+                                imgPath = "/" + Model.HINHANH; // Add leading slash
+                            }
+                            else
+                            {
+                                imgPath = "/source/images/Products/" + Model.HINHANH; // Just filename
+                            }
+                        }
                     }
-                    else
-                    {
-                        <div class="bg-secondary rounded d-flex align-items-center justify-content-center" style="height:150px;">
-                            <i class="bi bi-image text-muted" style="font-size:3rem;"></i>
-                        </div>
-                    }
+                    <img src="@imgPath" class="img-fluid rounded border" style="max-height:200px;" onerror="this.onerror=null; this.src='/source/images/shoes.png';" alt="@Model.TENSANPHAM" />
                 </div>
                 <div class="col-md-8">
                     <table class="table table-dark table-borderless">
                         <tr>
                             <th style="width:120px;">Mã SP:</th>
-                            <td class="fw-bold text-primary">@Model.MASANPHAM</td>
+                            <td class="fw-bold text-primary">@Model.MASANPHAM.Trim()</td>
                         </tr>
                         <tr>
                             <th>Tên SP:</th>
@@ -43,7 +52,7 @@
                         </tr>
                         <tr>
                             <th>Ngày tạo:</th>
-                            <td>@Model.NGAYTAO?.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@Model.NGAYTAO</td>
                         </tr>
                     </table>
                 </div>
@@ -58,10 +67,10 @@
             }
 
             <div class="d-flex gap-2 mt-4">
-                <a href="@Url.Action("Edit", new { id = Model.MASANPHAM })" class="btn btn-warning">
+                <a href="@Url.Action("Edit", new { id = Model.MASANPHAM.Trim() })" class="btn btn-warning">
                     <i class="bi bi-pencil"></i> Sửa
                 </a>
-                <a href="@Url.Action("Delete", new { id = Model.MASANPHAM })" class="btn btn-danger">
+                <a href="@Url.Action("Delete", new { id = Model.MASANPHAM.Trim() })" class="btn btn-danger">
                     <i class="bi bi-trash"></i> Xóa
                 </a>
                 <a href="@Url.Action("Index")" class="btn btn-outline-secondary">

@@ -17,11 +17,11 @@
 
             <form method="post" action="@Url.Action("Edit")" enctype="multipart/form-data">
                 @Html.AntiForgeryToken()
-                <input type="hidden" name="MASANPHAM" value="@Model.MASANPHAM" />
+                <input type="hidden" name="MASANPHAM" value="@Model.MASANPHAM.Trim()" />
 
                 <div class="mb-3">
                     <label class="form-label">Mã sản phẩm</label>
-                    <input type="text" class="form-control bg-secondary text-light border-0" value="@Model.MASANPHAM" disabled />
+                    <input type="text" class="form-control bg-secondary text-light border-0" value="@Model.MASANPHAM.Trim()" disabled />
                 </div>
 
                 <div class="mb-3">
@@ -50,7 +50,7 @@
                     <label class="form-label">Hình ảnh hiện tại</label>
                     @if (!string.IsNullOrEmpty(Model.HINHANH))
                     {
-                        <div><img src="@Model.HINHANH" style="max-width:150px;max-height:150px;" class="rounded border" /></div>
+                        <div><img src="@Model.HINHANH" style="max-width:150px;max-height:150px;" class="rounded border" onerror="this.onerror=null; this.src='/source/images/shoes.png';" /></div>
                     }
                     else
                     {
