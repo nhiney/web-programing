@@ -1,0 +1,136 @@
+
+@{
+    Layout = null;
+}
+
+<style>
+    /* Nút tròn */
+    #chat-circle {
+        position: fixed;
+        bottom: 25px;
+        right: 25px;
+        width: 60px;
+        height: 60px;
+        background: #007bff;
+        color: white;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 60px;
+        font-size: 28px;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        z-index: 900;
+        transition: 0.3s;
+    }
+
+        #chat-circle:hover {
+            transform: scale(1.1);
+        }
+    /* Khung chat */
+    #chat-popup {
+        position: fixed;
+        bottom: 100px;
+        right: 25px;
+        width: 320px;
+        height: 420px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        display: none;
+        z-index: 900;
+        overflow: hidden;
+        flex-direction: column;
+    }
+
+    #chat-header {
+        background: #007bff;
+        color: white;
+        padding: 10px;
+        font-size: 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    #chatbox {
+        flex: 1;
+        padding: 10px;
+        overflow-y: auto;
+        height: 300px;
+    }
+
+    .chat-input {
+        display: flex;
+        border-top: 1px solid #ddd;
+    }
+
+        .chat-input input {
+            flex: 1;
+            border: none;
+            padding: 10px;
+            outline: none;
+        }
+
+        .chat-input button {
+            padding: 10px 20px;
+            background: #007bff;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+</style>
+
+<!-- Nút tròn -->
+<div id="chat-circle">Chat</div>
+
+<!-- Popup chat -->
+<div id="chat-popup">
+    <div id="chat-header">
+        Chatbot tư vấn giày
+        <span id="chat-close" style="cursor:pointer; font-size:20px;">×</span>
+    </div>
+    <div id="chatbox"></div>
+    <div class="chat-input">
+        <input id="txtMessage" type="text" placeholder="Nhập câu hỏi...">
+        <button id="btnSend">Gửi</button>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    // Mở/đóng chat
+    $("#chat-circle").click(function () {
+        $("#chat-popup").fadeIn();
+        $("#chat-circle").hide();
+    });
+    $("#chat-close").click(function () {
+        $("#chat-popup").fadeOut();
+        $("#chat-circle").fadeIn();
+    });
+
+    // Gửi tin nhắn
+    $("#btnSend").click(function () { sendMessage(); });
+    $("#txtMessage").keypress(function (e) { if (e.which === 13) sendMessage(); });
+
+    function sendMessage() {
+        var message = $("#txtMessage").val().trim();
+        if (message === "") return;
+
+        $("#chatbox").append(`<div><b>Bạn:</b> ${message}</div>`);
+        $("#txtMessage").val("");
+
+        $.ajax({
+            url: '/ChatBot/Ask',
+            type: 'POST',
+            data: { message: message },
+            success: function (res) {
+                var reply = res.reply
+                    .replace(/Ảnh: \/source\/images\/Products\/([^\s\n]+)/g,
+                        '<br><img src="/source/images/Products/$1" style="max-width:100%; border-radius:10px; margin:8px 0; box-shadow:0 4px 12px rgba(0,0,0,0.2); cursor:pointer;" onclick="this.style.transform=this.style.transform===\'scale(1.9)\'?\'scale(1)\':\'scale(1.9)\'; this.style.transition=\'0.4s\';" />');
+
+                $("#chatbox").append(`<div><b>Bot:</b><br>${reply}</div>`);
+                $("#chatbox").scrollTop($("#chatbox")[0].scrollHeight);
+            }
+        });
+    }
+</script>

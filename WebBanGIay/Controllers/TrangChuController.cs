@@ -21,7 +21,6 @@ namespace WebBanGIay.Controllers
                 query = query.Where(s => s.NHACUNGCAP.TENNHACUNGCAP.Contains(hang));
             }
 
-            // CHUYỂN ĐỔI GIÁ TỪ STRING → DECIMAL
             decimal minPrice = 0;
             decimal maxPrice = decimal.MaxValue;
 
@@ -31,11 +30,9 @@ namespace WebBanGIay.Controllers
             if (decimal.TryParse(giaDen, out decimal den))
                 maxPrice = den;
 
-            // Nếu chọn trên 4 triệu
             if (maxPrice >= 999999999)
                 maxPrice = decimal.MaxValue;
 
-            // LỌC THEO GIÁ (ưu tiên GIAKHUYENMAI nếu có)
             query = query.Where(s =>
                 (s.GIAKHUYENMAI ?? 0) > 0 ?
                 (s.GIAKHUYENMAI ?? 0) >= minPrice && (s.GIAKHUYENMAI ?? 0) <= maxPrice :
@@ -44,11 +41,9 @@ namespace WebBanGIay.Controllers
 
             var sanPhamBanChay = query.OrderByDescending(s => s.SOLUONGTON).Take(30).ToList();
 
-            // TRUYỀN DỮ LIỆU
             ViewBag.SanPhamBanChay = sanPhamBanChay;
             ViewBag.HangList = db.NHACUNGCAP.Select(n => n.TENNHACUNGCAP).Distinct().ToList();
 
-            // GIỮ GIÁ TRỊ ĐÃ CHỌN
             ViewBag.HangSelected = hang;
             ViewBag.GiaTu = giaTu;  
             ViewBag.GiaDen = giaDen;  
@@ -61,6 +56,25 @@ namespace WebBanGIay.Controllers
 
             return PartialView(danhSachNCC);
         }
+        public ActionResult HuongDan()
+        {
 
+            return View();
+        }
+        public ActionResult LienHe()
+        {
+
+            return View();
+        }
+        public ActionResult TuyenDung()
+        {
+
+            return View();
+        }
+        public ActionResult KhuyenMai()
+        {
+
+            return View();
+        }
     }
 }

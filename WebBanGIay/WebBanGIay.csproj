@@ -236,6 +236,7 @@
 
     <Compile Include="Controllers\CartController.cs" />
     <Compile Include="Controllers\PaymentController.cs" />
+    <Compile Include="Controllers\ChatBotController.cs" />
     <Compile Include="Controllers\ProductsController.cs" />
     <Compile Include="Controllers\TrangChuController.cs" />
 
@@ -437,6 +438,11 @@
     <Content Include="Views\ProductAdmin\Details.cshtml" />
     <Content Include="Views\ProductAdmin\Delete.cshtml" />
     <Content Include="Views\Admin\UploadAvatar.cshtml" />
+    <Content Include="Views\ChatBot\Index.cshtml" />
+    <Content Include="Views\TrangChu\HuongDan.cshtml" />
+    <Content Include="Views\TrangChu\LienHe.cshtml" />
+    <Content Include="Views\TrangChu\TuyenDung.cshtml" />
+    <Content Include="Views\TrangChu\KhuyenMai.cshtml" />
 
     <Content Include="Views\OrderAdmin\Index.cshtml" />
     <Content Include="Views\OrderAdmin\Details.cshtml" />

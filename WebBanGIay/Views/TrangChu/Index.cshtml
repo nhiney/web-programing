@@ -12,8 +12,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewBag.Title</title>
 
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
     <style>
-        /* Giữ nguyên style gốc */
         :root {
             --primary: #ff3b30;
             --primary-gradient: linear-gradient(135deg, #ff3b30, #ff6b6b);
@@ -37,6 +42,114 @@
             color: var(--text-dark);
         }
 
+        .filter-bar {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+            border: 1px solid #eee;
+        }
+
+            .filter-bar .form-label {
+                font-weight: 600;
+                font-size: 0.9rem;
+                color: var(--text-muted);
+                margin-bottom: 0.5rem;
+            }
+
+            .filter-bar .form-select,
+            .filter-bar .btn {
+                border-radius: 30px;
+                font-size: 0.95rem;
+                padding: 0.6rem 1.2rem;
+            }
+
+            .filter-bar .btn-danger {
+                background: var(--primary-gradient);
+                border: none;
+                font-weight: 600;
+                transition: all 0.3s ease;
+                box-shadow: 0 3px 10px rgba(255,59,48,0.3);
+            }
+
+                .filter-bar .btn-danger:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 8px 20px rgba(255,59,48,0.4);
+                }
+
+        .product-item {
+            background: white;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: all 0.35s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+        }
+
+            .product-item:hover {
+                transform: translateY(-10px);
+                box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+            }
+
+        .product-img-container {
+            position: relative;
+            width: 100%;
+            height: 180px;
+            background: #f9f9f9;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .product-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 12px;
+            transition: transform 0.3s ease;
+        }
+
+        .product-item:hover .product-img {
+            transform: scale(1.08);
+        }
+
+        .product-discount-tag {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: var(--primary-gradient);
+            color: white;
+            font-weight: bold;
+            font-size: 0.85rem;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 12px rgba(255,59,48,0.5);
+            z-index: 10;
+            border: 3px solid white;
+            transition: all 0.3s ease;
+        }
+
+        .product-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin: 0.5rem 0 0.8rem;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            height: 2.8em;
+            padding: 0 0.5rem;
+        }
 
         .price-container {
             margin-top: auto;
@@ -47,50 +160,37 @@
             color: #999;
             text-decoration: line-through;
             font-size: 0.9rem;
-            display: block;
         }
 
         .price-new {
             color: var(--primary);
             font-weight: bold;
             font-size: 1.2rem;
-            margin: 0.3rem 0;
         }
 
         .btn-detail {
-            display: inline-block;
-            margin-top: 0.8rem;
             padding: 0.5rem 1.2rem;
-            font-size: 0.9rem;
-            font-weight: 600;
             border-radius: 30px;
             background: var(--primary-gradient);
             color: white;
             text-decoration: none;
             transition: all 0.3s ease;
-            box-shadow: 0 3px 8px rgba(255,59,48,0.3);
         }
 
             .btn-detail:hover {
                 background: linear-gradient(135deg, #ff6b6b, #ff3b30);
                 transform: translateY(-2px);
-                box-shadow: 0 6px 15px rgba(255,59,48,0.4);
                 color: white;
-                text-decoration: none;
             }
-        .btn-buy {
-
-            margin-top: 15px;
-            border-radius: 20px;
-        }
     </style>
 </head>
-<body>
 
+<body>
     <!-- FILTER BAR -->
     <div class="container">
         <div class="filter-bar">
             <form id="filterForm" method="get" class="row g-3 align-items-end">
+
                 <div class="col-12 col-md-4">
                     <label class="form-label">Hãng giày</label>
                     <select name="hang" class="form-select">
@@ -101,15 +201,16 @@
                         }
                     </select>
                 </div>
+
                 <div class="col-12 col-md-3">
                     <label class="form-label">Giá từ</label>
                     <select name="giaTu" class="form-select">
                         <option value="">Không giới hạn</option>
-                        <option value="0" @(ViewBag.GiaTu == "0" ? "selected" : "")>Dưới 2 triệu</option>
                         <option value="2000000" @(ViewBag.GiaTu == "2000000" ? "selected" : "")>Từ 2 triệu</option>
                         <option value="4000000" @(ViewBag.GiaTu == "4000000" ? "selected" : "")>Từ 4 triệu</option>
                     </select>
                 </div>
+
                 <div class="col-12 col-md-3">
                     <label class="form-label">Giá đến</label>
                     <select name="giaDen" class="form-select">
@@ -119,26 +220,28 @@
                         <option value="999999999" @(ViewBag.GiaDen == "999999999" ? "selected" : "")>Trên 4 triệu</option>
                     </select>
                 </div>
+
                 <div class="col-12 col-md-2">
-                    <button type="submit" class="btn btn-danger w-100">
-                        Lọc
-                    </button>
+                    <button type="submit" class="btn btn-danger w-100">Lọc</button>
                 </div>
+
             </form>
         </div>
     </div>
 
-    <!-- DANH SÁCH SẢN PHẨM -->
+    <!-- PRODUCT LIST -->
     <section class="py-5 bg-light">
         <div class="container">
             <h2 class="section-title">Tất cả sản phẩm</h2>
+
             <div id="sanPhamList" class="row">
+
                 @if (banChay.Any())
                 {
                     foreach (var sp in banChay)
                     {
-                        // Tính phần trăm giảm giá an toàn
                         double phanTramGiamSP = 0;
+
                         if (sp.GIA > 0 && sp.GIAKHUYENMAI > 0 && sp.GIAKHUYENMAI < sp.GIA)
                         {
                             phanTramGiamSP = Math.Round((double)((sp.GIA - sp.GIAKHUYENMAI) / sp.GIA * 100));
@@ -146,21 +249,29 @@
 
                         <div class="col-6 col-md-4 col-lg-3 mb-4">
                             <div class="product-item">
+
+                                <!-- HÌNH ẢNH -->
                                 <div class="product-img-container">
+
                                     @if (sp.GIAKHUYENMAI > 0 && sp.GIAKHUYENMAI < sp.GIA)
                                     {
-                                        <div class="product-discount-tag">
-                                            -@phanTramGiamSP%
-                                        </div>
+                                        <div class="product-discount-tag">-@phanTramGiamSP%</div>
                                     }
+
                                     <a href="/Products/ChiTiet/@sp.MASANPHAM">
-                                        <img src="@(string.IsNullOrWhiteSpace(sp.HINHANH) ? "/source/images/products/no-image.jpg" : "/source/images/products/" + sp.HINHANH)"
+                                        <img src="@(string.IsNullOrWhiteSpace(sp.HINHANH)
+                                            ? "/source/images/products/no-image.jpg"
+                                            : "/source/images/products/" + sp.HINHANH)"
                                              alt="@sp.TENSANPHAM"
                                              class="product-img"
                                              loading="lazy">
                                     </a>
                                 </div>
+
+                                <!-- TÊN -->
                                 <p class="product-name">@sp.TENSANPHAM</p>
+
+                                <!-- GIÁ -->
                                 <div class="price-container">
                                     @if (sp.GIAKHUYENMAI > 0 && sp.GIAKHUYENMAI < sp.GIA)
                                     {
@@ -172,8 +283,8 @@
                                         <div class="price-new">@String.Format("{0:N0}", sp.GIA)đ</div>
                                     }
                                 </div>
-                                    <a href="/Products/ChiTiet/@sp.MASANPHAM" class="btn btn-outline-danger btn-buy btn-sm">Xem chi tiết</a>
-                    
+
+                                <a class="btn-detail" href="/Products/ChiTiet/@sp.MASANPHAM">Xem chi tiết</a>
 
                             </div>
                         </div>
@@ -185,28 +296,34 @@
                         <p class="text-muted fs-5">Không tìm thấy sản phẩm phù hợp.</p>
                     </div>
                 }
+
             </div>
         </div>
     </section>
 
-    <!-- jQuery + AJAX + Giữ vị trí cuộn -->
+    <!-- AJAX FILTER -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function () {
+
             let currentScroll = 0;
 
             $('#filterForm').on('submit', function (e) {
                 e.preventDefault();
                 currentScroll = $(window).scrollTop();
+
                 const formData = $(this).serialize();
 
                 $.get(window.location.pathname, formData, function (data) {
+
                     $('#sanPhamList').html($(data).find('#sanPhamList').html());
+
                     setTimeout(() => $(window).scrollTop(currentScroll), 100);
+
                     const newUrl = window.location.pathname + '?' + formData;
                     history.replaceState(null, null, newUrl);
-                }).fail(function (xhr, status, error) {
-                    console.error('Lỗi tải dữ liệu:', error);
+
+                }).fail(function () {
                     alert('Có lỗi xảy ra khi tải sản phẩm. Vui lòng thử lại.');
                 });
             });
@@ -216,5 +333,9 @@
             }
         });
     </script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    @{ Html.RenderAction("Index", "Chatbot"); }
 </body>
 </html>

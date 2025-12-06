@@ -1,0 +1,207 @@
+﻿@{
+    ViewBag.Title = "Hướng Dẫn Mua Hàng & Đo Size Giày - MEODIGIAY";
+    Layout = null; // Giữ nguyên null như bạn muốn
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewBag.Title</title>
+
+    <!-- Bootstrap 4 (bạn đang dùng) -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.FontAwesomeVersion/css/all.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            color: #222;
+        }
+
+        .guide-hero {
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('/source/images/huongdan/banner-huongdan.jpg');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 140px 0 100px;
+            text-align: center;
+        }
+
+            .guide-hero h1 {
+                font-size: 3.8rem;
+                font-weight: 900;
+                text-shadow: 0 5px 15px rgba(0,0,0,0.6);
+            }
+
+            .guide-hero p {
+                font-size: 1.5rem;
+                max-width: 800px;
+                margin: 20px auto;
+                opacity: 0.95;
+            }
+
+        .container-custom {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        .step-card {
+            background: white;
+            border-radius: 20px;
+            padding: 35px 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            transition: all 0.4s ease;
+            text-align: center;
+            height: 100%;
+        }
+
+            .step-card:hover {
+                transform: translateY(-15px);
+                box-shadow: 0 25px 50px rgba(255,59,48,0.18);
+            }
+
+        .step-number {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #ff3b30, #ff6b6b);
+            color: white;
+            border-radius: 50%;
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .size-img {
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+            transition: 0.4s;
+        }
+
+            .size-img:hover {
+                transform: scale(1.06);
+            }
+
+        .tip-box {
+            background: linear-gradient(135deg, #fff1f0, #ffe4e1);
+            border-left: 6px solid #ff3b30;
+            padding: 22px;
+            border-radius: 0 15px 15px 0;
+            font-size: 1.1rem;
+            margin: 25px 0;
+        }
+
+        .btn-home {
+            background: linear-gradient(135deg, #ff3b30, #ff6b6b);
+            color: white;
+            padding: 16px 50px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            box-shadow: 0 10px 30px rgba(255,59,48,0.4);
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+            .btn-home:hover {
+                transform: translateY(-6px);
+                box-shadow: 0 18px 40px rgba(255,59,48,0.55);
+                color: white;
+            }
+
+        hr {
+            border-top: 2px dashed #ddd;
+            margin: 60px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HERO -->
+    <section class="guide-hero">
+        <div class="container-custom">
+            <h1>HƯỚNG DẪN MUA HÀNG & ĐO SIZE GIÀY</h1>
+            <p>Chỉ 3 phút là bạn chọn được đôi giày vừa chân, đẹp lung linh!</p>
+        </div>
+    </section>
+
+    <div class="container-custom py-5">
+
+        <!-- 4 BƯỚC MUA HÀNG -->
+        <h2 class="text-center fw-bold mb-5">Mua hàng chỉ với <span style="color:#ff3b30">4 bước</span></h2>
+        <div class="row g-4 text-center">
+            <div class="col-md-3"><div class="step-card"><div class="step-number">1</div><h4>Chọn giày yêu thích</h4><p>Hàng ngàn mẫu đang chờ bạn</p></div></div>
+            <div class="col-md-3"><div class="step-card"><div class="step-number">2</div><h4>Đo size chuẩn</h4><p>Theo bảng hướng dẫn</p></div></div>
+            <div class="col-md-3"><div class="step-card"><div class="step-number">3</div><h4>Thanh toán</h4><p>Nhiều hình thức tiện lợi</p></div></div>
+            <div class="col-md-3"><div class="step-card"><div class="step-number">4</div><h4>Nhận hàng & kiểm tra</h4><p>Đổi trả miễn phí 30 ngày</p></div></div>
+        </div>
+
+        <hr>
+
+        <!-- CÁCH ĐO SIZE -->
+        <h2 class="text-center fw-bold mb-5">Cách đo size chân chuẩn tại nhà</h2>
+        <div class="row align-items-center g-5 mb-5">
+            <div class="col-lg-6">
+                <img src="~/source/images/huongdan/do-chan.jpg" alt="Cách đo chân" class="img-fluid size-img"
+                     onerror="this.src='https://via.placeholder.com/600x500/eee/666?text=Do+Chan+Tai+Nha'">
+            </div>
+            <div class="col-lg-6">
+                <ol class="list-group list-group-numbered fs-5">
+                    <li class="list-group-item py-3">Đứng thẳng, gót chân chạm tường</li>
+                    <li class="list-group-item py-3">Đặt tờ A4 dưới chân, vẽ viền</li>
+                    <li class="list-group-item py-3">Đo từ gót đến ngón dài nhất</li>
+                    <li class="list-group-item py-3"><strong>Cộng thêm 0.5–1cm</strong> để đi thoải mái</li>
+                </ol>
+                <div class="tip-box">
+                    <strong>Mẹo cực hay:</strong> Đo vào buổi tối vì chân hay nở nhất → size chuẩn 100%!
+                </div>
+            </div>
+        </div>
+
+        <hr>
+
+        <!-- BẢNG SIZE -->
+        <h2 class="text-center fw-bold mb-4">Bảng quy đổi size giày chuẩn</h2>
+        <div class="table-responsive">
+            <table class="table table-bordered text-center">
+                <thead class="bg-danger text-white">
+                    <tr><th>Size VN</th><th>Chiều dài (cm)</th><th>US Nam</th><th>US Nữ</th><th>EU</th><th>UK</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>35</td><td>22.0–22.5</td><td>-</td><td>5</td><td>35</td><td>2.5</td></tr>
+                    <tr><td>36</td><td>22.6–23.0</td><td>-</td><td>6</td><td>36</td><td>3.5</td></tr>
+                    <tr><td>37</td><td>23.1–23.5</td><td>-</td><td>7</td><td>37</td><td>4</td></tr>
+                    <tr><td>38</td><td>23.6–24.0</td><td>6</td><td>8</td><td>38</td><td>5</td></tr>
+                    <tr><td>39</td><td>24.1–25.0</td><td>7</td><td>9</td><td>39</td><td>6</td></tr>
+                    <tr><td>40</td><td>25.1–25.5</td><td>7.5</td><td>-</td><td>40</td><td>6.5</td></tr>
+                    <tr><td>41</td><td>25.6–26.0</td><td>8.5</td><td>-</td><td>41</td><td>7.5</td></tr>
+                    <tr><td>42</td><td>26.1–26.5</td><td>9</td><td>-</td><td>42</td><td>8</td></tr>
+                    <tr><td>43</td><td>26.6–27.5</td><td>10</td><td>-</td><td>43</td><td>9</td></tr>
+                    <tr><td>44</td><td>27.6–28.5</td><td>11</td><td>-</td><td>44</td><td>10</td></tr>
+                    <tr><td>45</td><td>28.6–29.0</td><td>12</td><td>-</td><td>45</td><td>11</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- NÚT VỀ TRANG CHỦ -->
+        <div class="text-center my-5 py-5">
+            <a href="@Url.Action("Index", "TrangChu")" class="btn-home">
+                <i class="fas fa-arrow-left mr-3"></i> QUAY LẠI TRANG CHỦ
+            </a>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
