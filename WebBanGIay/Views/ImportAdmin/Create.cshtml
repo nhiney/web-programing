@@ -1,62 +1,372 @@
+
 @{
-    ViewBag.Title = "Tạo phiếu nhập hàng";
+    ViewBag.Title = "Tạo Phiếu Nhập Kho";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
-    var products = ViewBag.Products as IEnumerable<SelectListItem>;
+    var productsJson = ViewBag.ProductsJson as string ?? "[]";
 }
 
-<div class="container py-4" style="color:#d8e5f7; max-width: 600px;">
+<style>
+    .import-page {
+        color: var(--text-main);
+        padding: 24px;
+        font-family: "Inter", sans-serif;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+
+    .page-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--text-main);
+    }
+
+    .card-custom {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        box-shadow: var(--shadow-card);
+        margin-bottom: 24px;
+        overflow: hidden;
+    }
     
-    <div class="card bg-dark border-secondary shadow">
-        <div class="card-header border-secondary bg-primary text-white">
-            <h4 class="mb-0 fw-bold"><i class="bi bi-box-seam"></i> Tạo Phiếu Nhập Hàng</h4>
+    .card-header-custom {
+        background: var(--bg-hover);
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border-color);
+        font-weight: 600;
+        color: var(--text-main);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-body-custom {
+        padding: 20px;
+    }
+
+    .form-label-custom {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: var(--text-label);
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    .form-control-custom, .form-select-custom {
+        background: var(--bg-body);
+        border: 1px solid var(--border-color);
+        color: var(--text-main);
+        border-radius: 6px;
+        padding: 10px 12px;
+        width: 100%;
+        transition: 0.2s;
+    }
+
+    .form-control-custom:focus, .form-select-custom:focus {
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 2px var(--bg-active);
+        outline: none;
+    }
+
+    /* Table Styles */
+    .table-import {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    
+    .table-import th {
+        background: var(--bg-hover);
+        color: var(--text-label);
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border-color);
+        text-align: left;
+    }
+    
+    .table-import td {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border-color);
+        color: var(--text-main);
+        vertical-align: middle;
+    }
+    
+    .table-import tbody tr:hover {
+        background: var(--bg-hover);
+    }
+
+    .btn-remove {
+        color: #e74a3b;
+        background: rgba(231, 74, 59, 0.1);
+        border: none;
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+    .btn-remove:hover {
+        background: #e74a3b;
+        color: white;
+    }
+
+    .total-section {
+        background: var(--bg-hover);
+        padding: 20px;
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .total-label {
+        font-size: 1.1rem;
+        color: var(--text-muted);
+    }
+    
+    .total-amount {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--accent-color);
+    }
+
+    .btn-action {
+        padding: 10px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: 0.2s;
+        display: inline-flex; 
+        align-items: center; 
+        gap: 8px;
+    }
+    
+    .btn-save { background: var(--accent-color); color: white; }
+    .btn-save:hover { filter: brightness(1.1); }
+    
+    .btn-cancel { background: var(--bg-body); color: var(--text-muted); border: 1px solid var(--border-color); text-decoration: none; }
+    .btn-cancel:hover { background: var(--bg-hover); color: var(--text-main); }
+    
+    .product-select-wrapper { position: relative; }
+    .stock-badge { 
+        font-size: 0.75rem; 
+        padding: 2px 6px; 
+        border-radius: 4px; 
+        background: var(--bg-active); 
+        color: var(--accent-color);
+        margin-left: 6px;
+    }
+</style>
+
+<div class="import-page container-fluid">
+    <form action="@Url.Action("Create", "ImportAdmin")" method="post" id="importForm">
+        @Html.AntiForgeryToken()
+        
+        <div class="page-header">
+            <div>
+                <h2 class="page-title"><i class="bi bi-box-arrow-in-down"></i> Tạo Phiếu Nhập Kho</h2>
+                <div class="text-muted small">Tạo phiếu nhập mới để cập nhật số lượng tồn kho</div>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <a href="@Url.Action("Index", "ProductAdmin")" class="btn-action btn-cancel">
+                    <i class="bi bi-x-lg"></i> Hủy bỏ
+                </a>
+                <button type="submit" class="btn-action btn-save">
+                    <i class="bi bi-save"></i> Lưu & Nhập kho
+                </button>
+            </div>
         </div>
-        <div class="card-body">
-            @if (TempData["Success"] != null)
-            {
-                <div class="alert alert-success">@TempData["Success"]</div>
-            }
-            @if (TempData["Error"] != null)
-            {
-                <div class="alert alert-danger">@TempData["Error"]</div>
-            }
 
-            <form method="post" action="@Url.Action("Create")">
-                @Html.AntiForgeryToken()
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger">
+                @Html.ValidationSummary(false)
+            </div>
+        }
 
-                <div class="mb-3">
-                    <label class="form-label">Chọn sản phẩm</label>
-                    <select name="MASANPHAM" class="form-select bg-dark text-light border-secondary" required>
-                        <option value="">-- Chọn sản phẩm --</option>
-                        @if (products != null)
-                        {
-                            foreach (var item in products)
-                            {
-                                <option value="@item.Value">@item.Text</option>
-                            }
-                        }
-                    </select>
-                    @Html.ValidationMessage("MASANPHAM", new { @class = "text-danger small" })
+        <div class="row">
+            <!-- Left Info -->
+            <div class="col-lg-4">
+                <div class="card-custom">
+                    <div class="card-header-custom">
+                        <span>Thông tin chung</span>
+                        <i class="bi bi-info-circle text-muted"></i>
+                    </div>
+                    <div class="card-body-custom">
+                        <div class="mb-3">
+                            <label class="form-label-custom">Nhà cung cấp (*)</label>
+                            @Html.DropDownList("MANHACUNGCAP", ViewBag.Suppliers as SelectList, "-- Chọn nhà cung cấp --", new { @class = "form-select-custom", required = "required" })
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label-custom">Ngày nhập</label>
+                            <input type="text" class="form-control-custom" value="@DateTime.Now.ToString("dd/MM/yyyy HH:mm")" readonly style="background: var(--bg-hover); cursor: not-allowed;" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label-custom">Nhân viên nhập</label>
+                            <input type="text" class="form-control-custom" value="@(Session["UserName"] ?? "Admin")" readonly style="background: var(--bg-hover); cursor: not-allowed;" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label-custom">Kho nhập</label>
+                             <select class="form-select-custom">
+                                 <option>Kho Tổng (Mặc định)</option>
+                                 <option>Kho Chi Nhánh 1</option>
+                             </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label-custom">Ghi chú</label>
+                            <textarea class="form-control-custom" rows="3" placeholder="Nhập ghi chú cho phiếu nhập..."></textarea>
+                        </div>
+                    </div>
                 </div>
+            </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Số lượng nhập</label>
-                    <input type="number" name="SOLUONG" class="form-control bg-dark text-light border-secondary" min="1" required />
-                    @Html.ValidationMessage("SOLUONG", new { @class = "text-danger small" })
+            <!-- Right Products -->
+            <div class="col-lg-8">
+                <div class="card-custom" style="min-height: 500px; display:flex; flex-direction:column;">
+                    <div class="card-header-custom">
+                        <span>Chi tiết nhập hàng</span>
+                         <button type="button" class="btn btn-sm btn-primary" onclick="addRow()">
+                             <i class="bi bi-plus-lg"></i> Thêm dòng
+                         </button>
+                    </div>
+                    
+                    <div class="table-responsive" style="flex:1;">
+                        <table class="table-import" id="importTable">
+                            <thead>
+                                <tr>
+                                    <th style="width: 40%">Sản phẩm</th>
+                                    <th style="width: 15%">Đơn vị</th>
+                                    <th style="width: 15%">Số lượng</th>
+                                    <th style="width: 20%">Đơn giá (VNĐ)</th>
+                                    <th style="width: 10%"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody">
+                                <!-- Rows will be added here -->
+                            </tbody>
+                        </table>
+                        
+                        <div id="emptyState" class="text-center py-5 text-muted">
+                            <i class="bi bi-cart-x fs-1 d-block mb-3"></i>
+                            Chưa có sản phẩm nào trong phiếu nhập
+                        </div>
+                    </div>
+
+                    <div class="total-section">
+                        <span class="total-label">Tổng tiền thanh toán:</span>
+                        <span class="total-amount" id="grandTotal">0 ₫</span>
+                    </div>
                 </div>
-
-                <div class="mb-4">
-                    <label class="form-label">Giá nhập (VNĐ) <span class="text-muted small">(Tùy chọn)</span></label>
-                    <input type="number" name="GIANHAP" class="form-control bg-dark text-light border-secondary" min="0" step="1000" />
-                </div>
-
-                <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-success fw-bold py-2">
-                        <i class="bi bi-plus-lg"></i> Nhập kho
-                    </button>
-                    <a href="@Url.Action("Index", "ProductAdmin")" class="btn btn-outline-secondary">Hủy bỏ</a>
-                </div>
-
-            </form>
+            </div>
         </div>
-    </div>
+    </form>
 </div>
+
+<script>
+    // Load Product Data from Server
+    var products = @Html.Raw(productsJson);
+
+    // Initial Row
+    addRow();
+
+    function addRow() {
+        document.getElementById("emptyState").style.display = "none";
+        
+        var tbody = document.getElementById("tableBody");
+        var tr = document.createElement("tr");
+        
+        // Generate Options
+        var options = '<option value="">-- Chọn sản phẩm --</option>';
+        products.forEach(p => {
+             options += `<option value="${p.Id}" data-stock="${p.Stock}" data-price="${p.Price}">${p.Name}</option>`;
+        });
+
+        tr.innerHTML = `
+            <td>
+                <select name="itemProducts" class="form-select-custom product-select" onchange="onProductChange(this)" required>
+                    ${options}
+                </select>
+                <div class="small text-muted mt-1 product-info" style="display:none;">
+                    Tồn: <span class="stock-val">0</span>
+                </div>
+            </td>
+            <td>
+                <input type="text" class="form-control-custom" value="Đôi" readonly tabindex="-1" style="background:var(--bg-hover);">
+            </td>
+            <td>
+                <input type="number" name="itemQuantities" class="form-control-custom qty-input" value="1" min="1" oninput="calculateRow(this)" required>
+            </td>
+            <td>
+                <input type="number" name="itemPrices" class="form-control-custom price-input" value="0" min="0" oninput="calculateRow(this)" required>
+            </td>
+            <td class="text-center">
+                <button type="button" class="btn-remove" onclick="removeRow(this)"><i class="bi bi-trash"></i></button>
+            </td>
+        `;
+        
+        tbody.appendChild(tr);
+    }
+
+    function removeRow(btn) {
+        var row = btn.closest("tr");
+        row.remove();
+        
+        if (document.getElementById("tableBody").children.length === 0) {
+            document.getElementById("emptyState").style.display = "block";
+        }
+        calculateTotal();
+    }
+
+    function onProductChange(select) {
+        var row = select.closest("tr");
+        var option = select.options[select.selectedIndex];
+        
+        if (option.value) {
+            var stock = option.getAttribute("data-stock");
+            var price = option.getAttribute("data-price");
+            
+            // Show info
+            row.querySelector(".product-info").style.display = "block";
+            row.querySelector(".stock-val").innerText = stock;
+            
+            // Set default price
+            row.querySelector(".price-input").value = price;
+        } else {
+            row.querySelector(".product-info").style.display = "none";
+            row.querySelector(".price-input").value = 0;
+        }
+        calculateTotal();
+    }
+
+    function calculateTotal() {
+        var total = 0;
+        document.querySelectorAll("#tableBody tr").forEach(row => {
+            var qty = parseFloat(row.querySelector(".qty-input").value) || 0;
+            var price = parseFloat(row.querySelector(".price-input").value) || 0;
+            total += qty * price;
+        });
+        
+        // Format Currency
+        document.getElementById("grandTotal").innerText = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(total);
+    }
+
+    function calculateRow(input) {
+         calculateTotal();
+    }
+</script>
