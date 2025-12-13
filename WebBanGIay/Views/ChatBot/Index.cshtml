@@ -7,7 +7,7 @@
     /* Nút tròn */
     #chat-circle {
         position: fixed;
-        bottom: 25px;
+        top: 500px; /* 👈 cách mép trên xuống một chút */
         right: 25px;
         width: 60px;
         height: 60px;
@@ -19,7 +19,7 @@
         font-size: 28px;
         cursor: pointer;
         box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        z-index: 900;
+        z-index: 9999;
         transition: 0.3s;
     }
 
@@ -29,7 +29,7 @@
     /* Khung chat */
     #chat-popup {
         position: fixed;
-        bottom: 100px;
+        top: 200px; /* 👈 nằm dưới nút tròn */
         right: 25px;
         width: 320px;
         height: 420px;
@@ -37,7 +37,7 @@
         border-radius: 15px;
         box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         display: none;
-        z-index: 900;
+        z-index: 9999;
         overflow: hidden;
         flex-direction: column;
     }

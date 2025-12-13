@@ -29,6 +29,7 @@
             border-radius: 15px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.2);
             padding: 30px;
+            position: relative;
         }
 
             .register-card h3 {
@@ -77,10 +78,63 @@
         .alert {
             border-radius: 10px;
         }
+
+        .btn-home {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255,255,255,0.9);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4ecdc4;
+            font-size: 18px;
+            transition: all 0.3s;
+            z-index: 10;
+            text-decoration: none;
+        }
+
+            .btn-home:hover {
+                background: #fff;
+                transform: scale(1.1);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+                color: #3ac9c1;
+                text-decoration: none;
+            }
+
+        .home-tooltip {
+            position: absolute;
+            top: 50%;
+            right: 50px;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .btn-home:hover .home-tooltip {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
     <div class="register-card position-relative">
+        <!-- Nút trở về trang chủ -->
+        <a href="@Url.Action("Index", "TrangChu")" class="btn-home">
+            <i class="fas fa-home"></i>
+            <span class="home-tooltip">Trở về trang chủ</span>
+        </a>
+
         <h3 class="text-center mb-4">Đăng ký</h3>
 
         @if (ViewBag.Error != null)

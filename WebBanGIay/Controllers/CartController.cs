@@ -20,6 +20,7 @@ namespace WebBanGIay.Controllers
 
             if (cart == null || cart.Count == 0)
             {
+                // Nếu giỏ rỗng, gợi ý 4 sản phẩm khuyến mãi còn hàng
                 var sanPhamGoiY = db.SANPHAM
                     .Where(s => s.GIAKHUYENMAI > 0 && s.SOLUONGTON > 0)
                     .OrderByDescending(s => s.GIAKHUYENMAI)
@@ -30,121 +31,139 @@ namespace WebBanGIay.Controllers
 
             return View(cart);
         }
-
-        // [HttpPost] - NHẬN TỪ FORM (có AntiForgeryToken + sizeId)
-        // [HttpPost] - Thêm vào giỏ hành (Nhận từ Form)
-        // [HttpPost] - Thêm vào giỏ hành (Nhận từ Form)
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Add(string id, int soLuong = 1, string sizeId = null)
+        public ActionResult Add(string id, int soLuong, int? bienTheId, int? size)
         {
-            // Kiểm tra đăng nhập
-            if (Session["UserID"] == null)
+            int finalSize = size ?? 0;
+
+            if (!bienTheId.HasValue || finalSize == 0)
             {
-                return RedirectToAction("Login", "Account", new { returnUrl = Request.UrlReferrer?.ToString() ?? Url.Action("Index", "TrangChu") });
+                TempData["Error"] = "Vui lòng chọn màu và size!";
+                return RedirectToAction("ChiTiet", "Products", new { id = id });
             }
 
-            // Bắt buộc phải có id và sizeId
-            if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(sizeId))
-            {
-                TempData["Error"] = "Vui lòng chọn kích cỡ sản phẩm!";
-                return Redirect(Request.UrlReferrer != null ? Request.UrlReferrer.ToString() : Url.Action("Index", "TrangChu"));
-            }
+            int btId = bienTheId.Value;
+            int sz = finalSize;
 
+            // Lấy sản phẩm
             var sp = db.SANPHAM.FirstOrDefault(x => x.MASANPHAM.Trim() == id.Trim());
-            if (sp == null)
-                return HttpNotFound();
+            if (sp == null) return HttpNotFound();
 
-            // Tạo ID duy nhất cho giỏ hàng theo biến thể (sản phẩm + size)
-            string cartItemId = $"{sp.MASANPHAM.Trim()}-{sizeId.Trim()}";
-            string tenHienThi = $"{sp.TENSANPHAM} (Size: {sizeId.Trim()})";
-            decimal gia = sp.GIAKHUYENMAI ?? sp.GIA;
+            var bienThe = db.BIEN_THE_SAN_PHAM.FirstOrDefault(b => b.ID == btId);
+            if (bienThe == null) return new HttpStatusCodeResult(400);
 
-            cartService.Add(cartItemId, tenHienThi, sp.HINHANH, gia, soLuong);
+            var tonKho = db.TONKHO_SIZE.FirstOrDefault(tk => tk.IDBienThe == bienThe.ID && tk.SIZE == sz);
+            if (tonKho == null) return new HttpStatusCodeResult(400);
 
-            TempData["Success"] = "Đã thêm vào giỏ hàng!";
-            // Quay lại trang trước đó (chi tiết sản phẩm hoặc danh sách)
-            return Redirect(Request.UrlReferrer?.ToString() ?? Url.Action("Index", "TrangChu"));
+            string sizeStr = tonKho.SIZE.ToString();
+            string mau = bienThe.MAUSAC;
+
+            string tenHienThi = $"{sp.TENSANPHAM} (Size: {sizeStr}, Màu: {mau})";
+            decimal gia = bienThe.GIATHEOMAU;
+
+            cartService.Add(sp.MASANPHAM.Trim(), tenHienThi, sp.HINHANH, gia, soLuong, sizeStr, mau);
+
+            if (Request.UrlReferrer != null)
+                return Redirect(Request.UrlReferrer.ToString());
+
+            return RedirectToAction("Index", "Home");
         }
-        // POST: /Cart/AddAndCheckout → Dành riêng cho nút "Mua ngay"
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult AddAndCheckout(string id, int soLuong = 1, string sizeId = null)
+
+
+
+        public ActionResult AddNOW(string id, int soLuong, int bienTheId, int size)
         {
             // Kiểm tra đăng nhập
             if (Session["UserID"] == null)
             {
-                return RedirectToAction("Login", "Account", new { returnUrl = Request.UrlReferrer?.ToString() ?? Url.Action("Index", "TrangChu") });
+                return RedirectToAction("Login", "Account", new
+                {
+                    returnUrl = Request.UrlReferrer?.ToString() ?? Url.Action("Index", "TrangChu")
+                });
             }
 
-            // === PHẦN NÀY GIỐNG HỆT ACTION ADD CỦA BẠN ===
-            if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(sizeId))
-            {
-                TempData["Error"] = "Vui lòng chọn kích cỡ để mua ngay!";
-                return Redirect(Request.UrlReferrer != null ? Request.UrlReferrer.ToString() : Url.Action("Index", "TrangChu"));
-            }
-
-            var sp = db.SANPHAM.FirstOrDefault(x => x.MASANPHAM != null && x.MASANPHAM.Trim() == id.Trim());
-            if (sp == null)
-                return HttpNotFound();
-
-            string cartItemId = $"{sp.MASANPHAM.Trim()}-{sizeId.Trim()}";
-            string tenHienThi = $"{sp.TENSANPHAM} (Size: {sizeId})";
-            decimal gia = sp.GIAKHUYENMAI ?? sp.GIA;
-
-            cartService.Add(cartItemId, tenHienThi, sp.HINHANH, gia, soLuong);
-
-            // === QUAN TRỌNG: ĐI THẲNG VÀO GIỎ HÀNG ===
-            return RedirectToAction("Index", "Cart");
-        }
-        // [HttpPost] Cập nhật số lượng trong giỏ
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Update(string id, int soLuong)
-        {
             if (string.IsNullOrWhiteSpace(id))
                 return new HttpStatusCodeResult(400);
 
+            var sp = db.SANPHAM.FirstOrDefault(x => x.MASANPHAM.Trim() == id.Trim());
+            if (sp == null) return HttpNotFound();
+
+            var bienThe = db.BIEN_THE_SAN_PHAM.FirstOrDefault(b => b.ID == bienTheId);
+            if (bienThe == null) return new HttpStatusCodeResult(400);
+
+            var tonKho = db.TONKHO_SIZE.FirstOrDefault(tk => tk.IDBienThe == bienThe.ID && tk.SIZE == size);
+            if (tonKho == null) return new HttpStatusCodeResult(400);
+
+            string sizeStr = tonKho.SIZE.ToString();
+            string mau = bienThe.MAUSAC;
+
+            string tenHienThi = $"{sp.TENSANPHAM} (Size: {sizeStr}, Màu: {mau})";
+            decimal gia = bienThe.GIATHEOMAU;
+
+            cartService.Add(
+                sp.MASANPHAM.Trim(),
+                tenHienThi,
+                sp.HINHANH,
+                gia,
+                soLuong,
+                sizeStr,
+                mau
+            );
+
+            return RedirectToAction("Index", "Cart");
+        }
+
+
+
+
+
+
+        // Cập nhật số lượng sản phẩm
+        [HttpPost]
+        public ActionResult Update(string id, string size, string mau, int soLuong)
+        {
+            if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(size) || string.IsNullOrWhiteSpace(mau))
+                return new HttpStatusCodeResult(400);
+
             if (soLuong > 0)
-                cartService.Update(id.Trim(), soLuong);
+                cartService.Update(id.Trim(), size.Trim(), mau.Trim(), soLuong);
             else
-                cartService.Remove(id.Trim());
+                cartService.Remove(id.Trim(), size.Trim(), mau.Trim());
 
             return RedirectToAction("Index");
         }
 
         // Xóa 1 sản phẩm
-        public ActionResult Remove(string id)
+        public ActionResult Remove(string id, string size, string mau)
         {
-            if (!string.IsNullOrWhiteSpace(id))
-                cartService.Remove(id.Trim());
-
+            if (!string.IsNullOrWhiteSpace(id) && !string.IsNullOrWhiteSpace(size) && !string.IsNullOrWhiteSpace(mau))
+            {
+                cartService.Remove(id.Trim(), size.Trim(), mau.Trim());
+            }
             return RedirectToAction("Index");
         }
 
-        // Làm trống giỏ hàng
+        // Xóa toàn bộ giỏ hàng
         public ActionResult Clear()
         {
             cartService.Clear();
             return RedirectToAction("Index");
         }
 
-        // Trang thanh toán
+        // Checkout
         public ActionResult Checkout()
         {
             var cart = cartService.GetCart();
             if (cart == null || cart.Count == 0)
                 return RedirectToAction("Index");
 
+            ViewBag.TongTien = cartService.TongTien();
             return View(cart);
         }
 
         protected override void Dispose(bool disposing)
         {
             if (disposing)
-            {
                 db.Dispose();
-            }
             base.Dispose(disposing);
         }
     }

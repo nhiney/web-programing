@@ -1,0 +1,44 @@
+﻿@model IEnumerable<WebBanGIay.Models.SANPHAM>
+
+<h3>Kết quả tìm kiếm cho: "@ViewBag.Keyword"</h3>
+
+<div class="row">
+    @if (Model != null && Model.Any())
+    {
+        foreach (var sp in Model)
+        {
+            <div class="col-md-3 mb-4">
+                <div class="card h-100">
+                    <img src="@(string.IsNullOrWhiteSpace(sp.HINHANH) ? "/source/images/products/no-image.jpg" : "/source/images/products/" + sp.HINHANH)"
+                         alt="@sp.TENSANPHAM" class="card-img-top">
+                    <div class="card-body text-center">
+                        <h6>@sp.TENSANPHAM</h6>
+                        <p class="text-danger fw-bold">@sp.GIA.ToString("N0") đ</p>
+                        <a class="btn-detail" href="/Products/ChiTiet/@sp.MASANPHAM">Xem chi tiết</a>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <p class="text-danger">Không tìm thấy sản phẩm phù hợp.</p>
+    }
+</div>
+
+<style>
+    .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+    .card-img-top {
+        height: 200px;
+        object-fit: cover;
+    }
+</style>

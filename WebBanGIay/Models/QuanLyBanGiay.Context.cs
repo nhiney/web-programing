@@ -33,5 +33,7 @@ namespace WebBanGIay.Models
         public virtual DbSet<NHANVIEN> NHANVIEN { get; set; }
         public virtual DbSet<SANPHAM> SANPHAM { get; set; }
         public virtual DbSet<TAIKHOAN> TAIKHOAN { get; set; }
+        public virtual DbSet<BIEN_THE_SAN_PHAM> BIEN_THE_SAN_PHAM { get; set; }
+        public virtual DbSet<TONKHO_SIZE> TONKHO_SIZE { get; set; }
     }
 }

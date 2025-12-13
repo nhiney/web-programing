@@ -13,10 +13,6 @@ namespace WebBanGIay.Controllers
         QuanLyBanGiayEntities1 db = new QuanLyBanGiayEntities1();
         public ActionResult Index(string hang = "", string giaTu = "", string giaDen = "")
         {
-            // if (Session["UserID"] == null)
-            // {
-            //     return RedirectToAction("Login", "Account", new { returnUrl = Request.Url.AbsoluteUri });
-            // }
 
             var query = db.SANPHAM.AsQueryable();
 
@@ -81,5 +77,45 @@ namespace WebBanGIay.Controllers
 
             return View();
         }
+        public ActionResult TimKiem(string keyword)
+        {
+            if (string.IsNullOrWhiteSpace(keyword))
+            {
+                return RedirectToAction("Index");
+            }
+
+            keyword = keyword.Trim();
+
+            var tatCaSanPham = db.SANPHAM.AsEnumerable();
+
+            var dsSanPham = tatCaSanPham
+                .Where(s => RemoveDiacritics(s.TENSANPHAM).IndexOf(RemoveDiacritics(keyword), StringComparison.OrdinalIgnoreCase) >= 0)
+                .ToList();
+
+            ViewBag.Keyword = keyword;
+            return View(dsSanPham);
+        }
+
+        // Hàm loại bỏ dấu (giữ nguyên)
+        private string RemoveDiacritics(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return text;
+
+            var normalizedString = text.Normalize(System.Text.NormalizationForm.FormD);
+            var stringBuilder = new System.Text.StringBuilder();
+
+            foreach (char c in normalizedString)
+            {
+                var unicodeCategory = System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c);
+                if (unicodeCategory != System.Globalization.UnicodeCategory.NonSpacingMark)
+                {
+                    stringBuilder.Append(c);
+                }
+            }
+
+            return stringBuilder.ToString().Normalize(System.Text.NormalizationForm.FormC);
+        }
+
     }
 }

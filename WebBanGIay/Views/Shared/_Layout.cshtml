@@ -4,302 +4,652 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewBag.Title - MEODIGIAY</title>
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <!-- Font Awesome -->
 
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
-    <!--script cho Cart index-->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    @Styles.Render("~/Content/css")
-    @Scripts.Render("~/bundles/modernizr")
+    <!-- AOS Animation -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
-    <link href="~/Css/DinhdangCSS.css" rel="stylesheet" />
-    @Styles.Render("~/Css/DinhdangCSS.css")
+    <!-- Custom CSS -->
+    <link href="@Url.Content("~/Content/Css/dinhdang.css")" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        @@keyframes pulse {
+            0% {
+                box-shadow: 0 4px 15px rgba(255, 59, 48, 0.4);
+            }
+
+            50% {
+                box-shadow: 0 8px 30px rgba(255, 59, 48, 0.7);
+            }
+
+            100% {
+                box-shadow: 0 4px 15px rgba(255, 59, 48, 0.4);
+            }
+        }
+        @@media (max-width: 991px) {
+            .navbar-nav {
+                display: none;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .search-container {
+                display: none;
+            }
+
+            .user-dropdown {
+                display: none;
+            }
+
+            .carousel-title {
+                font-size: 2rem;
+            }
+
+            .carousel-text {
+                font-size: 1rem;
+            }
+        }
+
+        @@media (max-width: 767px) {
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .product-section, .features-section, .payment-section {
+                padding: 50px 0;
+            }
+
+            footer {
+                padding: 50px 0 20px;
+            }
+        }
+        @@keyframes slide {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+        @@keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+
+    </style>
 </head>
 <body>
-    <div id="notificationContainer"></div>
+    <!-- Preloader -->
+    <div class="preloader">
+        <div class="preloader-inner">
+            <div class="preloader-circle"></div>
+        </div>
+    </div>
 
-    <header class="bg-white py-2 shadow-sm sticky-top">
+    <!-- Header -->
+    <header>
         <div class="container">
-            <div class="row align-items-center">
-                <div class="col-5 col-md-3 d-flex align-items-center">
-                    <a href="@Url.Action("Index", "TrangChu")" class="d-flex align-items-center text-decoration-none">
-                        <img src="@Url.Content("~/source/images/logo/logo.png")" alt="MEODIGIAY" style="width: 3rem; height: 3rem; object-fit: contain;" class="mr-2">
-                        <span class="h4 mb-0 logo-text d-none d-md-block">MEODIGIAY</span>
+            <nav class="navbar navbar-expand-lg navbar-light">
+                <a class="navbar-brand" href="@Url.Action("Index", "TrangChu")">
+                    <img src="@Url.Content("~/source/images/logo/logo.png")" alt="MEODIGIAY" style="width: 40px; height: 40px; object-fit: contain; margin-right: 10px;">
+                    MEODIGIAY
+                </a>
+
+                <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <div class="collapse navbar-collapse justify-content-center">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewBag.ActiveMenu=="Home" ? "active-menu" : "")" href="/">HOME</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewBag.ActiveMenu=="HuongDan" ? "active-menu" : "")" href="/TrangChu/HuongDan">GUIDE</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewBag.ActiveMenu=="LienHe" ? "active-menu" : "")" href="/TrangChu/LienHe">CONTACT</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewBag.ActiveMenu=="TuyenDung" ? "active-menu" : "")" href="/TrangChu/TuyenDung">JOB</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link sale-menu" href="/TrangChu/KhuyenMai">
+                                <i class="fas fa-fire me-1"></i> KHUYẾN MÃI
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="d-flex align-items-center">
+                    <div class="search-container me-3">
+                        <form action="@Url.Action("TimKiem", "TrangChu")" method="get" style="all: unset; display: contents;">
+                            <input type="search"
+                                   name="keyword"
+                                   class="search-input"
+                                   placeholder="Tìm kiếm..."
+                                   value="@ViewBag.Keyword">
+                            <button type="submit" class="search-btn">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </form>
+                    </div>
+                    @if (Session["UserName"] == null)
+                    {
+                        <div class="user-dropdown me-3">
+                            <a href="@Url.Action("Login","Account")" class="btn btn-outline-primary btn-sm rounded-pill">Đăng nhập</a>
+                            <a href="@Url.Action("Register","Account")" class="btn btn-primary btn-sm rounded-pill">Đăng ký</a>
+                        </div>
+                    }
+                    else
+                    {
+                <div class="dropdown user-dropdown me-3">
+                    <a class="d-flex align-items-center gap-2 text-dark dropdown-toggle"
+                       href="#"
+                       role="button"
+                       data-bs-toggle="dropdown"
+                       aria-expanded="false"
+                       style="text-decoration:none; cursor:pointer;">
+
+                        <i class="fas fa-user-circle fs-5"></i>
+                        <span class="fw-semibold">Hi, @Session["UserName"]</span>
+                    </a>
+
+                    <ul class="dropdown-menu dropdown-menu-end shadow">
+                        <li>
+                            <a class="dropdown-item" href="@Url.Action("Profile", "Account")">
+                                <i class="fas fa-user me-2"></i> Tài khoản
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="@Url.Action("Checkout", "Cart")">
+                                <i class="fas fa-user me-2"></i> Đơn Hàng
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item text-danger" href="/Account/Logout">
+                                <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                    }
+
+
+                    <a href="@Url.Action("Index", "Cart")" class="cart-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-count">3</span>
                     </a>
                 </div>
-
-                <div class="col-md-6 d-none d-md-flex justify-content-center">
-                    @Html.Action("MenuThuongHieu", "TrangChu")
-                </div>
-
-                <div class="col-7 col-md-3 d-flex align-items-center justify-content-end">
-                    <div class="search-container mr-2 d-none d-md-block">
-                        <input type="search" class="form-control form-control-sm" id="searchInput" placeholder="Tìm kiếm..." style="width: 140px; font-size: 0.85rem;">
-                        <div id="searchResults"></div>
-                    </div>
-
-                    <div class="d-flex align-items-center">
-
-                        <!-- LOGIN / REGISTER / USER DROPDOWN -->
-                        @if (Session["UserName"] == null)
-                        {
-                            <a href="@Url.Action("Login", "Account")" class="btn btn-outline-primary btn-login me-2">
-                                <i class="fas fa-sign-in-alt me-1"></i>Login
-                            </a>
-                            <a href="@Url.Action("Register", "Account")" class="btn btn-primary btn-register me-2">
-                                <i class="fas fa-user-plus me-1"></i>Đăng ký
-                            </a>
-                        }
-                        else
-                        {
-                            <div class="dropdown me-3">
-                                <button class="btn btn-light btn-user dropdown-toggle" type="button"
-                                        id="userMenu" data-bs-toggle="dropdown">
-                                    <i class="fas fa-user-circle me-2"></i>@Session["UserName"]
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end shadow rounded-3" aria-labelledby="userMenu">
-                                    <li>
-                                        <a class="dropdown-item d-flex align-items-center" href="@Url.Action("Profile", "Account")">
-                                            <i class="fas fa-user me-2"></i>Thông tin tài khoản
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item d-flex align-items-center" href="@Url.Action("Logout", "Account")">
-                                            <i class="fas fa-sign-out-alt me-2"></i>Đăng xuất
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        }
-
-
-
-                        @* <button type="button" class="btn btn-outline-primary btn-sm mr-1" data-toggle="modal" data-target="#loginModal">
-                            <i class="fas fa-sign-in-alt"></i> <span class="d-none d-xl-inline">Login</span>
-                        </button> *@
-
-
-
-                        <a href="@Url.Action("Index", "Cart")" class="btn btn-light border position-relative ml-2" style="width:36px;height:36px;">
-                            <i class="fas fa-shopping-cart"></i>
-                            <span id="cartCount" class="position-absolute bg-danger text-white rounded-circle d-flex align-items-center justify-content-center" style="font-size:0.65rem;width:18px;height:18px;top:-8px;right:-8px;">0</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
+            </nav>
         </div>
     </header>
 
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <h4>MEODIGIAY</h4>
+            <button class="mobile-menu-close" id="mobileMenuClose">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="mobile-menu-content">
+            <a href="/" class="mobile-menu-item @(ViewBag.ActiveMenu=="Home" ? "active" : "")">HOME</a>
+            <a href="/TrangChu/HuongDan" class="mobile-menu-item @(ViewBag.ActiveMenu=="HuongDan" ? "active" : "")">GUIDE</a>
+            <a href="/TrangChu/LienHe" class="mobile-menu-item @(ViewBag.ActiveMenu=="LienHe" ? "active" : "")">CONTACT</a>
+            <a href="/TrangChu/TuyenDung" class="mobile-menu-item @(ViewBag.ActiveMenu=="TuyenDung" ? "active" : "")">
+                JOB/a>
+                <a href="/TrangChu/KhuyenMai" class="mobile-menu-item">
+                    <i class="fas fa-fire me-1"></i> KHUYẾN MÃI
+                </a>
+
+                @if (Session["UserName"] == null)
+                {
+                    <a href="@Url.Action("Login","Account")" class="mobile-menu-item">Đăng nhập</a>
+                    <a href="@Url.Action("Register","Account")" class="mobile-menu-item">Đăng ký</a>
+                }
+                else
+                {
+                    <a href="#" class="mobile-menu-item">Tài khoản</a>
+                    <a href="#" class="mobile-menu-item">Đơn hàng</a>
+                    <a href="/Account/Logout" class="mobile-menu-item text-danger">Đăng xuất</a>
+                }
+
+                <div class="mt-4">
+                    <form action="@Url.Action("TimKiem", "TrangChu")" method="get" class="search-container">
+                        <input type="search" name="keyword" class="form-control" placeholder="Tìm kiếm sản phẩm..." required>
+                        <button type="submit" class="search-btn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </form>
+                </div>
+
+</div>
+    </div>
+
+    <!-- Brand Menu -->
+    <div class="brand-menu">
+        <div class="container">
+            <div class="brand-slider">
+                <div class="brand-item">
+                    <img src="@Url.Content("~/source/images/logo/adida.jpg")" alt="Adidas" width="100">
+                </div>
+                <div class="brand-item">
+                    <img src="@Url.Content("~/source/images/logo/converse.jpg")" alt="Converse" width="100">
+                </div>
+                <div class="brand-item">
+                    <img src="@Url.Content("~/source/images/logo/nike.jpg")" alt="Nike" width="100">
+                </div>
+                <div class="brand-item">
+                    <img src="@Url.Content("~/source/images/logo/plus.jpg")" alt="Plus" width="100">
+                </div>
+                <div class="brand-item">
+                    <img src="@Url.Content("~/source/images/logo/cros.jpg")" alt="Cros" width="100">
+                </div>
+                <div class="brand-item">
+                    <img src="@Url.Content("~/source/images/logo/fila.jpg")" alt="Fila" width="100">
+                </div>
+                <!-- Duplicate for seamless loop -->
+                <div class="brand-item">
+                    <img src="@Url.Content("~/source/images/logo/adida.jpg")" alt="Adidas" width="100">
+                </div>
+                <div class="brand-item">
+                    <img src="@Url.Content("~/source/images/logo/converse.jpg")" alt="Converse" width="100">
+                </div>
+                <div class="brand-item">
+                    <img src="@Url.Content("~/source/images/logo/nike.jpg")" alt="Nike" width="100">
+                </div>
+                <div class="brand-item">
+                    <img src="@Url.Content("~/source/images/logo/plus.jpg")" alt="Plus" width="100">
+                </div>
+                <div class="brand-item">
+                    <img src="@Url.Content("~/source/images/logo/cros.jpg")" alt="Cros" width="100">
+                </div>
+                <div class="brand-item">
+                    <img src="@Url.Content("~/source/images/logo/fila.jpg")" alt="Fila" width="100">
+                </div>
+            </div>
+        </div>
+    </div>
+
     @if (ViewContext.RouteData.Values["controller"].ToString() == "TrangChu" && ViewContext.RouteData.Values["action"].ToString() == "Index")
     {
-        <div id="myCarousel" class="carousel slide" data-ride="carousel">
-            <ol class="carousel-indicators">
-                <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
-                <li data-target="#myCarousel" data-slide-to="1"></li>
-                <li data-target="#myCarousel" data-slide-to="2"></li>
-            </ol>
+        <!-- Carousel -->
+        <div id="homeCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-indicators">
+                <button type="button" data-bs-target="#homeCarousel" data-bs-slide-to="0" class="active"></button>
+                <button type="button" data-bs-target="#homeCarousel" data-bs-slide-to="1"></button>
+                <button type="button" data-bs-target="#homeCarousel" data-bs-slide-to="2"></button>
+            </div>
             <div class="carousel-inner">
                 <div class="carousel-item active">
-                    <img class="d-block w-100 banner-high" src="@Url.Content("~/source/images/banner/banner.jpg")" alt="Slide 1">
-                    <div class="carousel-caption d-none d-md-block">
-                        <h2>Bộ Sưu Tập Mới Nhất</h2>
-                        <p>Khám phá các mẫu giày thời trang mới nhất với ưu đãi đặc biệt</p>
-                        <a href="#" class="btn btn-warning btn-lg">Mua Ngay</a>
+                    <img src="@Url.Content("~/source/images/banner/banner.jpg")" class="carousel-image" alt="Banner 1">
+                    <div class="carousel-overlay">
+                        <div class="carousel-content" data-aos="fade-up">
+                            <h1 class="carousel-title">Bộ Sưu Tập Mới Nhất</h1>
+                            <p class="carousel-text">Khám phá các mẫu giày thời trang mới nhất với ưu đãi đặc biệt</p>
+                            <a href="#" class="carousel-btn">Mua Ngay</a>
+                        </div>
                     </div>
                 </div>
                 <div class="carousel-item">
-                    <img class="d-block w-100 banner-high" src="@Url.Content("~/source/images/banner/banner1.jpg")" alt="Slide 2">
-                    <div class="carousel-caption d-none d-md-block">
-                        <h2>Giảm Giá Mùa Hè</h2>
-                        <p>Ưu đãi lên đến 50% cho các sản phẩm hot</p>
-                        <a href="#" class="btn btn-warning btn-lg">Xem Ngay</a>
+                    <img src="@Url.Content("~/source/images/banner/banner1.jpg")" class="carousel-image" alt="Banner 2">
+                    <div class="carousel-overlay">
+                        <div class="carousel-content" data-aos="fade-up">
+                            <h1 class="carousel-title">Giảm Giá Mùa Hè</h1>
+                            <p class="carousel-text">Ưu đãi lên đến 50% cho các sản phẩm hot</p>
+                            <a href="#" class="carousel-btn">Xem Ngay</a>
+                        </div>
                     </div>
                 </div>
                 <div class="carousel-item">
-                    <img class="d-block w-100 banner-high" src="@Url.Content("~/source/images/banner/banner2.jpg")" alt="Slide 3">
-                    <div class="carousel-caption d-none d-md-block">
-                        <h2>Thương Hiệu Nổi Tiếng</h2>
-                        <p>Các sản phẩm chính hãng từ các thương hiệu hàng đầu</p>
-                        <a href="#" class="btn btn-warning btn-lg">Khám Phá</a>
+                    <img src="@Url.Content("~/source/images/banner/banner2.jpg")" class="carousel-image" alt="Banner 3">
+                    <div class="carousel-overlay">
+                        <div class="carousel-content" data-aos="fade-up">
+                            <h1 class="carousel-title">Thương Hiệu Nổi Tiếng</h1>
+                            <p class="carousel-text">Các sản phẩm chính hãng từ các thương hiệu hàng đầu</p>
+                            <a href="#" class="carousel-btn">Khám Phá</a>
+                        </div>
                     </div>
                 </div>
             </div>
-            <a class="carousel-control-prev" href="#myCarousel" role="button" data-slide="prev">
+            <button class="carousel-control-prev" type="button" data-bs-target="#homeCarousel" data-bs-slide="prev">
                 <span class="carousel-control-prev-icon"></span>
-            </a>
-            <a class="carousel-control-next" href="#myCarousel" role="button" data-slide="next">
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#homeCarousel" data-bs-slide="next">
                 <span class="carousel-control-next-icon"></span>
-            </a>
+            </button>
         </div>
 
-        <div class="navbar navbar-light mb-5 p-3" style="background-color: white;">
+        <!-- Product Section -->
+        <section class="product-section">
             <div class="container">
-                <a class="navbar-brand" href="#"><img src="@Url.Content("~/source/images/logo/adida.jpg")" alt="Adidas" width="100" class="hove"></a>
-                <a class="navbar-brand" href="#"><img src="@Url.Content("~/source/images/logo/converse.jpg")" alt="Converse" width="100" class="hove"></a>
-                <a class="navbar-brand" href="#"><img src="@Url.Content("~/source/images/logo/nike.jpg")" alt="Nike" width="100" class="hove"></a>
-                <a class="navbar-brand" href="#"><img src="@Url.Content("~/source/images/logo/plus.jpg")" alt="Plus" width="100" class="hove"></a>
-                <a class="navbar-brand" href="#"><img src="@Url.Content("~/source/images/logo/cros.jpg")" alt="Cros" width="100" class="hove"></a>
-                <a class="navbar-brand" href="#"><img src="@Url.Content("~/source/images/logo/fila.jpg")" alt="Fila" width="100" class="hove"></a>
-            </div>
-        </div>
+                <h2 class="section-title" data-aos="fade-up">Sản Phẩm Nổi Bật</h2>
+                <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">Khám phá những mẫu giày thời trang và chất lượng nhất từ các thương hiệu hàng đầu</p>
 
-        <section class="py-5">
-            <div class="container">
-                <div class="row align-items-center mb-5">
-                    <div class="col-md-6">
-                        <h2>NIKE</h2>
-                        <p>Thiết kế thể thao hiện đại...</p>
-                        <a href="#" class="btn btn-warning">Tới Cửa Hàng</a>
+                <div class="row">
+                    <div class="col-md-6 mb-4" data-aos="fade-right" data-aos-delay="200">
+                        <div class="product-card">
+                            <div class="product-image">
+                                <img src="@Url.Content("~/source/images/nike2.jpg")" alt="NIKE">
+                                <div class="product-badge">HOT</div>
+                            </div>
+                            <div class="product-content">
+                                <h3 class="product-title">NIKE</h3>
+                                <p class="product-description">Thiết kế thể thao hiện đại với công nghệ đệm Air Max giúp mang lại sự thoải mái tối đa trong mọi hoạt động.</p>
+                                <a href="#" class="product-btn">Tới Cửa Hàng</a>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <img src="@Url.Content("~/source/images/nike2.jpg")" alt="NIKE" class="img-fluid image-border">
+
+                    <div class="col-md-6 mb-4" data-aos="fade-left" data-aos-delay="300">
+                        <div class="product-card">
+                            <div class="product-image">
+                                <img src="@Url.Content("~/source/images/fila1.jpg")" alt="FILA">
+                                <div class="product-badge">NEW</div>
+                            </div>
+                            <div class="product-content">
+                                <h3 class="product-title">FILA</h3>
+                                <p class="product-description">Giày có thiết kế dáng dày đế cao, mang lại phong cách retro cổ điển kết hợp với sự hiện đại.</p>
+                                <a href="#" class="product-btn">Tới Cửa Hàng</a>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="row align-items-center mb-5">
-                    <div class="col-md-6 order-md-2">
-                        <h2>FILA</h2>
-                        <p>Giày có thiết kế dáng dày...</p>
-                        <a href="#" class="btn btn-warning">Tới Cửa Hàng</a>
+
+                    <div class="col-md-6 mb-4" data-aos="fade-right" data-aos-delay="400">
+                        <div class="product-card">
+                            <div class="product-image">
+                                <img src="@Url.Content("~/source/images/adidas1.jpg")" alt="ADIDAS">
+                                <div class="product-badge">SALE</div>
+                            </div>
+                            <div class="product-content">
+                                <h3 class="product-title">ADIDAS CAMPUS</h3>
+                                <p class="product-description">Một thiết kế mang phong cách cổ điển với đế giày dày và màu sắc trang nhã, phù hợp với mọi trang phục.</p>
+                                <a href="#" class="product-btn">Tới Cửa Hàng</a>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-6 order-md-1">
-                        <img src="@Url.Content("~/source/images/fila1.jpg")" alt="FILA" class="img-fluid image-border">
-                    </div>
-                </div>
-                <div class="row align-items-center">
-                    <div class="col-md-6">
-                        <h2>ADIDAS CAMPUS</h2>
-                        <p>Một thiết kế mang phong cách cổ điển...</p>
-                        <a href="#" class="btn btn-warning">Tới Cửa Hàng</a>
-                    </div>
-                    <div class="col-md-6">
-                        <img src="@Url.Content("~/source/images/adidas1.jpg")" alt="ADIDAS" class="img-fluid image-border">
+
+                    <div class="col-md-6 mb-4" data-aos="fade-left" data-aos-delay="500">
+                        <div class="product-card">
+                            <div class="product-image">
+                                <img src="@Url.Content("~/source/images/Products/CONVERSE1.jpeg")" alt="CONVERSE">
+                                <div class="product-badge">TRENDING</div>
+                            </div>
+                            <div class="product-content">
+                                <h3 class="product-title">CONVERSE</h3>
+                                <p class="product-description">Biểu tượng của phong cách trẻ trung với thiết kế đế dày và chất liệu canvas bền bỉ, thoáng khí.</p>
+                                <a href="#" class="product-btn">Tới Cửa Hàng</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
     }
+    <div class="menu-item">
+        @Html.Action("MenuThuongHieu", "TrangChu")
+    </div>
     <div class="container body-content">
         @RenderBody()
     </div>
 
-    <section class="py-5 bg-white">
+    <!-- Features Section -->
+    <section class="features-section">
         <div class="container">
-            <h2 class="text-center mb-5" style="color: var(--primary-color); font-weight: 700;">ƯU ĐÃI NỔI BẬT</h2>
-            <div class="row text-center">
-                <div class="col-12 col-md-4 mb-4">
-                    <div class="p-4 border rounded shadow-sm h-100">
-                        <i class="fas fa-shipping-fast fa-3x mb-3" style="color: var(--primary-color);"></i>
-                        <h5 class="font-weight-bold">Miễn phí vận chuyển</h5>
-                        <p class="text-muted">Đơn hàng từ 500.000đ trở lên</p>
+            <h2 class="section-title" data-aos="fade-up">Ưu Đãi Nổi Bật</h2>
+            <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">Trải nghiệm dịch vụ mua sắm tốt nhất với những ưu đãi hấp dẫn</p>
+
+            <div class="row">
+                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-shipping-fast"></i>
+                        </div>
+                        <h3 class="feature-title">Miễn phí vận chuyển</h3>
+                        <p class="feature-description">Đơn hàng từ 500.000đ trở lên sẽ được miễn phí vận chuyển toàn quốc</p>
                     </div>
                 </div>
-                <div class="col-12 col-md-4 mb-4">
-                    <div class="p-4 border rounded shadow-sm h-100">
-                        <i class="fas fa-undo-alt fa-3x mb-3" style="color: var(--primary-color);"></i>
-                        <h5 class="font-weight-bold">Đổi trả dễ dàng</h5>
-                        <p class="text-muted">Trong 30 ngày nếu lỗi nhà sản xuất</p>
+
+                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-undo-alt"></i>
+                        </div>
+                        <h3 class="feature-title">Đổi trả dễ dàng</h3>
+                        <p class="feature-description">Chính sách đổi trả trong 30 ngày nếu sản phẩm có lỗi từ nhà sản xuất</p>
                     </div>
                 </div>
-                <div class="col-12 col-md-4 mb-4">
-                    <div class="p-4 border rounded shadow-sm h-100">
-                        <i class="fas fa-headset fa-3x mb-3" style="color: var(--primary-color);"></i>
-                        <h5 class="font-weight-bold">Hỗ trợ 24/7</h5>
-                        <p class="text-muted">Tư vấn tận tình, nhanh chóng</p>
+
+                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="400">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                        <h3 class="feature-title">Hỗ trợ 24/7</h3>
+                        <p class="feature-description">Đội ngũ tư vấn viên chuyên nghiệp luôn sẵn sàng hỗ trợ bạn mọi lúc</p>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="py-5 bg-light">
+    <!-- Payment Section -->
+    <section class="payment-section">
         <div class="container">
-            <h2 class="text-center mb-5" style="color: var(--primary-color); font-weight: 700;">PHƯƠNG THỨC THANH TOÁN</h2>
-            <div class="row justify-content-center align-items-center text-center">
-                <div class="col-6 col-sm-4 col-md-3 col-lg-2 mb-3">
-                    <img src="@Url.Content("~/source/images/payment/cod.png")" alt="COD" class="img-fluid" style="max-height: 50px;">
-                    <p class="mt-2 small">COD</p>
+            <h2 class="section-title" data-aos="fade-up">Phương Thức Thanh Toán</h2>
+            <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">Chúng tôi chấp nhận nhiều hình thức thanh toán tiện lợi và an toàn</p>
+
+            <div class="row">
+                <div class="col-6 col-sm-4 col-md-2 mb-4" data-aos="zoom-in" data-aos-delay="200">
+                    <div class="payment-method">
+                        <img src="@Url.Content("~/source/images/payment/cod.png")" alt="COD" class="payment-icon">
+                        <p class="payment-name">COD</p>
+                    </div>
                 </div>
-                <div class="col-6 col-sm-4 col-md-3 col-lg-2 mb-3">
-                    <img src="@Url.Content("~/source/images/payment/momo.png")" alt="MoMo" class="img-fluid" style="max-height: 50px;">
-                    <p class="mt-2 small">MoMo</p>
+
+                <div class="col-6 col-sm-4 col-md-2 mb-4" data-aos="zoom-in" data-aos-delay="300">
+                    <div class="payment-method">
+                        <img src="@Url.Content("~/source/images/payment/momo.png")" alt="MoMo" class="payment-icon">
+                        <p class="payment-name">MoMo</p>
+                    </div>
                 </div>
-                <div class="col-6 col-sm-4 col-md-3 col-lg-2 mb-3">
-                    <img src="@Url.Content("~/source/images/payment/zalopay.png")" alt="ZaloPay" class="img-fluid" style="max-height: 50px;">
-                    <p class="mt-2 small">ZaloPay</p>
+
+                <div class="col-6 col-sm-4 col-md-2 mb-4" data-aos="zoom-in" data-aos-delay="400">
+                    <div class="payment-method">
+                        <img src="@Url.Content("~/source/images/payment/zalopay.png")" alt="ZaloPay" class="payment-icon">
+                        <p class="payment-name">ZaloPay</p>
+                    </div>
                 </div>
-                <div class="col-6 col-sm-4 col-md-3 col-lg-2 mb-3">
-                    <img src="@Url.Content("~/source/images/payment/vnpay.png")" alt="VNPay" class="img-fluid" style="max-height: 50px;">
-                    <p class="mt-2 small">VNPay</p>
+
+                <div class="col-6 col-sm-4 col-md-2 mb-4" data-aos="zoom-in" data-aos-delay="500">
+                    <div class="payment-method">
+                        <img src="@Url.Content("~/source/images/payment/vnpay.png")" alt="VNPay" class="payment-icon">
+                        <p class="payment-name">VNPay</p>
+                    </div>
                 </div>
-                <div class="col-6 col-sm-4 col-md-3 col-lg-2 mb-3">
-                    <img src="@Url.Content("~/source/images/payment/visa.png")" alt="Thẻ Quốc tế" class="img-fluid" style="max-height: 50px;">
-                    <p class="mt-2 small">Thẻ Quốc tế</p>
+
+                <div class="col-6 col-sm-4 col-md-2 mb-4" data-aos="zoom-in" data-aos-delay="600">
+                    <div class="payment-method">
+                        <img src="@Url.Content("~/source/images/payment/visa.png")" alt="Thẻ Quốc tế" class="payment-icon">
+                        <p class="payment-name">Thẻ Quốc tế</p>
+                    </div>
                 </div>
-                <div class="col-6 col-sm-4 col-md-3 col-lg-2 mb-3">
-                    <img src="@Url.Content("~/source/images/payment/atm.png")" alt="Thẻ ATM" class="img-fluid" style="max-height: 50px;">
-                    <p class="mt-2 small">Thẻ ATM</p>
+
+                <div class="col-6 col-sm-4 col-md-2 mb-4" data-aos="zoom-in" data-aos-delay="700">
+                    <div class="payment-method">
+                        <img src="@Url.Content("~/source/images/payment/atm.png")" alt="Thẻ ATM" class="payment-icon">
+                        <p class="payment-name">Thẻ ATM</p>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- Footer -->
     <footer>
         <div class="container">
             <div class="row">
-                <div class="col-md-3 footer-section">
-                    <h5>Về MEODIGIAY</h5>
-                    <ul class="footer-links list-unstyled">
-                        <li><a href="@Url.Action("Index", "TrangChu")">Giới thiệu</a></li>
-                        <li><a href="@Url.Action("KhuyenMai", "TrangChu")">Tin tức</a></li>
+                <div class="col-md-3 mb-4">
+                    <h5 class="footer-title">Về MEODIGIAY</h5>
+                    <ul class="footer-links">
+                        <li><a href="@Url.Action("HuongDan", "TrangChu")">Hướng Dẫn</a></li>
                         <li><a href="@Url.Action("TuyenDung", "TrangChu")">Tuyển dụng</a></li>
                         <li><a href="@Url.Action("LienHe", "TrangChu")">Liên hệ</a></li>
                     </ul>
                 </div>
-                <div class="col-md-3 footer-section">
-                    <h5>Chính sách</h5>
-                    <ul class="footer-links list-unstyled">
+
+                <div class="col-md-3 mb-4">
+                    <h5 class="footer-title">Chính sách</h5>
+                    <ul class="footer-links">
                         <li><a href="@Url.Action("HuongDan", "TrangChu")">Chính sách đổi trả</a></li>
                         <li><a href="@Url.Action("HuongDan", "TrangChu")">Chính sách bảo hành</a></li>
                         <li><a href="@Url.Action("HuongDan", "TrangChu")">Chính sách bảo mật</a></li>
-                        <li><a href="@Url.Action("HuongDan", "TrangChu")">Điều khoản dịch vụ</a></li>
                     </ul>
                 </div>
-                <div class="col-md-3 footer-section">
-                    <h5>Hỗ trợ khách hàng</h5>
-                    <ul class="footer-links list-unstyled">
+
+                <div class="col-md-3 mb-4">
+                    <h5 class="footer-title">Hỗ trợ khách hàng</h5>
+                    <ul class="footer-links">
                         <li><a href="@Url.Action("HuongDan", "TrangChu")">Hướng dẫn mua hàng</a></li>
                         <li><a href="@Url.Action("HuongDan", "TrangChu")">Hướng dẫn thanh toán</a></li>
                         <li><a href="@Url.Action("LienHe", "TrangChu")">Câu hỏi thường gặp</a></li>
                         <li><a href="@Url.Action("Profile", "Account")">Tra cứu đơn hàng</a></li>
                     </ul>
                 </div>
-                <div class="col-md-3 footer-section">
-                    <h5>Kết nối với chúng tôi</h5>
-                    <div class="social-links mb-4">
-                        <a href="#"><i class="fab fa-facebook"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-youtube"></i></a>
-                        <a href="#"><i class="fab fa-tiktok"></i></a>
+
+                <div class="col-md-3 mb-4">
+                    <h5 class="footer-title">Kết nối với chúng tôi</h5>
+                    <div class="social-links">
+                        <a href="https://www.facebook.com/dung.viet.292945/" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                        <a href="@Html.Raw("https://www.youtube.com/@AML1N2205_VietDung_")" class="social-link"><i class="fab fa-youtube"></i></a>
+                        <a href="@Html.Raw("https://www.tiktok.com/@bancongg")" class="social-link"><i class="fab fa-tiktok"></i></a>
                     </div>
-                    <h5>Hotline hỗ trợ</h5>
-                    <p class="mb-2"><i class="fas fa-phone-alt mr-2"></i>1900 1234</p>
-                    <p><i class="fas fa-envelope mr-2"></i>support@meodigiay.com</p>
+
+                    <div class="contact-info">
+                        <i class="fas fa-phone-alt"></i>
+                        <span>1900 1234</span>
+                    </div>
+
+                    <div class="contact-info">
+                        <i class="fas fa-envelope"></i>
+                        <span>support@meodigiay.com</span>
+                    </div>
                 </div>
             </div>
-            <hr class="mt-4 mb-4" style="background-color: rgba(255,255,255,0.1);">
-            <div class="text-center">
-                <p class="mb-0">&copy; @DateTime.Now.Year - MEODIGIAY. All rights reserved.</p>
+
+            <div class="copyright">
+                <p>&copy; @DateTime.Now.Year - MEODIGIAY. All rights reserved.</p>
             </div>
         </div>
     </footer>
 
+    <!-- Back to Top Button -->
+    <div class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            once: true
+        });
+
+        // Preloader
+        window.addEventListener('load', function () {
+            setTimeout(function () {
+                document.querySelector('.preloader').classList.add('fade-out');
+            }, 1000);
+        });
+
+        // Mobile Menu
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileMenuClose = document.getElementById('mobileMenuClose');
+
+        mobileMenuToggle.addEventListener('click', function () {
+            mobileMenu.classList.add('active');
+        });
+
+        mobileMenuClose.addEventListener('click', function () {
+            mobileMenu.classList.remove('active');
+        });
+
+        // Header scroll effect
+        window.addEventListener('scroll', function () {
+            const header = document.querySelector('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Back to top button
+        const backToTop = document.getElementById('backToTop');
+
+        window.addEventListener('scroll', function () {
+            if (window.scrollY > 300) {
+                backToTop.classList.add('active');
+            } else {
+                backToTop.classList.remove('active');
+            }
+        });
+
+        backToTop.addEventListener('click', function () {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // Search functionality
+        document.querySelectorAll('.search-input').forEach(input => {
+            input.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    const searchTerm = this.value.trim();
+                    if (searchTerm) {
+                        window.location.href = `/Search?q=${encodeURIComponent(searchTerm)}`;
+                    }
+                }
+            });
+        });
+
+        document.querySelectorAll('.search-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const input = this.previousElementSibling;
+                const searchTerm = input.value.trim();
+                if (searchTerm) {
+                    window.location.href = `/Search?q=${encodeURIComponent(searchTerm)}`;
+                }
+            });
+        });
+    </script>
 
     @RenderSection("scripts", required: false)
 </body>

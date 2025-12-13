@@ -4,7 +4,16 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="QLGIAYModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="QLGIAYModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="BIEN_THE_SAN_PHAM">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="MASANPHAM" Type="char" MaxLength="20" Nullable="false" />
+          <Property Name="MAUSAC" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="GIATHEOMAU" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+        </EntityType>
         <EntityType Name="CHITIET_HOADON">
           <Key>
             <PropertyRef Name="MAHOADON" />
@@ -93,13 +102,35 @@
             <PropertyRef Name="MATAIKHOAN" />
           </Key>
           <Property Name="MATAIKHOAN" Type="char" MaxLength="20" Nullable="false" />
-          <Property Name="TENTAIKHOAN" Type="nvarchar" MaxLength="50" />
-          <Property Name="MATKHAU" Type="nvarchar(max)" />
+          <Property Name="TENTAIKHOAN" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="MATKHAU" Type="nvarchar(max)" Nullable="false" />
           <Property Name="LOAITAIKHOAN" Type="nvarchar" MaxLength="20" Nullable="false" />
           <Property Name="MAKHACHHANG" Type="char" MaxLength="20" />
           <Property Name="MANHANVIEN" Type="char" MaxLength="20" />
           <Property Name="NGAYTAO" Type="datetime" />
         </EntityType>
+        <EntityType Name="TONKHO_SIZE">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="MASANPHAM" Type="char" MaxLength="20" Nullable="false" />
+          <Property Name="SIZE" Type="int" Nullable="false" />
+          <Property Name="SOLUONG" Type="int" Nullable="false" />
+          <Property Name="IDBienThe" Type="int" />
+        </EntityType>
+        <Association Name="FK_BIEN_THE_SAN_PHAM_SANPHAM">
+          <End Role="SANPHAM" Type="Self.SANPHAM" Multiplicity="1" />
+          <End Role="BIEN_THE_SAN_PHAM" Type="Self.BIEN_THE_SAN_PHAM" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SANPHAM">
+              <PropertyRef Name="MASANPHAM" />
+            </Principal>
+            <Dependent Role="BIEN_THE_SAN_PHAM">
+              <PropertyRef Name="MASANPHAM" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_CHITIET_HOADON">
           <End Role="HOADON" Type="Self.HOADON" Multiplicity="1" />
           <End Role="CHITIET_HOADON" Type="Self.CHITIET_HOADON" Multiplicity="*" />
@@ -208,7 +239,32 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_TK_BIENTHE">
+          <End Role="BIEN_THE_SAN_PHAM" Type="Self.BIEN_THE_SAN_PHAM" Multiplicity="0..1" />
+          <End Role="TONKHO_SIZE" Type="Self.TONKHO_SIZE" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="BIEN_THE_SAN_PHAM">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="TONKHO_SIZE">
+              <PropertyRef Name="IDBienThe" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_TONKHO_SIZE_SANPHAM">
+          <End Role="SANPHAM" Type="Self.SANPHAM" Multiplicity="1" />
+          <End Role="TONKHO_SIZE" Type="Self.TONKHO_SIZE" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SANPHAM">
+              <PropertyRef Name="MASANPHAM" />
+            </Principal>
+            <Dependent Role="TONKHO_SIZE">
+              <PropertyRef Name="MASANPHAM" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <EntityContainer Name="QLGIAYModelStoreContainer">
+          <EntitySet Name="BIEN_THE_SAN_PHAM" EntityType="Self.BIEN_THE_SAN_PHAM" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CHITIET_HOADON" EntityType="Self.CHITIET_HOADON" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DANHGIASANPHAM" EntityType="Self.DANHGIASANPHAM" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="HOADON" EntityType="Self.HOADON" Schema="dbo" store:Type="Tables" />
@@ -217,6 +273,11 @@
           <EntitySet Name="NHANVIEN" EntityType="Self.NHANVIEN" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SANPHAM" EntityType="Self.SANPHAM" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="TAIKHOAN" EntityType="Self.TAIKHOAN" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="TONKHO_SIZE" EntityType="Self.TONKHO_SIZE" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_BIEN_THE_SAN_PHAM_SANPHAM" Association="Self.FK_BIEN_THE_SAN_PHAM_SANPHAM">
+            <End Role="SANPHAM" EntitySet="SANPHAM" />
+            <End Role="BIEN_THE_SAN_PHAM" EntitySet="BIEN_THE_SAN_PHAM" />
+          </AssociationSet>
           <AssociationSet Name="FK_CHITIET_HOADON" Association="Self.FK_CHITIET_HOADON">
             <End Role="HOADON" EntitySet="HOADON" />
             <End Role="CHITIET_HOADON" EntitySet="CHITIET_HOADON" />
@@ -253,9 +314,16 @@
             <End Role="NHANVIEN" EntitySet="NHANVIEN" />
             <End Role="TAIKHOAN" EntitySet="TAIKHOAN" />
           </AssociationSet>
+          <AssociationSet Name="FK_TK_BIENTHE" Association="Self.FK_TK_BIENTHE">
+            <End Role="BIEN_THE_SAN_PHAM" EntitySet="BIEN_THE_SAN_PHAM" />
+            <End Role="TONKHO_SIZE" EntitySet="TONKHO_SIZE" />
+          </AssociationSet>
+          <AssociationSet Name="FK_TONKHO_SIZE_SANPHAM" Association="Self.FK_TONKHO_SIZE_SANPHAM">
+            <End Role="SANPHAM" EntitySet="SANPHAM" />
+            <End Role="TONKHO_SIZE" EntitySet="TONKHO_SIZE" />
+          </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="QLGIAYModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -357,14 +425,16 @@
           <NavigationProperty Name="CHITIET_HOADON" Relationship="Self.FK_CHITIET_SANPHAM" FromRole="SANPHAM" ToRole="CHITIET_HOADON" />
           <NavigationProperty Name="DANHGIASANPHAM" Relationship="Self.FK_DANHGIA_SANPHAM" FromRole="SANPHAM" ToRole="DANHGIASANPHAM" />
           <NavigationProperty Name="NHACUNGCAP" Relationship="Self.FK_SANPHAM_NHACUNGCAP" FromRole="SANPHAM" ToRole="NHACUNGCAP" />
-        </EntityType>
+          <NavigationProperty Name="BIEN_THE_SAN_PHAM" Relationship="QLGIAYModel.FK_BIEN_THE_SAN_PHAM_SANPHAM" FromRole="SANPHAM" ToRole="BIEN_THE_SAN_PHAM" />
+          <NavigationProperty Name="TONKHO_SIZE" Relationship="QLGIAYModel.FK_TONKHO_SIZE_SANPHAM" FromRole="SANPHAM" ToRole="TONKHO_SIZE" />
+          </EntityType>
         <EntityType Name="TAIKHOAN">
           <Key>
             <PropertyRef Name="MATAIKHOAN" />
           </Key>
           <Property Name="MATAIKHOAN" Type="String" MaxLength="20" FixedLength="true" Unicode="false" Nullable="false" />
-          <Property Name="TENTAIKHOAN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="MATKHAU" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="TENTAIKHOAN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="MATKHAU" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="LOAITAIKHOAN" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="MAKHACHHANG" Type="String" MaxLength="20" FixedLength="true" Unicode="false" />
           <Property Name="MANHANVIEN" Type="String" MaxLength="20" FixedLength="true" Unicode="false" />
@@ -525,8 +595,81 @@
             <End Role="NHANVIEN" EntitySet="NHANVIEN" />
             <End Role="TAIKHOAN" EntitySet="TAIKHOAN" />
           </AssociationSet>
-        </EntityContainer>
-      </Schema>
+          <EntitySet Name="BIEN_THE_SAN_PHAM" EntityType="QLGIAYModel.BIEN_THE_SAN_PHAM" />
+          <EntitySet Name="TONKHO_SIZE" EntityType="QLGIAYModel.TONKHO_SIZE" />
+          <AssociationSet Name="FK_BIEN_THE_SAN_PHAM_SANPHAM" Association="QLGIAYModel.FK_BIEN_THE_SAN_PHAM_SANPHAM">
+            <End Role="SANPHAM" EntitySet="SANPHAM" />
+            <End Role="BIEN_THE_SAN_PHAM" EntitySet="BIEN_THE_SAN_PHAM" />
+          </AssociationSet>
+          <AssociationSet Name="FK_TK_BIENTHE" Association="QLGIAYModel.FK_TK_BIENTHE">
+            <End Role="BIEN_THE_SAN_PHAM" EntitySet="BIEN_THE_SAN_PHAM" />
+            <End Role="TONKHO_SIZE" EntitySet="TONKHO_SIZE" />
+          </AssociationSet>
+          <AssociationSet Name="FK_TONKHO_SIZE_SANPHAM" Association="QLGIAYModel.FK_TONKHO_SIZE_SANPHAM">
+            <End Role="SANPHAM" EntitySet="SANPHAM" />
+            <End Role="TONKHO_SIZE" EntitySet="TONKHO_SIZE" />
+          </AssociationSet>
+          </EntityContainer>
+        <EntityType Name="BIEN_THE_SAN_PHAM">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="MASANPHAM" Type="String" Nullable="false" MaxLength="20" FixedLength="true" Unicode="false" />
+          <Property Name="MAUSAC" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="GIATHEOMAU" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <NavigationProperty Name="SANPHAM" Relationship="QLGIAYModel.FK_BIEN_THE_SAN_PHAM_SANPHAM" FromRole="BIEN_THE_SAN_PHAM" ToRole="SANPHAM" />
+          <NavigationProperty Name="TONKHO_SIZE" Relationship="QLGIAYModel.FK_TK_BIENTHE" FromRole="BIEN_THE_SAN_PHAM" ToRole="TONKHO_SIZE" />
+        </EntityType>
+        <EntityType Name="TONKHO_SIZE">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="MASANPHAM" Type="String" Nullable="false" MaxLength="20" FixedLength="true" Unicode="false" />
+          <Property Name="SIZE" Type="Int32" Nullable="false" />
+          <Property Name="SOLUONG" Type="Int32" Nullable="false" />
+          <Property Name="IDBienThe" Type="Int32" />
+          <NavigationProperty Name="BIEN_THE_SAN_PHAM" Relationship="QLGIAYModel.FK_TK_BIENTHE" FromRole="TONKHO_SIZE" ToRole="BIEN_THE_SAN_PHAM" />
+          <NavigationProperty Name="SANPHAM" Relationship="QLGIAYModel.FK_TONKHO_SIZE_SANPHAM" FromRole="TONKHO_SIZE" ToRole="SANPHAM" />
+        </EntityType>
+        <Association Name="FK_BIEN_THE_SAN_PHAM_SANPHAM">
+          <End Type="QLGIAYModel.SANPHAM" Role="SANPHAM" Multiplicity="1" />
+          <End Type="QLGIAYModel.BIEN_THE_SAN_PHAM" Role="BIEN_THE_SAN_PHAM" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SANPHAM">
+              <PropertyRef Name="MASANPHAM" />
+            </Principal>
+            <Dependent Role="BIEN_THE_SAN_PHAM">
+              <PropertyRef Name="MASANPHAM" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_TK_BIENTHE">
+          <End Type="QLGIAYModel.BIEN_THE_SAN_PHAM" Role="BIEN_THE_SAN_PHAM" Multiplicity="0..1" />
+          <End Type="QLGIAYModel.TONKHO_SIZE" Role="TONKHO_SIZE" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="BIEN_THE_SAN_PHAM">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="TONKHO_SIZE">
+              <PropertyRef Name="IDBienThe" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_TONKHO_SIZE_SANPHAM">
+          <End Type="QLGIAYModel.SANPHAM" Role="SANPHAM" Multiplicity="1" />
+          <End Type="QLGIAYModel.TONKHO_SIZE" Role="TONKHO_SIZE" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SANPHAM">
+              <PropertyRef Name="MASANPHAM" />
+            </Principal>
+            <Dependent Role="TONKHO_SIZE">
+              <PropertyRef Name="MASANPHAM" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
@@ -634,6 +777,27 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="BIEN_THE_SAN_PHAM">
+            <EntityTypeMapping TypeName="QLGIAYModel.BIEN_THE_SAN_PHAM">
+              <MappingFragment StoreEntitySet="BIEN_THE_SAN_PHAM">
+                <ScalarProperty Name="GIATHEOMAU" ColumnName="GIATHEOMAU" />
+                <ScalarProperty Name="MAUSAC" ColumnName="MAUSAC" />
+                <ScalarProperty Name="MASANPHAM" ColumnName="MASANPHAM" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TONKHO_SIZE">
+            <EntityTypeMapping TypeName="QLGIAYModel.TONKHO_SIZE">
+              <MappingFragment StoreEntitySet="TONKHO_SIZE">
+                <ScalarProperty Name="IDBienThe" ColumnName="IDBienThe" />
+                <ScalarProperty Name="SOLUONG" ColumnName="SOLUONG" />
+                <ScalarProperty Name="SIZE" ColumnName="SIZE" />
+                <ScalarProperty Name="MASANPHAM" ColumnName="MASANPHAM" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>
@@ -648,7 +812,7 @@
     <Options>
       <DesignerInfoPropertySet>
         <DesignerProperty Name="ValidateOnBuild" Value="true" />
-        <DesignerProperty Name="EnablePluralization" Value="false" />
+        <DesignerProperty Name="EnablePluralization" Value="False" />
         <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
         <DesignerProperty Name="UseLegacyProvider" Value="false" />
         <DesignerProperty Name="CodeGenerationStrategy" Value="None" />

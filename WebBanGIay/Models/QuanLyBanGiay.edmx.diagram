@@ -22,6 +22,11 @@
         <AssociationConnector Association="QLGIAYModel.FK_TAIKHOAN_KHACHHANG" ManuallyRouted="false" />
         <AssociationConnector Association="QLGIAYModel.FK_SANPHAM_NHACUNGCAP" ManuallyRouted="false" />
         <AssociationConnector Association="QLGIAYModel.FK_TAIKHOAN_NHANVIEN" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="QLGIAYModel.BIEN_THE_SAN_PHAM" Width="1.5" PointX="5.25" PointY="5.875" />
+        <EntityTypeShape EntityType="QLGIAYModel.TONKHO_SIZE" Width="1.5" PointX="7.5" PointY="5.875" />
+        <AssociationConnector Association="QLGIAYModel.FK_BIEN_THE_SAN_PHAM_SANPHAM" />
+        <AssociationConnector Association="QLGIAYModel.FK_TK_BIENTHE" />
+        <AssociationConnector Association="QLGIAYModel.FK_TONKHO_SIZE_SANPHAM" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

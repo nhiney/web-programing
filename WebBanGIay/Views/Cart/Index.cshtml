@@ -3,284 +3,223 @@
     ViewBag.Title = "Giỏ hàng";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
-    // Ép kiểu an toàn
     var listGoiY = ViewBag.SanPhamGoiY as List<WebBanGIay.Models.SANPHAM>;
     decimal tongTienHang = ViewBag.TongTien != null ? (decimal)ViewBag.TongTien : 0;
 }
 
-<style>
-    /* Bổ sung thêm class .cart-right cho khớp layout grid cha */
+<link href="~/Content/Css/Cart.css" rel="stylesheet" type="text/css" />
 
-</style>
-
-<body>
-    <div class="cart-header" style="position: relative; height: 60px; margin-bottom: 20px;">
-        <h2 style="margin-left: 20px; line-height: 60px;">Giỏ hàng của bạn</h2>
-        <div class="cart-icon">
-            🛒
-            <span class="cart-count">@Model.Sum(x => x.SoLuong)</span>
+<div class="container">
+    <div class="cart-header">
+        <h2><i class="fas fa-shopping-cart"></i> Giỏ hàng của bạn</h2>
+        <div class="cart-breadcrumb">
+            <a href="/">Trang chủ</a>
+            <span>></span>
+            <a href="/Products">Sản phẩm</a>
+            <span>></span>
+            <span class="active">Giỏ hàng</span>
         </div>
     </div>
 
     @if (Model != null && Model.Count > 0)
     {
         <div class="cart-container">
-            <div class="cart-left">
+            <div class="cart-items-container">
+                <div class="cart-items-header">
+                    <div class="select-all">
+                        <input type="checkbox" id="selectAll" checked>
+                    </div>
+                    <div class="product-header">Sản phẩm</div>
+                    <div class="quantity-header">Số lượng</div>
+                    <div class="price-header">Thành tiền</div>
+                    <div class="action-header"></div>
+                </div>
+
                 @foreach (var item in Model)
                 {
-                    <div class="cart-item" data-price="@item.DonGia">
-                        <div style="display: flex; justify-content: center;">
-                            <input type="checkbox" class="item-checkbox" checked
-                                   style="width: 18px; height: 18px; accent-color: #ff5722;">
+                    <div class="cart-item" data-price="@item.DonGia" data-id="@item.MaSP" data-size="@item.Size" data-mau="@item.Mau">
+                        <div class="cart-item-checkbox">
+                            <input type="checkbox" class="item-checkbox" checked>
                         </div>
 
-                        <a href="/Products/ChiTiet/@item.MaSP">
-                            <img src="@(string.IsNullOrWhiteSpace(item.HinhAnh) ? "/source/images/products/no-image.jpg" : "/source/images/products/" + item.HinhAnh)"
-                                 alt="@item.TenSP"
-                                 class="product-img"
-                                 loading="lazy">
-                        </a>
+                        <img src="@(string.IsNullOrWhiteSpace(item.HinhAnh) ? "/source/images/products/no-image.jpg" : "/source/images/products/" + item.HinhAnh)"
+                             alt="@item.TenSP"
+                             class="cart-item-image"
+                             loading="lazy">
 
-                        <div>
-                            <div class="item-name">
-                                <a href="/Products/ChiTiet/@item.MaSP" style="text-decoration: none; color: inherit;">
-                                    @item.TenSP
-                                </a>
+                        <div class="cart-item-details">
+                            <div class="cart-item-name">
+                                <a href="/Products/ChiTiet/@item.MaSP">@item.TenSP</a>
                             </div>
-                            <div class="item-code">Mã: @item.MaSP</div>
+                            <div class="cart-item-code">Mã: @item.MaSP</div>
+                            <div class="cart-item-options">
+                                <span class="cart-item-option">Size: @item.Size</span>
+                                <span class="cart-item-option">Màu: @item.Mau</span>
+                            </div>
                         </div>
 
-                        <form action="@Url.Action("Update", "Cart")" method="post" class="qty-box">
-                            <input type="hidden" name="id" value="@item.MaSP" />
-                            <button type="button" class="decrease">-</button>
-                            <input type="text" name="soLuong" class="qty-input" value="@item.SoLuong" readonly />
-                            <button type="button" class="increase">+</button>
-                        </form>
+                        <div class="cart-item-quantity">
+                            <form action="@Url.Action("Update", "Cart")" method="post" class="qty-form">
+                                <input type="hidden" name="id" value="@item.MaSP" />
+                                <input type="hidden" name="size" value="@item.Size" />
+                                <input type="hidden" name="mau" value="@item.Mau" />
+                                <div class="quantity-control">
+                                    <button type="button" class="quantity-btn decrease">-</button>
+                                    <input type="text" name="soLuong" class="quantity-input" value="@item.SoLuong" readonly />
+                                    <button type="button" class="quantity-btn increase">+</button>
+                                </div>
+                            </form>
+                        </div>
 
-                        <div class="subtotal" style="font-weight: bold;">
-                            <span class="summary-total">Tổng tiền sản phẩm</span>
+                        <div class="cart-item-price">
                             @item.ThanhTien.ToString("N0") đ
                         </div>
 
-                        <div style="text-align: center;">
-                            <a href="@Url.Action("Remove", "Cart", new { id = item.MaSP })"
+                        <div class="cart-item-action">
+                            <a href="@Url.Action("Remove", "Cart", new { id = item.MaSP, size = item.Size, mau = item.Mau })"
                                class="remove-btn"
-                               onclick="return confirm('Xóa sản phẩm này?');">
-                                &times;
+                               title="Xóa sản phẩm">
+                                <i class="fas fa-trash"></i>
                             </a>
                         </div>
                     </div>
                 }
 
-                <div style="margin-top: 20px;">
-                    <a href="@Url.Action("Clear", "Cart")" style="color: #888; text-decoration: underline; font-size: 14px;" onclick="return confirm('Bạn chắc chắn muốn xóa hết giỏ hàng?');">Xóa tất cả</a>
+                <div class="cart-actions">
+                    <a href="@Url.Action("Clear", "Cart")" class="clear-cart-btn" onclick="return confirm('Bạn chắc chắn muốn xóa hết giỏ hàng?');">
+                        <i class="fas fa-trash-alt"></i> Xóa tất cả
+                    </a>
+                    <a href="/" class="continue-shopping-btn">
+                        <i class="fas fa-arrow-left"></i> Tiếp tục mua sắm
+                    </a>
                 </div>
             </div>
 
-            <div class="cart-right">
-
-                <div style="border-top: 1px solid #eee; margin: 20px 0;"></div>
-
+            <!-- Cart Summary -->
+            <div class="cart-summary">
+                <h3 class="summary-title">Tóm tắt đơn hàng</h3>
                 <div class="summary-row">
-                    <span>Tạm tính</span>
-                    <span id="subtotal-display" style="font-weight: 700;">
-                        @tongTienHang.ToString("N0") đ
-                    </span>
+                    <span>Tạm tính (@Model.Sum(x => x.SoLuong) sản phẩm)</span>
+                    <span id="subtotal-display">@tongTienHang.ToString("N0") đ</span>
                 </div>
                 <div class="summary-row">
                     <span>Phí vận chuyển</span>
-                    <span>Miễn phí</span>
-                </div>
-                <div style="border-top: 1px solid #eee; margin: 20px 0;"></div>
-
-                <div class="summary-row">
-                    
-
-                    <span class="summary-total" style="color: #ff5722; text-align: left; display: inline-block;">
-                        <span class="summary-total">Tổng cộng</span>
-
-                        <span id="total-price-display">@tongTienHang.ToString("N0") đ</span>
-
-                    </span>
+                    <span style="color: var(--success-color);">Miễn phí</span>
                 </div>
 
-                <a href="@Url.Action("Checkout", "Cart")" class="checkout-btn" style=" text-decoration: none; color: white;">
-                    MUA NGAY
+                <div class="promo-code">
+                    <div class="summary-row">
+                        <span>Mã giảm giá</span>
+                        <a href="#" style="color: var(--primary-color); text-decoration: none;">Chọn mã</a>
+                    </div>
+                    <div class="promo-code-form">
+                        <input type="text" class="promo-input" placeholder="Nhập mã giảm giá">
+                        <button class="promo-btn">Áp dụng</button>
+                    </div>
+                </div>
+
+                <div class="summary-row total">
+                    <span>Tổng cộng</span>
+                    <span id="total-price-display">@tongTienHang.ToString("N0") đ</span>
+                </div>
+
+                <a href="@Url.Action("Checkout", "Cart")" class="checkout-btn">
+                    <i class="fas fa-lock"></i> TIẾN HÀNH THANH TOÁN
                 </a>
 
-                <div style="text-align: center; margin-top: 15px;">
-                    <a href="/" style="color: #913737; font-size: 14px; text-decoration: none;">← Tiếp tục xem sản phẩm</a>
+                <div class="payment-methods">
+                    <div class="payment-methods-title">Chúng tôi chấp nhận:</div>
+                    <div class="payment-icons">
+                        <img src="/source/images/payment/cod.png" alt="COD" class="payment-icon">
+                        <img src="/source/images/payment/momo.png" alt="MoMo" class="payment-icon">
+                        <img src="/source/images/payment/zalopay.png" alt="ZaloPay" class="payment-icon">
+                        <img src="/source/images/payment/vnpay.png" alt="VNPay" class="payment-icon">
+                        <img src="/source/images/payment/visa.png" alt="Visa" class="payment-icon">
+                    </div>
                 </div>
             </div>
         </div>
+
+        <!-- Product Suggestions -->
+        if (listGoiY != null && listGoiY.Count > 0)
+        {
+            <div class="suggestions">
+                <div class="suggestions-header">
+                    <h3 class="suggestions-title">Có thể bạn sẽ thích</h3>
+                    <a href="/Products" class="view-all-btn">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <div class="product-grid">
+                    @foreach (var sp in listGoiY)
+                    {
+                        double phanTramGiamSP = 0;
+                        if (sp.GIA > 0 && sp.GIAKHUYENMAI > 0 && sp.GIAKHUYENMAI < sp.GIA)
+                        {
+                            phanTramGiamSP = Math.Round((double)((sp.GIA - sp.GIAKHUYENMAI) / sp.GIA * 100));
+                        }
+
+                        <div class="product-card">
+                            <div class="product-image-container">
+                                @if (sp.GIAKHUYENMAI > 0 && sp.GIAKHUYENMAI < sp.GIA)
+                                {
+                                    <div class="product-discount">-@phanTramGiamSP%</div>
+                                }
+                                <img src="@(string.IsNullOrWhiteSpace(sp.HINHANH) ? "/source/images/products/no-image.jpg" : "/source/images/products/" + sp.HINHANH)"
+                                     alt="@sp.TENSANPHAM"
+                                     class="product-image"
+                                     loading="lazy">
+                                <div class="product-actions">
+                                    <button class="product-action-btn" title="Thêm vào yêu thích">
+                                        <i class="far fa-heart"></i>
+                                    </button>
+                                    <button class="product-action-btn" title="Xem nhanh">
+                                        <i class="far fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="product-details">
+                                <h4 class="product-name">@sp.TENSANPHAM</h4>
+                                <div class="product-price">
+                                    @if (sp.GIAKHUYENMAI > 0 && sp.GIAKHUYENMAI < sp.GIA)
+                                    {
+                                        <span class="price-current">@String.Format("{0:N0}", sp.GIAKHUYENMAI)đ</span>
+                                        <span class="price-original">@String.Format("{0:N0}", sp.GIA)đ</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="price-current">@String.Format("{0:N0}", sp.GIA)đ</span>
+                                    }
+                                </div>
+                                <button class="add-to-cart-btn" data-id="@sp.MASANPHAM">
+                                    <i class="fas fa-shopping-cart"></i> Thêm vào giỏ
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="empty-cart">
+                <div class="empty-cart-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <h3 class="empty-cart-title">Giỏ hàng trống</h3>
+                <p class="empty-cart-text">Bạn chưa có sản phẩm nào trong giỏ hàng</p>
+                <a href="/" class="empty-cart-btn">
+                    <i class="fas fa-arrow-left"></i> Tiếp tục mua sắm
+                </a>
+            </div>
+        }
     }
     else
     {
-        /* === GIỎ HÀNG RỖNG === */
-        <div style="text-align: center; padding: 50px;">
-            <img src="https://cdn-icons-png.flaticon.com/512/11329/11329060.png" style="width: 120px; opacity: 0.8; margin-bottom: 20px;" />
-            <h3>Giỏ hàng trống trơn!</h3>
-            <p style="color: #888;">Bạn chưa chọn mua sản phẩm nào.</p>
-            <a href="/" class="btn-checkout" style="display: inline-block; width: auto; padding: 10px 30px; margin-top: 10px; text-decoration: none;">
-                Mua sắm ngay
+        <div class="empty-cart">
+            <h3>Giỏ hàng của bạn đang trống!</h3>
+            <a href="/" class="empty-cart-btn">
+                <i class="fas fa-arrow-left"></i> Tiếp tục mua sắm
             </a>
         </div>
-
-        /* === GỢI Ý SẢN PHẨM === */
-        if (listGoiY != null && listGoiY.Count > 0)
-        {
-        <section class="py-5 bg-light">
-            <div class="container">
-                <h2 class="section-title">Có thể bạn sẽ thích</h2>
-                <div id="sanPhamList" class="row">
-                        @foreach (var sp in listGoiY)
-                        {
-                            // Tính phần trăm giảm giá an toàn
-                            double phanTramGiamSP = 0;
-                            if (sp.GIA > 0 && sp.GIAKHUYENMAI > 0 && sp.GIAKHUYENMAI < sp.GIA)
-                            {
-                                phanTramGiamSP = Math.Round((double)((sp.GIA - sp.GIAKHUYENMAI) / sp.GIA * 100));
-                            }
-
-                            <div class="col-6 col-md-4 col-lg-3 mb-4">
-                                <div class="product-item">
-                                    <div class="product-img-container">
-                                        @if (sp.GIAKHUYENMAI > 0 && sp.GIAKHUYENMAI < sp.GIA)
-                                        {
-                                            <div class="product-discount-tag">
-                                                -@phanTramGiamSP%
-                                            </div>
-                                        }
-                                        <a href="/Products/ChiTiet/@sp.MASANPHAM">
-                                            <img src="@(string.IsNullOrWhiteSpace(sp.HINHANH) ? "/source/images/products/no-image.jpg" : "/source/images/products/" + sp.HINHANH)"
-                                                 alt="@sp.TENSANPHAM"
-                                                 class="product-img"
-                                                 loading="lazy">
-                                        </a>
-                                    </div>
-                                    <p class="product-name">@sp.TENSANPHAM</p>
-                                    <div class="price-container">
-                                        @if (sp.GIAKHUYENMAI > 0 && sp.GIAKHUYENMAI < sp.GIA)
-                                        {
-                                            <span class="price-old">@String.Format("{0:N0}", sp.GIA)đ</span>
-                                            <div class="price-new">@String.Format("{0:N0}", sp.GIAKHUYENMAI)đ</div>
-                                        }
-                                        else
-                                        {
-                                            <div class="price-new">@String.Format("{0:N0}", sp.GIA)đ</div>
-                                        }
-                                    </div>
-                                        <a href="/Products/ChiTiet/@sp.MASANPHAM" class="btn btn-outline-danger btn-buy btn-sm">Xem chi tiết</a>
-                    
-
-                                </div>
-                            </div>
-                        }
-                </div>
-            </div>
-        </section>       
-        }
     }
-
-    <div class="modal-overlay">
-        <div class="modal-content">
-            <button class="modal-close">&times;</button>
-            <img src="" class="modal-img" />
-            <h3 class="modal-title"></h3>
-            <div class="modal-price"></div>
-            <div class="modal-desc"></div>
-        </div>
-    </div>
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-
-        $(document).ready(function () {
-            console.log("--> Script bắt đầu chạy!");
-
-            function updateCartTotal() {
-                var grandTotal = 0;
-                $('.cart-item').each(function () {
-                    // 1. Lấy giá trị thô (Vẫn lấy số trần để tính toán)
-                    var price = parseFloat($(this).attr('data-price')) || 0;
-                    var qty = parseInt($(this).find('.qty-input').val()) || 0;
-                    var checkbox = $(this).find('.item-checkbox');
-
-                    // 2. Tính tiền
-                    var itemTotal = price * qty;
-
-                    // --- SỬA CHỖ NÀY (1): Format tiền từng món ---
-                    // .toLocaleString('vi-VN') sẽ tự động thêm dấu chấm: 1.000.000
-                    $(this).find('.subtotal').text(itemTotal.toLocaleString('vi-VN') + ' đ');
-
-                    // 3. Cộng tổng (chỉ khi check)
-                    if (checkbox.is(':checked')) {
-                        grandTotal += itemTotal;
-                    }
-                });
-
-                var textHienThi = grandTotal.toLocaleString('vi-VN') + ' đ';
-                // Cập nhật hiển thị
-                $('#total-price-display').text(textHienThi);
-                $('#subtotal-display').text(textHienThi);
-            }
-
-            // Gán sự kiện
-            $(document).on('change', '.item-checkbox', function () {
-                console.log("--> Đã bấm Checkbox");
-                updateCartTotal();
-            });
-
-            // Chạy lần đầu
-            updateCartTotal();
-        });
-            // --- SỰ KIỆN 1: KHI BẤM CHECKBOX ---
-            $('.item-checkbox').change(function () {
-                updateCartTotal(); // Tính lại ngay lập tức
-            });
-
-            // --- SỰ KIỆN 2: KHI TĂNG/GIẢM SỐ LƯỢNG ---
-            $('.decrease').click(function () {
-                var input = $(this).next('.qty-input');
-                var val = parseInt(input.val());
-                if (val > 1) {
-                    input.val(val - 1);
-                    // Lưu ý: Nếu bạn muốn gửi về server để lưu Session thì giữ dòng submit này
-                    $(this).closest('form').submit();
-                }
-            });
-
-            $('.increase').click(function () {
-                var input = $(this).prev('.qty-input');
-                var val = parseInt(input.val());
-                if (val < 100) {
-                    input.val(val + 1);
-                    // Lưu ý: Nếu bạn muốn gửi về server để lưu Session thì giữ dòng submit này
-                    $(this).closest('form').submit();
-                }
-            });
-
-            // Chạy hàm 1 lần khi trang vừa load xong để đảm bảo số đúng
-            updateCartTotal();
-            // Nút giảm
-            $('.decrease').click(function () {
-                var input = $(this).next('.qty-input');
-                var val = parseInt(input.val());
-                if (val > 1) {
-                    input.val(val - 1);
-                    $(this).closest('form').submit(); // Submit form ngay lập tức
-                }
-            });
-
-            // Nút tăng
-            $('.increase').click(function () {
-                var input = $(this).prev('.qty-input');
-                var val = parseInt(input.val());
-                // Giả sử max là 100, sau này bạn có thể lấy từ data-attribute
-                if (val < 100) {
-                    input.val(val + 1);
-                    $(this).closest('form').submit(); // Submit form ngay lập tức
-                }
-            });
-    </script>
-</body>
+</div>

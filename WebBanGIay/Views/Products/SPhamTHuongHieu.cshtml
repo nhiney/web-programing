@@ -2,25 +2,128 @@
 
 @{
     ViewData["Title"] = ViewBag.TenThuongHieu ?? "Sản phẩm";
-    Layout = "~/Views/Shared/_Layout.cshtml"; // Kế thừa Layout chứa menu của bạn
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<style>
+    .product-item {
+        background: white;
+        border-radius: 16px;
+        padding: 14px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        position: relative;
+        height: 100%;
+    }
 
-<section class=" py-5 bg-light">
-    <div class="container py-5">
+        .product-item:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.18);
+        }
+
+    .product-img-container {
+        width: 100%;
+        height: 220px;
+        overflow: hidden;
+        border-radius: 14px;
+    }
+
+    .product-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: 0.4s;
+    }
+
+    .product-item:hover .product-img {
+        transform: scale(1.08);
+    }
+
+    .product-name {
+        font-weight: 700;
+        margin: 12px 0 5px;
+        text-transform: uppercase;
+        font-size: 14px;
+        min-height: 40px;
+    }
+
+    .price-container {
+        margin-bottom: 10px;
+    }
+
+    .price-old {
+        text-decoration: line-through;
+        color: gray;
+        font-size: 14px;
+    }
+
+    .price-new {
+        color: #dc3545;
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    .product-discount-tag {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: #dc3545;
+        color: white;
+        padding: 4px 10px;
+        font-size: 13px;
+        border-radius: 20px;
+        font-weight: bold;
+    }
+
+    .btn-buy {
+        width: 100%;
+        border-radius: 30px;
+        font-weight: 600;
+    }
+
+    .back-button {
+        display: inline-block;
+        margin-top: 40px;
+        padding: 10px 18px;
+        border-radius: 30px;
+        background: #000;
+        color: #fff;
+        font-weight: 600;
+        text-decoration: none;
+        transition: 0.3s;
+    }
+
+        .back-button:hover {
+            background: #dc3545;
+            color: #fff;
+            transform: translateX(-5px);
+        }
+</style>
+
+<section class="py-5 bg-light">
+    <div class="container py-4">
         <div class="row">
+
             @if (Model != null && Model.Any())
             {
                 foreach (var sp in Model)
                 {
-                    // Tính phần trăm giảm giá an toàn
                     double phanTramGiamSP = 0;
                     if (sp.GIA > 0 && sp.GIAKHUYENMAI > 0 && sp.GIAKHUYENMAI < sp.GIA)
                     {
                         phanTramGiamSP = Math.Round((double)((sp.GIA - sp.GIAKHUYENMAI) / sp.GIA * 100));
                     }
+
                     <div class="col-6 col-md-4 col-lg-3 mb-4">
                         <div class="product-item">
+
+                            @if (sp.GIAKHUYENMAI > 0 && sp.GIAKHUYENMAI < sp.GIA)
+                            {
+                                <div class="product-discount-tag">
+                                    -@phanTramGiamSP%
+                                </div>
+                            }
+
                             <div class="product-img-container">
                                 <img src="@(string.IsNullOrWhiteSpace(sp.HINHANH) ? "/source/images/products/no-image.jpg" : "/source/images/products/" + sp.HINHANH)"
                                      class="product-img"
@@ -28,19 +131,12 @@
                                      loading="lazy">
                             </div>
 
-                            <a>
-                                <div class="product-name">@sp.TENSANPHAM</div>
-                            </a>
-                            @if (sp.GIAKHUYENMAI > 0 && sp.GIAKHUYENMAI < sp.GIA)
-                            {
-                                <div class="product-discount-tag">
-                                    -@phanTramGiamSP%
-                                </div>
-                            }
+                            <div class="product-name">@sp.TENSANPHAM</div>
+
                             <div class="price-container">
                                 @if (sp.GIAKHUYENMAI > 0 && sp.GIAKHUYENMAI < sp.GIA)
                                 {
-                                    <span class="price-old">@String.Format("{0:N0}", sp.GIA)đ</span>
+                                    <div class="price-old">@String.Format("{0:N0}", sp.GIA)đ</div>
                                     <div class="price-new">@String.Format("{0:N0}", sp.GIAKHUYENMAI)đ</div>
                                 }
                                 else
@@ -49,9 +145,7 @@
                                 }
                             </div>
 
-                            <a href="/Products/ChiTiet/@sp.MASANPHAM" class="btn btn-outline-danger btn-buy btn-sm">
-                                Xem chi tiết
-                            </a>
+                            <a class="btn-detail" href="/Products/ChiTiet/@sp.MASANPHAM">Xem chi tiết</a>
                         </div>
                     </div>
                 }
@@ -59,14 +153,16 @@
             else
             {
                 <div class="col-12 text-center py-5">
-                    <p class="text-muted" style="font-size: 1.2rem;">
-                        <i class="fa fa-search mb-3" style="font-size: 2rem;"></i><br>
+                    <p class="text-muted fs-5">
+                        <i class="fa fa-search mb-3 fs-1"></i><br>
                         Không tìm thấy sản phẩm nào thuộc thương hiệu này.
                     </p>
-                    <a href="/" class="btn btn-primary">Về trang chủ</a>
+                    <a href="/" class="btn btn-primary px-4 rounded-pill">Về trang chủ</a>
                 </div>
             }
+
         </div>
+
         <a href="javascript:history.back()" class="back-button">
             <i class="fas fa-arrow-left me-2"></i> Quay lại
         </a>

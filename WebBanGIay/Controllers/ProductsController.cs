@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using WebBanGIay.Models;
+using System.Collections.Generic;
 
 namespace WebBanGIay.Controllers
 {
@@ -13,82 +14,151 @@ namespace WebBanGIay.Controllers
 
         public ActionResult ChiTiet(string id)
         {
-            var sanPham = db.SANPHAM.Include(s => s.NHACUNGCAP).FirstOrDefault(s => s.MASANPHAM == id);
-            var query = db.SANPHAM.AsQueryable();
-            var sanPhamBanChay = query.OrderByDescending(s => s.SOLUONGTON).Take(5).ToList();
-
-            decimal giaGoc = sanPham.GIAKHUYENMAI ?? 0; // Lấy giá, nếu null thì coi là 0
-            decimal minPrice = giaGoc * 0.8m;  // Giá thấp nhất (-20%)
-            decimal maxPrice = giaGoc * 1.2m;  // Giá cao nhất (+20%)
-                                               // TRUYỀN DỮ LIỆU
-            var listLienQuan = db.SANPHAM
-                    .Where(s => s.MASANPHAM != id                       // Điều kiện 2: Trừ sản phẩm đang xem
-                             && s.GIA >= minPrice && s.GIA <= maxPrice) // Điều kiện 3: Giá trong khoảng cho phép
-                    .ToList();
-            // 2b. Xử lý Random và lấy 4 sản phẩm ở phía C# (An toàn tuyệt đối)
-            if (listLienQuan.Count == 0)
-            {
-                listLienQuan = db.SANPHAM
-                    .Where(s => s.MANHACUNGCAP   == sanPham.MANHACUNGCAP && s.MASANPHAM != id)
-                    .Take(10) // Lấy tạm 10 cái để random
-                    .ToList();
-            }
-            ViewBag.SanPhamLienQuan = listLienQuan
-                    .OrderBy(x => Guid.NewGuid())
-                    .Take(4)
-                    .ToList();
-            ViewBag.HangList = db.NHACUNGCAP.Select(n => n.TENNHACUNGCAP).Distinct().ToList();
-
             if (string.IsNullOrEmpty(id))
             {
                 return HttpNotFound("Không tìm thấy sản phẩm!");
             }
 
-            // Lấy sản phẩm theo mã (bao gồm Nhà Cung Cấp)
+            // Lấy sản phẩm theo mã, bao gồm nhà cung cấp
+            var sanPham = db.SANPHAM.Include(s => s.NHACUNGCAP).FirstOrDefault(s => s.MASANPHAM == id);
+            if (sanPham == null) return HttpNotFound("Sản phẩm không tồn tại!");
 
+            // Giá gốc hoặc giá khuyến mãi
+            decimal giaGoc = sanPham.GIAKHUYENMAI ?? sanPham.GIA;
 
-            if (sanPham == null)
+            // Sản phẩm liên quan theo giá
+            var minPrice = giaGoc * 0.8m;
+            var maxPrice = giaGoc * 1.2m;
+            var listLienQuan = db.SANPHAM
+                .Where(s => s.MASANPHAM != id && s.GIA >= minPrice && s.GIA <= maxPrice)
+                .ToList();
+
+            // Nếu không có sản phẩm cùng giá, lấy theo nhà cung cấp
+            if (listLienQuan.Count == 0)
             {
-                return HttpNotFound("Sản phẩm không tồn tại!");
+                listLienQuan = db.SANPHAM
+                    .Where(s => s.MANHACUNGCAP == sanPham.MANHACUNGCAP && s.MASANPHAM != id)
+                    .Take(10)
+                    .ToList();
             }
 
-            // Lấy danh sách đánh giá (nếu có)
-            var danhGiaList = db.DANHGIASANPHAM.Where(d => d.MASANPHAM == id).Include(d => d.KHACHHANG).ToList();
+            ViewBag.SanPhamLienQuan = listLienQuan.OrderBy(x => Guid.NewGuid()).Take(4).ToList();
+            ViewBag.HangList = db.NHACUNGCAP.Select(n => n.TENNHACUNGCAP).Distinct().ToList();
 
-            // Tính điểm trung bình & tổng số đánh giá
+            // Danh sách đánh giá
+            var danhGiaList = db.DANHGIASANPHAM
+                .Where(d => d.MASANPHAM == id)
+                .Include(d => d.KHACHHANG)
+                .ToList();
             ViewBag.DanhGiaList = danhGiaList;
             ViewBag.AverageRating = danhGiaList.Any() ? danhGiaList.Average(d => d.DIEM) : 0;
             ViewBag.TotalReviews = danhGiaList.Count;
 
+            // Lấy danh sách biến thể an toàn
+            var bienTheList = db.BIEN_THE_SAN_PHAM
+                .Where(bt => bt.MASANPHAM == id)
+                .Select(bt => new
+                {
+                    bt.ID,
+                    MauSac = bt.MAUSAC != null ? bt.MAUSAC.Trim() : "",
+                    Sizes = bt.TONKHO_SIZE.Select(tk => new
+                    {
+                        Size = tk.SIZE,
+                        SoLuong = tk.SOLUONG,
+                        BienTheId = bt.ID
+                    }).ToList()
+                }).ToList();
+
+            // Colors list
+            var colors = bienTheList.Select(bt => bt.MauSac).Distinct().ToList();
+
+            ViewBag.Colors = colors;
+            ViewBag.ListBienThe = bienTheList;
+
             return View(sanPham);
         }
+
+
+
 
         public ActionResult DanhSach()
         {
             var sanPhams = db.SANPHAM.Include(s => s.NHACUNGCAP).ToList();
             return View(sanPhams);
         }
+
         public async Task<ActionResult> SPhamTHuongHieu(string maNhaCungCap)
         {
             var query = db.SANPHAM.AsQueryable();
-
             if (!string.IsNullOrEmpty(maNhaCungCap))
             {
                 string maChuan = maNhaCungCap.Trim();
                 query = query.Where(p => p.MANHACUNGCAP == maChuan);
-
-                // Lấy tên thương hiệu để hiển thị tiêu đề cho đẹp (Optional)
                 var tenHang = db.NHACUNGCAP
                                       .Where(n => n.MANHACUNGCAP == maChuan)
                                       .Select(n => n.TENNHACUNGCAP)
                                       .FirstOrDefault();
                 ViewBag.TenThuongHieu = tenHang;
             }
-
             var listSanPham = await query.ToListAsync();
-
-            // Trả về đúng View
             return View("SPhamTHuongHieu", listSanPham);
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ThemDanhGia(string MASANPHAM, int DIEM, string NOIDUNG)
+        {
+            // 1. Kiểm tra đăng nhập
+            if (Session["UserRole"]?.ToString() != "KHÁCH HÀNG")
+            {
+                TempData["Error"] = "Vui lòng đăng nhập tài khoản khách hàng!";
+                return RedirectToAction("Login", "Account");
+            }
+
+            // 2. Lấy MAKHACHHANG từ UserID
+            string userId = Session["UserID"]?.ToString();
+            var taiKhoan = db.TAIKHOAN.FirstOrDefault(x => x.MATAIKHOAN == userId);
+            if (taiKhoan == null || taiKhoan.MAKHACHHANG == null)
+            {
+                TempData["Error"] = "Không tìm thấy thông tin khách hàng!";
+                return RedirectToAction("Login", "Account");
+            }
+
+            string maKH = taiKhoan.MAKHACHHANG;
+
+            // ←←←← ĐOẠN QUAN TRỌNG NHẤT – LOẠI BỎ DẤU CÁCH THỪA ←←←←
+            string maSP = (MASANPHAM ?? "").Trim();
+
+            if (string.IsNullOrEmpty(maSP))
+            {
+                TempData["Error"] = "Không tìm thấy sản phẩm!";
+                return RedirectToAction("Index", "Home");
+            }
+
+            // Thêm đánh giá
+            try
+            {
+                var dg = new DANHGIASANPHAM
+                {
+                    MADANHGIA = "DG" + DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                    MASANPHAM = maSP,
+                    MAKHACHHANG = maKH,
+                    DIEM = DIEM,
+                    BINHLUAN = string.IsNullOrWhiteSpace(NOIDUNG) ? "Không có bình luận" : NOIDUNG.Trim(),
+                    NGAYDANHGIA = DateTime.Now
+                };
+                db.DANHGIASANPHAM.Add(dg);
+                db.SaveChanges();
+
+                TempData["Success"] = "Cảm ơn bạn! Đánh giá đã được gửi thành công!";
+            }
+            catch
+            {
+                TempData["Error"] = "Có lỗi khi gửi đánh giá. Vui lòng thử lại!";
+            }
+
+            // ←←←← DÒNG QUAN TRỌNG NHẤT – DÙNG maSP ĐÃ TRIM → KHÔNG BAO GIỜ BỊ %20 NỮA!
+            return RedirectToAction("ChiTiet", "Products", new { id = maSP });
+        }
+
     }
 }

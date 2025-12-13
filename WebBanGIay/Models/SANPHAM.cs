@@ -19,6 +19,8 @@ namespace WebBanGIay.Models
         {
             this.CHITIET_HOADON = new HashSet<CHITIET_HOADON>();
             this.DANHGIASANPHAM = new HashSet<DANHGIASANPHAM>();
+            this.BIEN_THE_SAN_PHAM = new HashSet<BIEN_THE_SAN_PHAM>();
+            this.TONKHO_SIZE = new HashSet<TONKHO_SIZE>();
         }
     
         public string MASANPHAM { get; set; }
@@ -36,5 +38,9 @@ namespace WebBanGIay.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<DANHGIASANPHAM> DANHGIASANPHAM { get; set; }
         public virtual NHACUNGCAP NHACUNGCAP { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<BIEN_THE_SAN_PHAM> BIEN_THE_SAN_PHAM { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TONKHO_SIZE> TONKHO_SIZE { get; set; }
     }
 }

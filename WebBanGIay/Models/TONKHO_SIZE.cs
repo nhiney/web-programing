@@ -12,12 +12,15 @@ namespace WebBanGIay.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class vw_HoaDonDayDu
+    public partial class TONKHO_SIZE
     {
-        public string MAHOADON { get; set; }
-        public Nullable<System.DateTime> NGAYLAP { get; set; }
-        public Nullable<decimal> TONGTIEN { get; set; }
-        public string TenKH { get; set; }
-        public string TenNV { get; set; }
+        public int ID { get; set; }
+        public string MASANPHAM { get; set; }
+        public int SIZE { get; set; }
+        public int SOLUONG { get; set; }
+        public Nullable<int> IDBienThe { get; set; }
+    
+        public virtual BIEN_THE_SAN_PHAM BIEN_THE_SAN_PHAM { get; set; }
+        public virtual SANPHAM SANPHAM { get; set; }
     }
 }
