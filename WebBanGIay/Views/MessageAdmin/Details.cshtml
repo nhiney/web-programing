@@ -1,0 +1,55 @@
+@model WebBanGIay.Models.LIENHE
+@{
+    ViewBag.Title = "Chi tiết tin nhắn";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid p-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card card-premium shadow-lg">
+                <div class="card-header bg-white p-4 border-bottom">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0"><i class="bi bi-envelope-open me-2"></i> Chi tiết tin nhắn</h4>
+                        <a href="@Url.Action("Index")" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Quay lại</a>
+                    </div>
+                </div>
+                <div class="card-body p-5">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase">Người gửi</label>
+                            <h5 class="fw-bold">@Model.HoTen</h5>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <label class="text-muted small text-uppercase">Thời gian</label>
+                            <div class="fw-bold">@string.Format("{0:dd/MM/yyyy HH:mm}", Model.NgayGui)</div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4 bg-light p-3 rounded">
+                        <div class="col-md-6">
+                            <label class="text-muted small"><i class="bi bi-envelope me-1"></i> Email</label>
+                            <div><a href="mailto:@Model.Email">@Model.Email</a></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small"><i class="bi bi-telephone me-1"></i> Số điện thoại</label>
+                            <div><a href="tel:@Model.SDT">@Model.SDT</a></div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="text-muted small text-uppercase mb-2">Nội dung tin nhắn</label>
+                        <div class="p-4 border rounded bg-white" style="min-height: 150px; white-space: pre-wrap;">@Model.NoiDung</div>
+                    </div>
+
+                    <div class="text-end">
+                        <a href="mailto:@Model.Email" class="btn btn-primary"><i class="bi bi-reply-fill me-2"></i>Phản hồi qua Email</a>
+                        <form action="@Url.Action("Delete", new { id = Model.MaLH })" method="post" class="d-inline ms-2" onsubmit="return confirm('Xóa tin nhắn này?');">
+                            <button type="submit" class="btn btn-danger"><i class="bi bi-trash me-2"></i>Xóa tin nhắn</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

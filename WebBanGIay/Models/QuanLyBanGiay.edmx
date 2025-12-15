@@ -112,6 +112,7 @@
           <Property Name="MAKHACHHANG" Type="char" MaxLength="20" />
           <Property Name="MANHANVIEN" Type="char" MaxLength="20" />
           <Property Name="NGAYTAO" Type="datetime" />
+          <Property Name="TRANGTHAI" Type="bit" />
         </EntityType>
         <EntityType Name="TONKHO_SIZE">
           <Key>
@@ -134,6 +135,18 @@
           <Property Name="PHANTRAMGIAM" Type="int" Nullable="false" />
           <Property Name="TRANGTHAI" Type="bit" />
           <Property Name="MOTA" Type="nvarchar" MaxLength="500" />
+        </EntityType>
+        <EntityType Name="LIENHE">
+          <Key>
+            <PropertyRef Name="MaLH" />
+          </Key>
+          <Property Name="MaLH" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="HoTen" Type="nvarchar" MaxLength="100" />
+          <Property Name="Email" Type="nvarchar" MaxLength="100" />
+          <Property Name="SDT" Type="nvarchar" MaxLength="20" />
+          <Property Name="NoiDung" Type="nvarchar(max)" />
+          <Property Name="NgayGui" Type="datetime" />
+          <Property Name="TrangThai" Type="bit" />
         </EntityType>
         <Association Name="FK_BIEN_THE_SAN_PHAM_SANPHAM">
           <End Role="SANPHAM" Type="Self.SANPHAM" Multiplicity="1" />
@@ -303,6 +316,7 @@
           <EntitySet Name="TAIKHOAN" EntityType="Self.TAIKHOAN" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="TONKHO_SIZE" EntityType="Self.TONKHO_SIZE" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="KHUYENMAI" EntityType="Self.KHUYENMAI" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LIENHE" EntityType="Self.LIENHE" Schema="dbo" store:Type="Tables" />
           <AssociationSet Name="FK_BIEN_THE_SAN_PHAM_SANPHAM" Association="Self.FK_BIEN_THE_SAN_PHAM_SANPHAM">
             <End Role="SANPHAM" EntitySet="SANPHAM" />
             <End Role="BIEN_THE_SAN_PHAM" EntitySet="BIEN_THE_SAN_PHAM" />
@@ -466,6 +480,18 @@
           <Property Name="MAKHUYENMAI" Type="Int32" />
           <NavigationProperty Name="KHUYENMAI" Relationship="QLGIAYModel.FK_SANPHAM_KHUYENMAI" FromRole="SANPHAM" ToRole="KHUYENMAI" />
           </EntityType>
+        <EntityType Name="LIENHE">
+          <Key>
+            <PropertyRef Name="MaLH" />
+          </Key>
+          <Property Name="MaLH" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="HoTen" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="Email" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="SDT" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="NoiDung" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="NgayGui" Type="DateTime" Precision="3" />
+          <Property Name="TrangThai" Type="Boolean" />
+        </EntityType>
         <EntityType Name="TAIKHOAN">
           <Key>
             <PropertyRef Name="MATAIKHOAN" />
@@ -477,6 +503,7 @@
           <Property Name="MAKHACHHANG" Type="String" MaxLength="20" FixedLength="true" Unicode="false" />
           <Property Name="MANHANVIEN" Type="String" MaxLength="20" FixedLength="true" Unicode="false" />
           <Property Name="NGAYTAO" Type="DateTime" Precision="3" />
+          <Property Name="TRANGTHAI" Type="Boolean" />
           <NavigationProperty Name="KHACHHANG" Relationship="Self.FK_TAIKHOAN_KHACHHANG" FromRole="TAIKHOAN" ToRole="KHACHHANG" />
           <NavigationProperty Name="NHANVIEN" Relationship="Self.FK_TAIKHOAN_NHANVIEN" FromRole="TAIKHOAN" ToRole="NHANVIEN" />
         </EntityType>
@@ -664,6 +691,7 @@
             <End Role="KHUYENMAI" EntitySet="KHUYENMAI" />
             <End Role="SANPHAM" EntitySet="SANPHAM" />
           </AssociationSet>
+          <EntitySet Name="LIENHE" EntityType="QLGIAYModel.LIENHE" />
           </EntityContainer>
         <EntityType Name="BIEN_THE_SAN_PHAM">
           <Key>
@@ -737,6 +765,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -846,6 +875,7 @@
                 <ScalarProperty Name="MAKHACHHANG" ColumnName="MAKHACHHANG" />
                 <ScalarProperty Name="MANHANVIEN" ColumnName="MANHANVIEN" />
                 <ScalarProperty Name="NGAYTAO" ColumnName="NGAYTAO" />
+                <ScalarProperty Name="TRANGTHAI" ColumnName="TRANGTHAI" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -880,6 +910,19 @@
                 <ScalarProperty Name="PHANTRAMGIAM" ColumnName="PHANTRAMGIAM" />
                 <ScalarProperty Name="TRANGTHAI" ColumnName="TRANGTHAI" />
                 <ScalarProperty Name="MOTA" ColumnName="MOTA" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="LIENHE">
+            <EntityTypeMapping TypeName="QLGIAYModel.LIENHE">
+              <MappingFragment StoreEntitySet="LIENHE">
+                <ScalarProperty Name="MaLH" ColumnName="MaLH" />
+                <ScalarProperty Name="HoTen" ColumnName="HoTen" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="SDT" ColumnName="SDT" />
+                <ScalarProperty Name="NoiDung" ColumnName="NoiDung" />
+                <ScalarProperty Name="NgayGui" ColumnName="NgayGui" />
+                <ScalarProperty Name="TrangThai" ColumnName="TrangThai" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

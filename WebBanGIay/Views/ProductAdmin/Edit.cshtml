@@ -4,225 +4,222 @@
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<div class="container py-4" style="color:#d8e5f7; max-width: 700px;">
-    <div class="card bg-dark border-secondary shadow">
-        <div class="card-header border-secondary bg-warning text-dark">
-            <h4 class="mb-0 fw-bold"><i class="bi bi-pencil"></i> Sửa sản phẩm</h4>
-        </div>
-        <div class="card-body">
-            @if (TempData["Error"] != null)
-            {
-                <div class="alert alert-danger">@TempData["Error"]</div>
-            }
+<style>
+    .page-container {
+        padding: 24px;
+        color: var(--text-main);
+    }
+</style>
 
+<div class="page-container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            
             <form method="post" action="@Url.Action("Edit")" enctype="multipart/form-data">
                 @Html.AntiForgeryToken()
                 <input type="hidden" name="MASANPHAM" value="@Model.MASANPHAM.Trim()" />
 
-                <div class="mb-3">
-                    <label class="form-label">Mã sản phẩm</label>
-                    <input type="text" class="form-control bg-secondary text-light border-0" value="@Model.MASANPHAM.Trim()" disabled />
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Tên sản phẩm</label>
-                    <input type="text" name="TENSANPHAM" class="form-control bg-dark text-light border-secondary" value="@Model.TENSANPHAM" required />
-                    @Html.ValidationMessage("TENSANPHAM", new { @class = "text-danger small" })
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Giá (VNĐ)</label>
-                        <input type="number" name="GIA" class="form-control bg-dark text-light border-secondary" value="@Model.GIA" min="0" required />
+                <!-- Product Info Card -->
+                <div class="card card-premium mb-4">
+                    <div class="card-header-premium">
+                        <h5><i class="bi bi-pencil-square text-warning"></i> Sửa thông tin sản phẩm</h5>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Số lượng tồn</label>
-                        <input type="number" name="SOLUONGTON" class="form-control bg-dark text-light border-secondary" value="@Model.SOLUONGTON" min="0" />
+                    <div class="card-body p-4">
+                        @if (TempData["Error"] != null)
+                        {
+                            <div class="alert alert-danger mb-4 border-0 bg-danger bg-opacity-10 text-danger fw-bold">
+                                <i class="bi bi-exclamation-triangle me-2"></i> @TempData["Error"]
+                            </div>
+                        }
+
+                        <div class="mb-4">
+                            <label class="form-label-premium">Mã sản phẩm</label>
+                            <input type="text" class="form-control form-control-premium text-muted" value="@Model.MASANPHAM.Trim()" disabled />
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label-premium">Tên sản phẩm <span class="text-danger">*</span></label>
+                            <input type="text" name="TENSANPHAM" class="form-control form-control-premium" value="@Model.TENSANPHAM" required placeholder="Nhập tên sản phẩm..." />
+                            @Html.ValidationMessage("TENSANPHAM", new { @class = "text-danger small mt-1 fw-bold" })
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label-premium">Giá bán (VNĐ) <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-transparent border-secondary text-muted" style="border-right:0;"><i class="bi bi-cash"></i></span>
+                                    <input type="number" name="GIA" class="form-control form-control-premium" value="@Model.GIA" min="0" required style="border-left:0;" />
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label-premium">Số lượng tồn</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-transparent border-secondary text-muted" style="border-right:0;"><i class="bi bi-box-seam"></i></span>
+                                    <input type="number" name="SOLUONGTON" class="form-control form-control-premium" value="@Model.SOLUONGTON" min="0" style="border-left:0;" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label-premium">Mô tả sản phẩm</label>
+                            <textarea name="MOTA" class="form-control form-control-premium" rows="5" placeholder="Nhập mô tả chi tiết...">@Model.MOTA</textarea>
+                        </div>
+
+                        <div class="row align-items-center p-3 rounded border border-secondary border-opacity-25 bg-secondary bg-opacity-10">
+                            <div class="col-md-4 text-center mb-3 mb-md-0">
+                                <label class="form-label-premium d-block mb-2">Hình ảnh hiện tại</label>
+                                @if (!string.IsNullOrEmpty(Model.HINHANH))
+                                {
+                                    <div class="p-1 border rounded bg-white d-inline-block shadow-sm">
+                                        <img src="@Model.HINHANH" style="width:100px; height:100px; object-fit:contain;" onerror="this.onerror=null; this.src='/source/images/shoes.png';" />
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="text-muted small fst-italic py-4">Chưa có hình ảnh</div>
+                                }
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label-premium">Cập nhật hình ảnh (nếu cần)</label>
+                                <input type="file" name="imageFile" class="form-control form-control-premium" accept="image/*" />
+                                <div class="form-text text-muted small mt-2"><i class="bi bi-info-circle me-1"></i> Hỗ trợ định dạng .jpg, .png, .jpeg</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Mô tả</label>
-                    <textarea name="MOTA" class="form-control bg-dark text-light border-secondary" rows="3">@Model.MOTA</textarea>
+                <!-- Variants Card -->
+                <div class="card card-premium mb-4">
+                    <div class="card-header-premium">
+                        <h5><i class="bi bi-palette text-info"></i> Biến thể (Màu sắc)</h5>
+                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25" id="variantCount">Loading...</span>
+                    </div>
+                    <div class="card-body p-4">
+                        
+                        <!-- Add Variant Inline Form -->
+                        <div class="d-flex flex-wrap flex-md-nowrap gap-3 mb-4 p-3 rounded border border-secondary border-opacity-25" style="background: var(--bg-hover);">
+                            <div class="flex-grow-1">
+                                <label class="form-label-premium mb-1">Màu sắc</label>
+                                <input type="text" id="newColor" class="form-control form-control-premium" placeholder="Ví dụ: Đỏ, Xanh..." />
+                            </div>
+                            <div style="width: 100%; max-width: 200px;">
+                                <label class="form-label-premium mb-1">Giá theo màu</label>
+                                <input type="number" id="newPrice" class="form-control form-control-premium" value="@Model.GIA" min="0" />
+                            </div>
+                            <div class="d-flex align-items-end">
+                                <button type="button" class="btn btn-primary btn-premium" onclick="addVariant()">
+                                    <i class="bi bi-plus-lg"></i> Thêm mới
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Variants List -->
+                        <div id="variantsList" class="border rounded overflow-hidden">
+                            <!-- JS will populate -->
+                        </div>
+                    </div>
                 </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Hình ảnh hiện tại</label>
-                    @if (!string.IsNullOrEmpty(Model.HINHANH))
-                    {
-                        <div><img src="@Model.HINHANH" style="max-width:150px;max-height:150px;" class="rounded border" onerror="this.onerror=null; this.src='/source/images/shoes.png';" /></div>
-                    }
-                    else
-                    {
-                        <div class="text-muted">Chưa có hình</div>
-                    }
-                </div>
-
-                <div class="mb-4">
-                    <label class="form-label">Đổi hình ảnh mới</label>
-                    <input type="file" name="imageFile" class="form-control bg-dark text-light border-secondary" accept="image/*" />
-                </div>
-
-                <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-warning fw-bold py-2">
-                        <i class="bi bi-save"></i> Lưu thay đổi
+                <!-- Action Buttons -->
+                <div class="d-flex gap-3 justify-content-end mb-5">
+                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary btn-premium">Hủy bỏ</a>
+                    <button type="submit" class="btn btn-warning btn-premium">
+                        <i class="bi bi-check-lg"></i> Lưu thay đổi
                     </button>
-                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">Hủy bỏ</a>
                 </div>
             </form>
-        </div>
-    </div>
 
-    <!-- VARIANTS SECTION -->
-    <div class="card bg-dark border-secondary shadow mt-4">
-        <div class="card-header border-secondary bg-info text-dark d-flex justify-content-between align-items-center">
-            <h4 class="mb-0 fw-bold"><i class="bi bi-grid"></i> Biến thể sản phẩm (Màu sắc)</h4>
-            <span class="badge bg-light text-dark" id="variantCount">0 biến thể</span>
-        </div>
-        <div class="card-body">
-            <!-- Add Variant Form -->
-            <div class="row g-2 align-items-end mb-4 p-3 border border-secondary rounded bg-secondary bg-opacity-10">
-                <div class="col-md-5">
-                    <label class="form-label text-light">Màu sắc</label>
-                    <input type="text" id="newColor" class="form-control bg-dark text-light border-secondary" placeholder="Ví dụ: Đỏ, Xanh..." />
-                </div>
-                <div class="col-md-5">
-                    <label class="form-label text-light">Giá theo màu</label>
-                    <input type="number" id="newPrice" class="form-control bg-dark text-light border-secondary" value="@Model.GIA" min="0" />
-                </div>
-                <div class="col-md-2">
-                    <button type="button" class="btn btn-primary w-100" onclick="addVariant()">
-                        <i class="bi bi-plus-lg"></i> Thêm
-                    </button>
-                </div>
-            </div>
-
-            <!-- Variants List -->
-            <div class="table-responsive">
-                <table class="table table-dark table-hover border-secondary">
-                    <thead>
-                        <tr>
-                            <th>Màu sắc</th>
-                            <th>Giá (VNĐ)</th>
-                            <th class="text-center" style="width: 100px;">Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody id="variantTableBody">
-                        <!-- Ajax Content -->
-                    </tbody>
-                </table>
-                <div id="loadingVariants" class="text-center text-muted my-3" style="display:none;">
-                    <div class="spinner-border spinner-border-sm text-info" role="status"></div> Đang tải...
-                </div>
-                <div id="emptyVariants" class="text-center text-muted my-3" style="display:none;">
-                    Chưa có biến thể nào.
-                </div>
-            </div>
         </div>
     </div>
 </div>
 
 <script>
-    var productId = '@Model.MASANPHAM.Trim()';
+    var currentProductId = '@Model.MASANPHAM.Trim()';
 
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener('DOMContentLoaded', function() {
         loadVariants();
     });
 
     function loadVariants() {
-        document.getElementById("loadingVariants").style.display = 'block';
-        document.getElementById("variantTableBody").innerHTML = '';
-        
-        fetch('/ProductAdmin/GetVariants?productId=' + productId)
-            .then(r => r.json())
-            .then(res => {
-                document.getElementById("loadingVariants").style.display = 'none';
-                if(res.success) {
-                    renderVariants(res.data);
-                } else {
-                    alert("Lỗi tải biến thể");
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                document.getElementById("loadingVariants").style.display = 'none';
-            });
-    }
-
-    function renderVariants(list) {
-        var tbody = document.getElementById("variantTableBody");
-        document.getElementById("variantCount").innerText = list.length + " biến thể";
-        
-        if (list.length === 0) {
-            document.getElementById("emptyVariants").style.display = 'block';
-            return;
-        }
-        
-        document.getElementById("emptyVariants").style.display = 'none';
-
-        list.forEach(v => {
-            var tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td><span class="badge bg-secondary fs-6">${v.MAUSAC}</span></td>
-                <td class="text-warning fw-bold">${new Intl.NumberFormat('vi-VN').format(v.GIATHEOMAU)} ₫</td>
-                <td class="text-center">
-                    <button class="btn btn-sm btn-outline-danger" onclick="deleteVariant(${v.ID})">
-                        <i class="bi bi-trash"></i>
-                    </button>
-                </td>
-            `;
-            tbody.appendChild(tr);
+        fetch('@Url.Action("GetVariants", "ProductAdmin")?productId=' + currentProductId)
+        .then(res => res.json())
+        .then(res => {
+            if(res.success) {
+                renderVariants(res.data);
+            }
         });
     }
 
-    function addVariant() {
-        var color = document.getElementById("newColor").value.trim();
-        var price = document.getElementById("newPrice").value;
-
-        if (!color) {
-            alert("Vui lòng nhập màu sắc!");
-            return;
+    function renderVariants(data) {
+        var html = '';
+        if(!data || data.length === 0) {
+            html = '<div class="text-center text-muted py-5 bg-opacity-10 bg-secondary"><div><i class="bi bi-box-seam fs-1 mb-2 d-block"></i>Chưa có biến thể màu sắc nào</div></div>';
+            document.getElementById('variantCount').innerText = '0 biến thể';
+        } else {
+            document.getElementById('variantCount').innerText = data.length + ' biến thể';
+            
+            html = '<div class="table-responsive"><table class="table mb-0" style="color:var(--text-main)"><thead><tr class="bg-secondary bg-opacity-10"><th class="ps-4">Màu sắc</th><th>Giá riêng</th><th class="text-end pe-4">Hành động</th></tr></thead><tbody>';
+            
+            data.forEach(item => {
+                html += `
+                    <tr>
+                        <td class="align-middle ps-4">
+                            <span class="badge bg-secondary text-white px-3 py-2 rounded-pill border border-secondary border-opacity-50">${item.MAUSAC}</span>
+                        </td>
+                        <td class="align-middle text-success fw-bold">
+                            ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.GIATHEOMAU)}
+                        </td>
+                        <td class="align-middle text-end pe-4">
+                            <button type="button" class="btn btn-sm btn-outline-danger border-0" onclick="deleteVariant(${item.ID})" title="Xóa">
+                                <i class="bi bi-trash fs-5"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            html += '</tbody></table></div>';
         }
+        document.getElementById('variantsList').innerHTML = html;
+    }
+
+    function addVariant() {
+        var color = document.getElementById('newColor').value;
+        var price = document.getElementById('newPrice').value;
+
+        if(!color) { alert('Vui lòng nhập màu sắc'); return; }
 
         var formData = new FormData();
-        formData.append("productId", productId);
-        formData.append("color", color);
-        formData.append("price", price);
+        formData.append('productId', currentProductId);
+        formData.append('color', color);
+        formData.append('price', price);
 
-        fetch('/ProductAdmin/AddVariant', {
+        fetch('@Url.Action("AddVariant", "ProductAdmin")', {
             method: 'POST',
             body: formData
-        })
-        .then(r => r.json())
-        .then(res => {
-            if (res.success) {
-                document.getElementById("newColor").value = '';
+        }).then(res => res.json())
+        .then(data => {
+            if(data.success) {
+                document.getElementById('newColor').value = '';
                 loadVariants();
             } else {
-                alert(res.message || "Lỗi khi thêm");
+                alert(data.message);
             }
-        })
-        .catch(err => alert("Lỗi kết nối"));
+        });
     }
 
     function deleteVariant(id) {
-        if (!confirm("Bạn có chắc muốn xóa biến thể này?")) return;
-
-        var formData = new FormData();
-        formData.append("id", id);
-
-        fetch('/ProductAdmin/DeleteVariant', {
+        if(!confirm('Xóa biến thể này?')) return;
+        
+        fetch('@Url.Action("DeleteVariant", "ProductAdmin")', {
             method: 'POST',
-            body: formData
-        })
-        .then(r => r.json())
-        .then(res => {
-            if (res.success) {
+            body: new URLSearchParams({ 'id': id })
+        }).then(res => res.json())
+        .then(data => {
+            if(data.success) {
                 loadVariants();
             } else {
-                alert(res.message || "Lỗi khi xóa");
+                alert(data.message);
             }
-        })
-        .catch(err => alert("Lỗi kết nối"));
+        });
     }
 </script>

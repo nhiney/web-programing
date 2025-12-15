@@ -4,78 +4,124 @@
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<div class="container py-4" style="color:#d8e5f7; max-width: 700px;">
-    <div class="card bg-dark border-secondary shadow">
-        <div class="card-header border-secondary bg-info text-dark">
-            <h4 class="mb-0 fw-bold"><i class="bi bi-info-circle"></i> Chi tiết sản phẩm</h4>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-4 text-center mb-3">
-                    @{
-                        var imgPath = "/source/images/shoes.png"; // Default
-                        if (!string.IsNullOrEmpty(Model.HINHANH))
-                        {
-                            if (Model.HINHANH.StartsWith("/"))
-                            {
-                                imgPath = Model.HINHANH; // Full path
-                            }
-                            else if (Model.HINHANH.StartsWith("source/"))
-                            {
-                                imgPath = "/" + Model.HINHANH; // Add leading slash
-                            }
-                            else
-                            {
-                                imgPath = "/source/images/Products/" + Model.HINHANH; // Just filename
-                            }
-                        }
-                    }
-                    <img src="@imgPath" class="img-fluid rounded border" style="max-height:200px;" onerror="this.onerror=null; this.src='/source/images/shoes.png';" alt="@Model.TENSANPHAM" />
-                </div>
-                <div class="col-md-8">
-                    <table class="table table-dark table-borderless">
-                        <tr>
-                            <th style="width:120px;">Mã SP:</th>
-                            <td class="fw-bold text-primary">@Model.MASANPHAM.Trim()</td>
-                        </tr>
-                        <tr>
-                            <th>Tên SP:</th>
-                            <td class="fw-bold">@Model.TENSANPHAM</td>
-                        </tr>
-                        <tr>
-                            <th>Giá:</th>
-                            <td class="fw-bold text-success">@string.Format("{0:N0}", Model.GIA) đ</td>
-                        </tr>
-                        <tr>
-                            <th>Tồn kho:</th>
-                            <td>@Model.SOLUONGTON</td>
-                        </tr>
-                        <tr>
-                            <th>Ngày tạo:</th>
-                            <td>@Model.NGAYTAO</td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
+<style>
+    .page-container {
+        padding: 24px;
+        color: var(--text-main);
+    }
+    .card-custom {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        box-shadow: var(--shadow-card);
+    }
+    .card-header-custom {
+        padding: 16px 24px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+    }
+    .table-details {
+        width: 100%;
+        color: var(--text-main);
+    }
+    .table-details th {
+        width: 140px;
+        color: var(--text-label);
+        font-weight: 600;
+        padding: 12px 0;
+        vertical-align: top;
+    }
+    .table-details td {
+        padding: 12px 0;
+        vertical-align: top;
+    }
+    .img-preview {
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-hover);
+        padding: 8px;
+        max-width: 100%;
+        max-height: 250px;
+        object-fit: contain;
+    }
+</style>
 
-            @if (!string.IsNullOrEmpty(Model.MOTA))
-            {
-                <div class="mt-3">
-                    <label class="text-muted small">Mô tả:</label>
-                    <div class="p-3 bg-secondary rounded">@Model.MOTA</div>
+<div class="page-container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card card-custom">
+                <div class="card-header-custom">
+                    <h5 class="mb-0 fw-bold header-title text-main"><i class="bi bi-info-circle-fill text-primary me-2"></i>Chi tiết sản phẩm</h5>
                 </div>
-            }
+                <div class="card-body p-4">
+                    <div class="row">
+                        <div class="col-md-5 text-center mb-4 mb-md-0">
+                             @{
+                                var imgPath = "/source/images/shoes.png";
+                                if (!string.IsNullOrEmpty(Model.HINHANH))
+                                {
+                                    if (Model.HINHANH.StartsWith("/"))
+                                    {
+                                        imgPath = Model.HINHANH;
+                                    }
+                                    else
+                                    {
+                                        imgPath = "/source/images/" + Model.HINHANH;
+                                    }
+                                }
+                            }
+                            <img src="@imgPath" class="img-preview" onerror="this.onerror=null; this.src='/source/images/shoes.png';" alt="@Model.TENSANPHAM" />
+                        </div>
+                        <div class="col-md-7">
+                            <table class="table-details">
+                                <tr>
+                                    <th>Mã sản phẩm:</th>
+                                    <td><span class="badge bg-primary bg-opacity-10 text-primary">@Model.MASANPHAM.Trim()</span></td>
+                                </tr>
+                                <tr>
+                                    <th>Tên sản phẩm:</th>
+                                    <td class="fw-bold fs-5">@Model.TENSANPHAM</td>
+                                </tr>
+                                <tr>
+                                    <th>Giá bán:</th>
+                                    <td class="fs-5 text-success fw-bold">@string.Format("{0:N0}", Model.GIA) đ</td>
+                                </tr>
+                                <tr>
+                                    <th>Tồn kho:</th>
+                                    <td>@Model.SOLUONGTON</td>
+                                </tr>
+                                <tr>
+                                    <th>Ngày tạo:</th>
+                                    <td class="text-muted">@(Model.NGAYTAO.HasValue ? Model.NGAYTAO.Value.ToString("dd/MM/yyyy HH:mm") : "N/A")</td>
+                                </tr>
+                            </table>
 
-            <div class="d-flex gap-2 mt-4">
-                <a href="@Url.Action("Edit", new { id = Model.MASANPHAM.Trim() })" class="btn btn-warning">
-                    <i class="bi bi-pencil"></i> Sửa
-                </a>
-                <a href="@Url.Action("Delete", new { id = Model.MASANPHAM.Trim() })" class="btn btn-danger">
-                    <i class="bi bi-trash"></i> Xóa
-                </a>
-                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left"></i> Quay lại
-                </a>
+                            @if (!string.IsNullOrEmpty(Model.MOTA))
+                            {
+                                <div class="mt-4">
+                                    <label class="text-muted small fw-bold mb-2 text-uppercase">Mô tả sản phẩm</label>
+                                    <div class="p-3 rounded border" style="background: var(--bg-body); border-color: var(--border-color) !important; color: var(--text-muted);">
+                                        @Model.MOTA
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer p-3 border-top" style="border-color: var(--border-color) !important; background: transparent;">
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Trở về
+                        </a>
+                        <a href="@Url.Action("Delete", new { id = Model.MASANPHAM.Trim() })" class="btn btn-danger">
+                            <i class="bi bi-trash me-1"></i>Xóa
+                        </a>
+                        <a href="@Url.Action("Edit", new { id = Model.MASANPHAM.Trim() })" class="btn btn-primary fw-bold">
+                            <i class="bi bi-pencil-square me-1"></i>Chỉnh sửa
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

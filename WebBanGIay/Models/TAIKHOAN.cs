@@ -21,6 +21,7 @@ namespace WebBanGIay.Models
         public string MAKHACHHANG { get; set; }
         public string MANHANVIEN { get; set; }
         public Nullable<System.DateTime> NGAYTAO { get; set; }
+        public Nullable<bool> TRANGTHAI { get; set; }
     
         public virtual KHACHHANG KHACHHANG { get; set; }
         public virtual NHANVIEN NHANVIEN { get; set; }

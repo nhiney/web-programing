@@ -215,6 +215,7 @@
                     <th>Mã Khách Hàng</th>
                     <th>Mã Nhân Viên</th>
                     <th>Ngày tạo</th>
+                    <th>Trạng thái</th>
                     <th class="text-center">Thao tác</th>
                 </tr>
             </thead>
@@ -222,7 +223,7 @@
                 @if (Model == null || !Model.Any())
                 {
                     <tr>
-                        <td colspan="6" style="padding:40px; text-align:center;">Không tìm thấy người dùng</td>
+                        <td colspan="7" style="padding:40px; text-align:center;">Không tìm thấy người dùng</td>
                     </tr>
                 }
                 else
@@ -243,6 +244,16 @@
                             }
                         }
 
+                        // Status logic
+                        bool isActive = u.TRANGTHAI ?? true;
+                        string statusText = isActive ? "Hoạt động" : "Đã khóa";
+                        string statusClass = isActive ? "bg-success text-white" : "bg-danger text-white";
+
+                        // Lock/Unlock Button
+                        string lockIcon = isActive ? "bi-lock" : "bi-unlock";
+                        string lockTitle = isActive ? "Khóa tài khoản" : "Mở khóa tài khoản";
+                        string lockBtnClass = isActive ? "btn-square text-danger border-danger" : "btn-square text-success border-success";
+
                         <tr>
                             <td>@u.TENTAIKHOAN</td>
                             <td>
@@ -250,13 +261,20 @@
                             </td>
                             <td>@(!string.IsNullOrEmpty(u.MAKHACHHANG) ? u.MAKHACHHANG : "—")</td>
                             <td>@(!string.IsNullOrEmpty(u.MANHANVIEN) ? u.MANHANVIEN : "—")</td>
-                            <td>@u.NGAYTAO</td>
+                            <td>@(u.NGAYTAO.HasValue ? u.NGAYTAO.Value.ToString("dd/MM/yyyy") : "")</td>
+                            <td>
+                                <span class="badge @statusClass">@statusText</span>
+                            </td>
                             <td class="text-center">
                                 <a class="btn-square" href="@Url.Action("DetailsUser","Admin", new{ id = u.MATAIKHOAN.Trim() })" title="Chi tiết">
                                     <i class="bi bi-eye"></i>
                                 </a>
                                 <a class="btn-square" href="@Url.Action("EditUser","Admin", new{ id = u.MATAIKHOAN.Trim() })" title="Sửa">
                                     <i class="bi bi-pencil"></i>
+                                </a>
+                                <a class="@lockBtnClass" href="@Url.Action("ToggleLock","Admin", new{ id = u.MATAIKHOAN.Trim() })" 
+                                   title="@lockTitle">
+                                    <i class="bi @lockIcon"></i>
                                 </a>
                                 <a class="btn-square" href="@Url.Action("DeleteUser","Admin", new{ id = u.MATAIKHOAN.Trim() })" 
                                    onclick="return confirm('Bạn có chắc muốn xóa người dùng này?');" title="Xóa">

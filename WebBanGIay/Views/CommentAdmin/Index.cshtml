@@ -1,0 +1,250 @@
+@model IEnumerable<WebBanGIay.Models.DANHGIASANPHAM>
+@{
+    ViewBag.Title = "Quản lý Bình luận";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    /* Styling similar to ProductAdmin/Index for consistency */
+    .page-container {
+        color: var(--text-main);
+        padding: 24px;
+        font-family: "Inter", sans-serif;
+    }
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+    .page-title {
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--text-main);
+        margin: 0;
+    }
+
+    .table-responsive-custom {
+        background: var(--bg-card);
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+        box-shadow: var(--shadow-card);
+    }
+
+    .table-custom {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .table-custom thead {
+        background: var(--bg-hover);
+    }
+    .table-custom th {
+        padding: 16px 20px;
+        text-align: left;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: var(--text-label);
+        border-bottom: 2px solid var(--border-color);
+    }
+    .table-custom td {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border-color);
+        color: var(--text-main);
+        vertical-align: top;
+    }
+    .table-custom tbody tr:hover {
+        background: var(--bg-hover);
+    }
+
+    .status-badge {
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        display: inline-block;
+    }
+    .status-visible { background: rgba(28, 200, 138, 0.15); color: #1cc88a; }
+    .status-hidden { background: rgba(231, 74, 59, 0.15); color: #e74a3b; }
+
+    .rating-star { color: #f6c23e; }
+    
+    .comment-content {
+        max-width: 400px;
+        line-height: 1.5;
+    }
+    .reply-content {
+        background: var(--bg-body);
+        padding: 10px;
+        border-radius: 8px;
+        margin-top: 8px;
+        font-size: 0.9rem;
+        border-left: 3px solid var(--accent-color);
+    }
+
+    .action-btn {
+        width: 32px; height: 32px;
+        display: inline-flex; align-items: center; justify-content: center;
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+        color: var(--text-muted);
+        transition: 0.2s;
+        cursor: pointer;
+        background: var(--bg-body);
+    }
+    .action-btn:hover { background: var(--bg-hover); color: var(--text-main); }
+    .btn-reply:hover { color: #4e73df; border-color: #4e73df; }
+    .btn-block:hover { color: #f6c23e; border-color: #f6c23e; }
+    .btn-delete:hover { color: #e74a3b; border-color: #e74a3b; }
+
+</style>
+
+<div class="page-container">
+    <div class="page-header">
+        <h2 class="page-title"><i class="bi bi-chat-dots-fill text-primary"></i> Quản lý Bình luận</h2>
+        
+        <div>
+            <a href="@Url.Action("Index", new { status = "all" })" class="btn btn-sm btn-outline-secondary me-2">Tất cả</a>
+            <a href="@Url.Action("Index", new { status = "visible" })" class="btn btn-sm btn-outline-success me-2">Hiển thị</a>
+            <a href="@Url.Action("Index", new { status = "hidden" })" class="btn btn-sm btn-outline-danger">Đã ẩn</a>
+        </div>
+    </div>
+
+    <div class="table-responsive-custom">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Khách hàng</th>
+                    <th>Sản phẩm</th>
+                    <th>Đánh giá</th>
+                    <th>Nội dung</th>
+                    <th>Trạng thái</th>
+                    <th class="text-end">Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr id="row-@item.MADANHGIA">
+                        <td>
+                             <div class="fw-bold">@item.KHACHHANG.HOTEN</div>
+                             <small class="text-muted">@item.NGAYDANHGIA.Value.ToString("dd/MM/yyyy HH:mm")</small>
+                        </td>
+                        <td>
+                            <div class="small fw-semibold text-primary">@item.SANPHAM.MASANPHAM.Trim()</div>
+                            <div class="small text-truncate" style="max-width: 150px;" title="@item.SANPHAM.TENSANPHAM">@item.SANPHAM.TENSANPHAM</div>
+                        </td>
+                        <td>
+                            <div class="rating-star">
+                                @for(int i=0; i< (item.DIEM ?? 0); i++) { <i class="bi bi-star-fill"></i> }
+                            </div>
+                        </td>
+                        <td>
+                            <div class="comment-content">
+                                @item.BINHLUAN
+                            </div>
+                            @if (!string.IsNullOrEmpty(item.PHANHOI))
+                            {
+                                <div class="reply-content">
+                                    <strong><i class="bi bi-arrow-return-right"></i> Admin:</strong> @item.PHANHOI
+                                    <div class="small text-muted mt-1">@item.NGAYPHANHOI.Value.ToString("dd/MM/yyyy")</div>
+                                </div>
+                            }
+                        </td>
+                        <td id="status-col-@item.MADANHGIA">
+                            @if (item.TRANGTHAI == 0)
+                            {
+                                <span class="status-badge status-hidden">Đã ẩn</span>
+                            }
+                            else
+                            {
+                                <span class="status-badge status-visible">Hiển thị</span>
+                            }
+                        </td>
+                        <td class="text-end">
+                            <button class="action-btn btn-reply" onclick="openReplyModal('@item.MADANHGIA', '@item.PHANHOI')" title="Trả lời">
+                                <i class="bi bi-reply-fill"></i>
+                            </button>
+                            <button class="action-btn btn-block" onclick="toggleStatus('@item.MADANHGIA')" title="Ẩn/Hiện">
+                                <i class="bi bi-eye-slash-fill"></i>
+                            </button>
+                            <button class="action-btn btn-delete" onclick="deleteComment('@item.MADANHGIA')" title="Xóa">
+                                <i class="bi bi-trash-fill"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Trả lời -->
+<div class="modal fade" id="replyModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Trả lời bình luận</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="replyId" />
+                <div class="mb-3">
+                    <label class="form-label">Nội dung trả lời:</label>
+                    <textarea class="form-control" id="replyContent" rows="4"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" onclick="submitReply()">Gửi phản hồi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openReplyModal(id, currentReply) {
+        document.getElementById('replyId').value = id;
+        document.getElementById('replyContent').value = currentReply || '';
+        new bootstrap.Modal(document.getElementById('replyModal')).show();
+    }
+
+    function submitReply() {
+        var id = document.getElementById('replyId').value;
+        var content = document.getElementById('replyContent').value;
+
+        $.post('@Url.Action("Reply", "CommentAdmin")', { id: id, replyContent: content }, function (res) {
+            if (res.success) {
+                alert(res.message);
+                location.reload();
+            } else {
+                alert('Lỗi: ' + res.message);
+            }
+        });
+    }
+
+    function toggleStatus(id) {
+        if (!confirm('Bạn có muốn thay đổi trạng thái hiển thị của bình luận này?')) return;
+        
+        $.post('@Url.Action("ToggleStatus", "CommentAdmin")', { id: id }, function (res) {
+            if (res.success) {
+                location.reload();
+            } else {
+                alert('Có lỗi xảy ra');
+            }
+        });
+    }
+
+    function deleteComment(id) {
+        if (!confirm('Bạn có chắc chắn muốn xóa vĩnh viễn bình luận này?')) return;
+        
+        $.post('@Url.Action("Delete", "CommentAdmin")', { id: id }, function (res) {
+            if (res.success) {
+                $('#row-' + id).remove();
+            } else {
+                alert('Có lỗi xảy ra: ' + res.message);
+            }
+        });
+    }
+</script>

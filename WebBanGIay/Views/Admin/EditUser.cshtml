@@ -14,98 +14,102 @@
 }
 
 <style>
-    .edit-card {
-        background: #0c1624;
-        border: 1px solid #1b2b41;
-        border-radius: 12px;
-        color: #e4edf7;
-    }
-    .edit-card-header {
-        background: #0891b2;
-        color: white;
-        padding: 16px 20px;
-        border-radius: 12px 12px 0 0;
-    }
-    .edit-card-body {
+    .page-container {
         padding: 24px;
-    }
-    .dark-label {
-        color: #bcd7ff;
-        font-weight: 600;
-        margin-bottom: 6px;
-    }
-    .dark-input, .dark-select {
-        background: #0b1220 !important;
-        border: 1px solid #243347 !important;
-        color: #dbe9ff !important;
-        padding: 10px !important;
-        border-radius: 6px !important;
-    }
-    .dark-input:focus, .dark-select:focus {
-        border-color: #3a5275 !important;
-        box-shadow: 0 0 0 3px rgba(0,136,255,0.2) !important;
+        color: var(--text-main);
     }
 </style>
 
-<div class="container mt-4" style="max-width: 650px;">
-    <div class="edit-card shadow-lg">
-
-        <div class="edit-card-header d-flex align-items-center">
-            <i class="bi bi-pencil-square me-2" style="font-size:1.3rem;"></i>
-            <h5 class="mb-0">Sửa thông tin User: @Model.TENTAIKHOAN</h5>
-        </div>
-
-        <div class="edit-card-body">
-            @if (TempData["Error"] != null)
-            {
-                <div class="alert alert-danger">@TempData["Error"]</div>
-            }
-
-            @using (Html.BeginForm("EditUser", "Admin", FormMethod.Post))
-            {
-                @Html.AntiForgeryToken()
-                @Html.HiddenFor(m => m.MATAIKHOAN)
-
-                <div class="mb-3">
-                    <label class="dark-label">Mã tài khoản</label>
-                    <input type="text" class="form-control dark-input" value="@Model.MATAIKHOAN" disabled />
+<div class="page-container">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <div class="card card-premium shadow-lg">
+                <div class="card-header-premium">
+                    <h5><i class="bi bi-person-gear text-info"></i> Sửa thông tin tài khoản</h5>
                 </div>
+                <div class="card-body p-4">
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger mb-4 border-0 bg-danger bg-opacity-10 text-danger fw-bold">
+                            <i class="bi bi-exclamation-triangle me-2"></i> @TempData["Error"]
+                        </div>
+                    }
 
-                <div class="mb-3">
-                    <label class="dark-label">Tên tài khoản</label>
-                    @Html.TextBoxFor(m => m.TENTAIKHOAN, new { @class = "form-control dark-input" })
-                    @Html.ValidationMessageFor(m => m.TENTAIKHOAN, "", new { @class = "text-danger small" })
-                </div>
+                    @using (Html.BeginForm("EditUser", "Admin", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.MATAIKHOAN)
 
-                <div class="mb-3">
-                    <label class="dark-label">Mật khẩu mới <span class="text-muted small">(để trống nếu không đổi)</span></label>
-                    <input type="password" name="MATKHAU" class="form-control dark-input" placeholder="Nhập mật khẩu mới..." />
-                </div>
+                        <div class="mb-4">
+                            <label class="form-label-premium">Mã tài khoản</label>
+                            <input type="text" class="form-control form-control-premium text-muted" value="@Model.MATAIKHOAN.Trim()" disabled />
+                        </div>
 
-                <div class="mb-3">
-                    <label class="dark-label">Loại tài khoản</label>
-                    @Html.DropDownListFor(m => m.LOAITAIKHOAN, roleList, "Chọn loại", new { @class = "form-select dark-select", id = "roleSelect" })
-                </div>
+                        <div class="mb-4">
+                            <label class="form-label-premium">Tên đăng nhập <span class="text-danger">*</span></label>
+                            @Html.TextBoxFor(m => m.TENTAIKHOAN, new { @class = "form-control form-control-premium", required = "required", placeholder = "Nhập tên đăng nhập..." })
+                            @Html.ValidationMessageFor(m => m.TENTAIKHOAN, "", new { @class = "text-danger small mt-1 fw-bold" })
+                        </div>
 
-                <div id="khSection" class="mb-3">
-                    <label class="dark-label">Khách hàng liên kết</label>
-                    @Html.DropDownListFor(m => m.MAKHACHHANG, new SelectList(khList ?? new List<WebBanGIay.Models.KHACHHANG>(), "MAKHACHHANG", "HOTEN", Model.MAKHACHHANG), "-- không liên kết --", new { @class = "form-select dark-select" })
-                </div>
+                        <div class="mb-4">
+                            <label class="form-label-premium">Mật khẩu mới <small class="text-muted fw-normal fs-6 ms-2">(Để trống nếu không đổi)</small></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent border-secondary text-muted" style="border-right:0;"><i class="bi bi-key"></i></span>
+                                <input type="password" name="MATKHAU" class="form-control form-control-premium" placeholder="Nhập mật khẩu mới..." style="border-left:0;" />
+                            </div>
+                        </div>
 
-                <div id="nvSection" class="mb-3">
-                    <label class="dark-label">Nhân viên liên kết</label>
-                    @Html.DropDownListFor(m => m.MANHANVIEN, new SelectList(nvList ?? new List<WebBanGIay.Models.NHANVIEN>(), "MANHANVIEN", "HOTEN", Model.MANHANVIEN), "-- không liên kết --", new { @class = "form-select dark-select" })
-                </div>
+                        <div class="mb-4">
+                            <label class="form-label-premium">Vai trò hệ thống</label>
+                            @Html.DropDownListFor(m => m.LOAITAIKHOAN, roleList, "Chọn vai trò", new { @class = "form-select form-select-premium", id = "roleSelect" })
+                        </div>
 
-                <div class="d-flex justify-content-center gap-3 mt-4">
-                    <button type="submit" class="btn btn-success px-4 py-2">
-                        <i class="bi bi-check-circle me-1"></i> Lưu thay đổi
-                    </button>
-                    <a href="@Url.Action("Users","Admin")" class="btn btn-outline-secondary px-4 py-2">
-                        <i class="bi bi-x-circle me-1"></i> Hủy
-                    </a>
+                        <div id="khSection" class="mb-4 p-3 rounded border border-secondary border-opacity-25 bg-secondary bg-opacity-10" style="display:none;">
+                            <label class="form-label-premium text-info">Liên kết Khách hàng</label>
+                            @Html.DropDownListFor(m => m.MAKHACHHANG, new SelectList(khList ?? new List<WebBanGIay.Models.KHACHHANG>(), "MAKHACHHANG", "HOTEN", Model.MAKHACHHANG), "-- Chọn Khách hàng --", new { @class = "form-select form-select-premium" })
+                            <div class="form-text text-muted mt-2"><i class="bi bi-info-circle me-1"></i> Tài khoản này sẽ được dùng để khách hàng đăng nhập.</div>
+                        </div>
+
+                        <div id="nvSection" class="mb-4 p-3 rounded border border-secondary border-opacity-25 bg-secondary bg-opacity-10" style="display:none;">
+                            <label class="form-label-premium text-warning">Liên kết Nhân viên</label>
+                            @Html.DropDownListFor(m => m.MANHANVIEN, new SelectList(nvList ?? new List<WebBanGIay.Models.NHANVIEN>(), "MANHANVIEN", "HOTEN", Model.MANHANVIEN), "-- Chọn Nhân viên --", new { @class = "form-select form-select-premium" })
+                            <div class="form-text text-muted mt-2"><i class="bi bi-info-circle me-1"></i> Tài khoản này sẽ có quyền truy cập trang quản trị.</div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-3 mt-5">
+                            <a href="@Url.Action("Users")" class="btn btn-outline-secondary btn-premium">Hủy bỏ</a>
+                            <button type="submit" class="btn btn-primary btn-premium">
+                                <i class="bi bi-check-circle"></i> Lưu thay đổi
+                            </button>
+                        </div>
+                    }
                 </div>
-            }
+            </div>
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var roleSelect = document.getElementById("roleSelect");
+        var khSection = document.getElementById("khSection");
+        var nvSection = document.getElementById("nvSection");
+
+        function toggleSections() {
+            var val = roleSelect.value;
+            if (val === "KHÁCH HÀNG") {
+                khSection.style.display = "block";
+                nvSection.style.display = "none";
+            } else if (val === "NHÂN VIÊN") {
+                khSection.style.display = "none";
+                nvSection.style.display = "block";
+            } else {
+                khSection.style.display = "none";
+                nvSection.style.display = "none";
+            }
+        }
+        
+        roleSelect.addEventListener("change", toggleSections);
+        toggleSections(); // Run on load
+    });
+</script>

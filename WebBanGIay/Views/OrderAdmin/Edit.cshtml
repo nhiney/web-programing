@@ -1,73 +1,114 @@
 @model WebBanGIay.Models.HOADON
 @{
-    ViewBag.Title = "Cập nhật trạng thái đơn hàng";
+    ViewBag.Title = "Cập nhật trạng thái";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<div class="container py-4" style="color:#d8e5f7; max-width: 700px;">
-    <div class="card bg-dark border-secondary shadow">
-        <div class="card-header border-secondary bg-warning text-dark">
-            <h4 class="mb-0 fw-bold"><i class="bi bi-pencil-square"></i> Cập nhật trạng thái đơn hàng</h4>
-        </div>
-        <div class="card-body">
-            
-            <!-- Order Info (Read-only) -->
-            <div class="mb-3 p-3 bg-secondary bg-opacity-25 rounded">
-                <div class="row">
-                    <div class="col-6">
-                        <strong>Mã đơn:</strong> @Model.MAHOADON
-                    </div>
-                    <div class="col-6">
-                        <strong>Ngày lập:</strong> @Model.NGAYLAP?.ToString("dd/MM/yyyy")
-                    </div>
+<style>
+    .page-container {
+        padding: 24px;
+        color: var(--text-main);
+    }
+    .card-custom {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        box-shadow: var(--shadow-card);
+    }
+    .card-header-custom {
+        padding: 16px 24px;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .form-select-custom {
+        background-color: var(--bg-body);
+        border: 1px solid var(--border-color);
+        color: var(--text-main);
+        padding: 12px;
+    }
+    .form-select-custom:focus {
+        background-color: var(--bg-body);
+        color: var(--text-main);
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+    .info-box {
+        background: var(--bg-hover);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 16px;
+    }
+</style>
+
+<div class="page-container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card card-custom">
+                <div class="card-header-custom">
+                    <h5 class="mb-0 fw-bold text-main"><i class="bi bi-pencil-square text-warning me-2"></i>Cập nhật trạng thái đơn hàng</h5>
                 </div>
-                <div class="mt-2">
-                    <strong>Khách hàng:</strong> @(Model.KHACHHANG?.HOTEN ?? "Khách vãng lai")
-                </div>
-                <div class="mt-2">
-                    <strong>Tổng tiền:</strong> <span class="text-success fw-bold">@string.Format("{0:N0}", Model.TONGTIEN) đ</span>
+                <div class="card-body p-4">
+                    
+                    <!-- Order Info (Read-only) -->
+                    <div class="info-box mb-4">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <small class="text-label d-block mb-1">Mã đơn</small>
+                                <span class="fw-bold text-primary">@Model.MAHOADON</span>
+                            </div>
+                             <div class="col-6 text-end">
+                                <small class="text-label d-block mb-1">Ngày lập</small>
+                                <span>@Model.NGAYLAP?.ToString("dd/MM/yyyy")</span>
+                            </div>
+                            <div class="col-12 mt-3 pt-3 border-top" style="border-color: var(--border-color) !important;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-muted">Tổng tiền</span>
+                                    <span class="text-success fw-bold fs-5">@string.Format("{0:N0}", Model.TONGTIEN) đ</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status Update Form -->
+                    <form method="post" action="@Url.Action("UpdateStatus")">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.MAHOADON" />
+
+                        <div class="mb-4">
+                            <label class="form-label text-label fw-bold mb-2">Trạng thái hiện tại</label>
+                            <div>
+                                @{
+                                    string badgeClass = "bg-secondary";
+                                    if (Model.TRANGTHAI == "HOÀN THÀNH") { badgeClass = "bg-success"; }
+                                    else if (Model.TRANGTHAI == "CHỜ XỬ LÝ") { badgeClass = "bg-warning text-dark"; }
+                                    else if (Model.TRANGTHAI == "ĐÃ GIAO") { badgeClass = "bg-info text-dark"; }
+                                    else if (Model.TRANGTHAI == "ĐÃ HỦY") { badgeClass = "bg-danger"; }
+                                }
+                                <span class="badge @badgeClass px-3 py-2">@Model.TRANGTHAI</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label text-label fw-bold mb-2">Chọn trạng thái mới</label>
+                            <select name="status" class="form-select form-select-custom" required>
+                                <option value="">-- Chọn trạng thái --</option>
+                                <option value="CHỜ XỬ LÝ" @(Model.TRANGTHAI == "CHỜ XỬ LÝ" ? "selected" : "")>CHỜ XỬ LÝ</option>
+                                <option value="ĐÃ GIAO" @(Model.TRANGTHAI == "ĐÃ GIAO" ? "selected" : "")>ĐÃ GIAO (Đang giao hàng)</option>
+                                <option value="HOÀN THÀNH" @(Model.TRANGTHAI == "HOÀN THÀNH" ? "selected" : "")>HOÀN THÀNH</option>
+                                <option value="ĐÃ HỦY" @(Model.TRANGTHAI == "ĐÃ HỦY" ? "selected" : "")>ĐÃ HỦY</option>
+                            </select>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-5">
+                            <button type="submit" class="btn btn-primary fw-bold py-2">
+                                <i class="bi bi-check-circle me-2"></i>Lưu thay đổi
+                            </button>
+                            <a href="@Url.Action("Details", new { id = Model.MAHOADON })" class="btn btn-outline-secondary">
+                                Quay lại chi tiết
+                            </a>
+                        </div>
+                    </form>
                 </div>
             </div>
-
-            <!-- Status Update Form -->
-            <form method="post" action="@Url.Action("UpdateStatus")">
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="id" value="@Model.MAHOADON" />
-
-                <div class="mb-4">
-                    <label class="form-label fw-bold">Trạng thái hiện tại</label>
-                    <div>
-                        @{
-                            string badgeClass = "bg-secondary";
-                            if (Model.TRANGTHAI == "HOÀN THÀNH") { badgeClass = "bg-success"; }
-                            else if (Model.TRANGTHAI == "CHỜ XỬ LÝ") { badgeClass = "bg-warning text-dark"; }
-                            else if (Model.TRANGTHAI == "ĐÃ GIAO") { badgeClass = "bg-info text-dark"; }
-                            else if (Model.TRANGTHAI == "ĐÃ HỦY") { badgeClass = "bg-danger"; }
-                        }
-                        <span class="badge @badgeClass fs-6">@Model.TRANGTHAI</span>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <label class="form-label fw-bold">Cập nhật trạng thái mới</label>
-                    <select name="status" class="form-select form-select-lg bg-dark text-light border-secondary" required>
-                        <option value="">-- Chọn trạng thái --</option>
-                        <option value="CHỜ XỬ LÝ" @(Model.TRANGTHAI == "CHỜ XỬ LÝ" ? "selected" : "")>CHỜ XỬ LÝ</option>
-                        <option value="ĐÃ GIAO" @(Model.TRANGTHAI == "ĐÃ GIAO" ? "selected" : "")>ĐÃ GIAO (Đang ship)</option>
-                        <option value="HOÀN THÀNH" @(Model.TRANGTHAI == "HOÀN THÀNH" ? "selected" : "")>HOÀN THÀNH</option>
-                        <option value="ĐÃ HỦY" @(Model.TRANGTHAI == "ĐÃ HỦY" ? "selected" : "")>ĐÃ HỦY</option>
-                    </select>
-                </div>
-
-                <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-warning fw-bold py-2">
-                        <i class="bi bi-check-circle"></i> Lưu thay đổi
-                    </button>
-                    <a href="@Url.Action("Details", new { id = Model.MAHOADON })" class="btn btn-outline-secondary">
-                        Hủy bỏ
-                    </a>
-                </div>
-            </form>
         </div>
     </div>
 </div>

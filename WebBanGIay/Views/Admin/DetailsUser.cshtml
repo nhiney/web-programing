@@ -1,112 +1,108 @@
 ﻿@model WebBanGIay.Models.TAIKHOAN
 @{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
-    ViewBag.Title = "User Details";
+    ViewBag.Title = "Chi tiết tài khoản";
 }
 
 <style>
-    .details-card {
-        background: #0c1624;
-        border: 1px solid #1b2b41;
-        border-radius: 12px;
-        color: #e4edf7;
-    }
-    .details-card-header {
-        background: #0891b2;
-        color: white;
-        padding: 16px 20px;
-        border-radius: 12px 12px 0 0;
-    }
-    .details-card-body {
+    .page-container {
         padding: 24px;
+        color: var(--text-main);
     }
-    .info-row {
-        display: flex;
-        padding: 12px 0;
-        border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    .info-label {
-        width: 150px;
-        color: #8aa8c8;
-        font-weight: 600;
-    }
-    .info-value {
-        flex: 1;
-        color: #fff;
-    }
-    .role-badge {
-        padding: 6px 14px;
-        border-radius: 6px;
-        font-weight: 700;
-        font-size: 0.85rem;
-    }
-    .role-admin { background: #e95353; }
-    .role-employee { background: #4cb0ff; }
-    .role-customer { background: #22d1b3; }
 </style>
 
-<div class="container mt-4" style="max-width: 600px;">
-    <div class="details-card shadow-lg">
-        <div class="details-card-header d-flex align-items-center">
-            <i class="bi bi-person-badge me-2" style="font-size:1.3rem;"></i>
-            <h5 class="mb-0">Chi tiết tài khoản</h5>
-        </div>
-
-        <div class="details-card-body">
-            <div class="info-row">
-                <div class="info-label">Mã tài khoản:</div>
-                <div class="info-value text-primary fw-bold">@Model.MATAIKHOAN</div>
-            </div>
-
-            <div class="info-row">
-                <div class="info-label">Tên tài khoản:</div>
-                <div class="info-value fw-bold">@Model.TENTAIKHOAN</div>
-            </div>
-
-            <div class="info-row">
-                <div class="info-label">Loại tài khoản:</div>
-                <div class="info-value">
-                    @{
-                        var badgeClass = "role-customer";
-                        if (!string.IsNullOrEmpty(Model.LOAITAIKHOAN))
+<div class="page-container">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <div class="card card-premium shadow-lg">
+                <div class="card-header-premium">
+                    <h5><i class="bi bi-person-badge text-info"></i> Chi tiết tài khoản</h5>
+                    <div>
+                         @if (Model.LOAITAIKHOAN == "QUẢN TRỊ")
                         {
-                            if (Model.LOAITAIKHOAN.Contains("QUẢN")) { 
-                                badgeClass = "role-admin"; 
-                            }
-                            else if (Model.LOAITAIKHOAN.Contains("NHÂN")) { 
-                                badgeClass = "role-employee"; 
-                            }
+                            <span class="badge bg-danger">QUẢN TRỊ</span>
                         }
-                    }
-                    <span class="role-badge @badgeClass">@Model.LOAITAIKHOAN</span>
+                        else if (Model.LOAITAIKHOAN == "NHÂN VIÊN")
+                        {
+                            <span class="badge bg-warning text-dark">NHÂN VIÊN</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success">KHÁCH HÀNG</span>
+                        }
+
+                        @if (Model.TRANGTHAI == false)
+                        {
+                            <span class="badge bg-danger ms-2"><i class="bi bi-lock-fill me-1"></i>ĐÃ KHÓA</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success ms-2"><i class="bi bi-check-circle-fill me-1"></i>HOẠT ĐỘNG</span>
+                        }
+                    </div>
                 </div>
-            </div>
+                <div class="card-body p-4">
+                    
+                    <div class="row align-items-center mb-4">
+                        <div class="col-auto">
+                            <i class="bi bi-person-circle text-muted" style="font-size: 4rem;"></i>
+                        </div>
+                        <div class="col">
+                            <h4 class="mb-1 text-main">@Model.TENTAIKHOAN</h4>
+                            <small class="text-muted"><i class="bi bi-upc-scan me-1"></i>Mã TK: @Model.MATAIKHOAN.Trim()</small>
+                        </div>
+                    </div>
 
-            <div class="info-row">
-                <div class="info-label">Mã khách hàng:</div>
-                <div class="info-value">@(Model.MAKHACHHANG ?? "—")</div>
-            </div>
+                    <div class="p-3 mb-4 rounded border border-secondary border-opacity-25 bg-secondary bg-opacity-10">
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <label class="form-label-premium text-muted mb-1">Ngày tạo</label>
+                                <div class="fw-bold fs-6"><i class="bi bi-calendar3 me-2"></i>@(Model.NGAYTAO.HasValue ? Model.NGAYTAO.Value.ToString("dd/MM/yyyy HH:mm") : "N/A")</div>
+                            </div>
+                             
+                            @if (Model.KHACHHANG != null)
+                            {
+                                <div class="col-sm-6">
+                                    <label class="form-label-premium text-info mb-1">Khách hàng Liên kết</label>
+                                    <div class="fw-bold text-main fs-6">@Model.KHACHHANG.HOTEN</div>
+                                </div>
+                            }
+                            @if (Model.NHANVIEN != null)
+                            {
+                                <div class="col-sm-6">
+                                    <label class="form-label-premium text-warning mb-1">Nhân viên Liên kết</label>
+                                    <div class="fw-bold text-main fs-6">@Model.NHANVIEN.HOTEN</div>
+                                </div>
+                            }
+                        </div>
+                    </div>
 
-            <div class="info-row">
-                <div class="info-label">Mã nhân viên:</div>
-                <div class="info-value">@(Model.MANHANVIEN ?? "—")</div>
-            </div>
+                    <div class="d-flex justify-content-end gap-3 mt-5">
+                        <a href="@Url.Action("Users")" class="btn btn-outline-secondary btn-premium">
+                            <i class="bi bi-arrow-left me-1"></i>Trở về
+                        </a>
+                        <a href="@Url.Action("DeleteUser", new { id = Model.MATAIKHOAN.Trim() })" class="btn btn-outline-danger btn-premium">
+                            <i class="bi bi-trash me-1"></i>Xóa
+                        </a>
+                        <a href="@Url.Action("EditUser", new { id = Model.MATAIKHOAN.Trim() })" class="btn btn-warning btn-premium">
+                            <i class="bi bi-pencil-square me-1"></i>Sửa thông tin
+                        </a>
+                        
+                        @if (Model.TRANGTHAI == false)
+                        {
+                            <a href="@Url.Action("ToggleLock", new { id = Model.MATAIKHOAN.Trim() })" class="btn btn-success btn-premium">
+                                <i class="bi bi-unlock-fill me-1"></i>Mở khóa
+                            </a>
+                        }
+                        else
+                        {
+                            <a href="@Url.Action("ToggleLock", new { id = Model.MATAIKHOAN.Trim() })" class="btn btn-danger btn-premium">
+                                <i class="bi bi-lock-fill me-1"></i>Khóa tài khoản
+                            </a>
+                        }
+                    </div>
 
-            <div class="info-row">
-                <div class="info-label">Ngày tạo:</div>
-                <div class="info-value">@Model.NGAYTAO</div>
-            </div>
-
-            <div class="d-flex justify-content-center gap-3 mt-4">
-                <a href="@Url.Action("EditUser", new { id = Model.MATAIKHOAN.Trim() })" class="btn btn-warning px-4 py-2">
-                    <i class="bi bi-pencil me-1"></i> Sửa
-                </a>
-                <a href="@Url.Action("DeleteUser", new { id = Model.MATAIKHOAN.Trim() })" class="btn btn-danger px-4 py-2">
-                    <i class="bi bi-trash me-1"></i> Xóa
-                </a>
-                <a href="@Url.Action("Users", "Admin")" class="btn btn-outline-secondary px-4 py-2">
-                    <i class="bi bi-arrow-left me-1"></i> Quay lại
-                </a>
+                </div>
             </div>
         </div>
     </div>

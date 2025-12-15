@@ -15,120 +15,99 @@
 }
 
 <style>
-    .create-card {
-        background: #0c1624;
-        border: 1px solid #1b2b41;
-        border-radius: 12px;
-        color: #e4edf7;
-    }
-    .create-card-header {
-        background: #16a34a;
-        color: white;
-        padding: 16px 20px;
-        border-radius: 12px 12px 0 0;
-    }
-    .create-card-body {
+    .page-container {
         padding: 24px;
-    }
-    .dark-label {
-        color: #bcd7ff;
-        font-weight: 600;
-        margin-bottom: 6px;
-    }
-    .dark-input, .dark-select {
-        background: #0b1220 !important;
-        border: 1px solid #243347 !important;
-        color: #dbe9ff !important;
-        padding: 10px !important;
-        border-radius: 6px !important;
-    }
-    .dark-input:focus, .dark-select:focus {
-        border-color: #3a5275 !important;
-        box-shadow: 0 0 0 3px rgba(0,136,255,0.2) !important;
+        color: var(--text-main);
     }
 </style>
 
-<div class="container mt-4" style="max-width: 650px;">
-    <div class="create-card shadow-lg">
-
-        <div class="create-card-header d-flex align-items-center">
-            <i class="bi bi-person-plus me-2" style="font-size:1.3rem;"></i>
-            <h5 class="mb-0">Tạo tài khoản mới</h5>
-        </div>
-
-        <div class="create-card-body">
-            @if (TempData["Success"] != null)
-            {
-                <div style="
-                    background: #11351f;
-                    border: 1px solid #1a5f36;
-                    color: #c8ffd9;
-                    padding: 14px 18px;
-                    margin-bottom: 20px;
-                    border-radius: 8px;
-                    font-weight: 600;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    box-shadow: 0 4px 14px rgba(0,0,0,0.4);
-                ">
-                    <i class="bi bi-check-circle-fill" style="font-size: 20px; color:#4cff8f;"></i>
-                    @TempData["Success"]
-                </div>
-            }
-            @if (TempData["Error"] != null)
-            {
-                <div class="alert alert-danger">@TempData["Error"]</div>
-            }
-
-            @using (Html.BeginForm("CreateUser", "Admin", FormMethod.Post))
-            {
-                @Html.AntiForgeryToken()
-
-                <div class="mb-3">
-                    <label class="dark-label">Tên tài khoản <span class="text-danger">*</span></label>
-                    @Html.TextBoxFor(m => m.TENTAIKHOAN, new { @class = "form-control dark-input", placeholder = "Nhập tên tài khoản..." })
-                    @Html.ValidationMessageFor(m => m.TENTAIKHOAN, "", new { @class = "text-danger small" })
+<div class="page-container">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <div class="card card-premium shadow-lg"> 
+                <div class="card-header-premium">
+                    <h5><i class="bi bi-person-plus text-success"></i> Tạo tài khoản mới</h5>
                 </div>
 
-                <div class="mb-3">
-                    <label class="dark-label">Mật khẩu <span class="text-danger">*</span></label>
-                    @Html.PasswordFor(m => m.MATKHAU, new { @class = "form-control dark-input", id = "password", placeholder = "Nhập mật khẩu..." })
-                    @Html.ValidationMessageFor(m => m.MATKHAU, "", new { @class = "text-danger small" })
-                </div>
+                <div class="card-body p-4">
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success mb-4 border-0 bg-success bg-opacity-10 text-success fw-bold">
+                            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Success"]
+                        </div>
+                    }
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger mb-4 border-0 bg-danger bg-opacity-10 text-danger fw-bold">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Error"]
+                        </div>
+                    }
 
-                <div class="mb-3">
-                    <label class="dark-label">Xác nhận mật khẩu <span class="text-danger">*</span></label>
-                    <input id="passwordConfirm" name="passwordConfirm" type="password" class="form-control dark-input" placeholder="Nhập lại mật khẩu..." />
-                    <small id="pwError" class="text-danger d-none">Mật khẩu không khớp!</small>
-                </div>
+                    @using (Html.BeginForm("CreateUser", "Admin", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
 
-                <div class="mb-3">
-                    <label class="dark-label">Loại tài khoản <span class="text-danger">*</span></label>
-                    @Html.DropDownListFor(m => m.LOAITAIKHOAN, roleList, "Chọn loại tài khoản", new { @class = "form-select dark-select", id = "roleSelect" })
-                </div>
+                        <div class="mb-4">
+                            <label class="form-label-premium">Tên tài khoản <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent border-secondary text-muted" style="border-right:0;"><i class="bi bi-person"></i></span>
+                                @Html.TextBoxFor(m => m.TENTAIKHOAN, new { @class = "form-control form-control-premium", placeholder = "Nhập tên tài khoản...", style = "border-left:0;" })
+                            </div>
+                            @Html.ValidationMessageFor(m => m.TENTAIKHOAN, "", new { @class = "text-danger small mt-1 fw-bold" })
+                        </div>
 
-                <div id="khSection" class="mb-3 d-none">
-                    <label class="dark-label">Liên kết khách hàng</label>
-                    @Html.DropDownListFor(m => m.MAKHACHHANG, new SelectList(khList ?? new List<WebBanGIay.Models.KHACHHANG>(), "MAKHACHHANG", "HOTEN", Model?.MAKHACHHANG), "-- chọn khách hàng --", new { @class = "form-select dark-select" })
-                    @Html.ValidationMessageFor(m => m.MAKHACHHANG, "", new { @class = "text-danger small" })
-                </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label-premium">Mật khẩu <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-transparent border-secondary text-muted" style="border-right:0;"><i class="bi bi-lock"></i></span>
+                                    @Html.PasswordFor(m => m.MATKHAU, new { @class = "form-control form-control-premium", id = "password", placeholder = "Nhập mật khẩu...", style = "border-left:0;" })
+                                </div>
+                                @Html.ValidationMessageFor(m => m.MATKHAU, "", new { @class = "text-danger small mt-1 fw-bold" })
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label-premium">Xác nhận mật khẩu <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-transparent border-secondary text-muted" style="border-right:0;"><i class="bi bi-check2-all"></i></span>
+                                    <input id="passwordConfirm" name="passwordConfirm" type="password" class="form-control form-control-premium" placeholder="Nhập lại mật khẩu..." style = "border-left:0;" />
+                                </div>
+                                <small id="pwError" class="text-danger fw-bold d-none mt-1"><i class="bi bi-x-circle me-1"></i>Mật khẩu không khớp!</small>
+                            </div>
+                        </div>
 
-                <div id="nvSection" class="mb-3 d-none">
-                    <label class="dark-label">Liên kết nhân viên</label>
-                    @Html.DropDownListFor(m => m.MANHANVIEN, new SelectList(nvList ?? new List<WebBanGIay.Models.NHANVIEN>(), "MANHANVIEN", "HOTEN", Model?.MANHANVIEN), "-- chọn nhân viên --", new { @class = "form-select dark-select" })
-                    @Html.ValidationMessageFor(m => m.MANHANVIEN, "", new { @class = "text-danger small" })
-                </div>
+                        <div class="mb-4">
+                            <label class="form-label-premium">Loại tài khoản <span class="text-danger">*</span></label>
+                             <div class="input-group">
+                                 <span class="input-group-text bg-transparent border-secondary text-muted" style="border-right:0;"><i class="bi bi-shield-lock"></i></span>
+                                @Html.DropDownListFor(m => m.LOAITAIKHOAN, roleList, "Chọn loại tài khoản", new { @class = "form-select form-select-premium", id = "roleSelect", style = "border-left:0;" })
+                            </div>
+                        </div>
 
-                <div class="d-flex justify-content-center gap-3 mt-4">
-                    <button id="btnSubmit" type="submit" class="btn btn-success px-4 py-2">
-                        <i class="bi bi-check-circle me-1"></i> Tạo tài khoản
-                    </button>
-                    <a href="@Url.Action("Users", "Admin")" class="btn btn-outline-secondary px-4 py-2">
-                        <i class="bi bi-x-circle me-1"></i> Hủy
-                    </a>
+                        <div id="khSection" class="mb-4 p-3 rounded border border-secondary border-opacity-25 bg-secondary bg-opacity-10 d-none">
+                            <label class="form-label-premium text-info">Liên kết khách hàng</label>
+                            @Html.DropDownListFor(m => m.MAKHACHHANG, new SelectList(khList ?? new List<WebBanGIay.Models.KHACHHANG>(), "MAKHACHHANG", "HOTEN", Model?.MAKHACHHANG), "-- chọn khách hàng --", new { @class = "form-select form-select-premium" })
+                            @Html.ValidationMessageFor(m => m.MAKHACHHANG, "", new { @class = "text-danger small mt-1" })
+                            <div class="form-text text-muted mt-2"><i class="bi bi-info-circle me-1"></i> Tài khoản dành cho khách mua hàng.</div>
+                        </div>
+
+                        <div id="nvSection" class="mb-4 p-3 rounded border border-secondary border-opacity-25 bg-secondary bg-opacity-10 d-none">
+                            <label class="form-label-premium text-warning">Liên kết nhân viên</label>
+                            @Html.DropDownListFor(m => m.MANHANVIEN, new SelectList(nvList ?? new List<WebBanGIay.Models.NHANVIEN>(), "MANHANVIEN", "HOTEN", Model?.MANHANVIEN), "-- chọn nhân viên --", new { @class = "form-select form-select-premium" })
+                            @Html.ValidationMessageFor(m => m.MANHANVIEN, "", new { @class = "text-danger small mt-1" })
+                            <div class="form-text text-muted mt-2"><i class="bi bi-info-circle me-1"></i> Tài khoản này sẽ có quyền truy cập trang Admin.</div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-3 mt-5">
+                            <a href="@Url.Action("Users", "Admin")" class="btn btn-outline-secondary btn-premium px-4">
+                                <i class="bi bi-arrow-left me-1"></i> Hủy
+                            </a>
+                            <button id="btnSubmit" type="submit" class="btn btn-success btn-premium px-5">
+                                <i class="bi bi-check-circle me-1"></i> Tạo tài khoản
+                            </button>
+                        </div>
+                    }
                 </div>
-            }
+            </div>
         </div>
     </div>
 </div>
@@ -160,6 +139,9 @@
         }
     }
 
-    updateRoleSections();
-    document.getElementById("roleSelect").addEventListener("change", updateRoleSections);
+    // Run once on load
+    document.addEventListener("DOMContentLoaded", function() {
+        updateRoleSections();
+        document.getElementById("roleSelect").addEventListener("change", updateRoleSections);
+    });
 </script>

@@ -652,5 +652,109 @@
     </script>
 
     @RenderSection("scripts", required: false)
+
+    <!-- CHAT SUPPORT MODAL & FAB -->
+    @if (Session["UserName"] != null)
+    {
+        <!-- Floating Button -->
+        <button id="chatFab" class="btn btn-primary rounded-circle shadow-lg" 
+                style="position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; z-index: 9999; display: flex; align-items: center; justify-content: center;">
+            <i class="fas fa-comment-dots fs-3"></i>
+        </button>
+
+        <!-- Modal -->
+        <div class="modal fade" id="chatModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title"><i class="fas fa-headset me-2"></i>Hỗ trợ trực tuyến</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div id="chatSuccess" class="alert alert-success d-none">
+                            <i class="fas fa-check-circle me-1"></i> Gửi tin nhắn thành công! Admin sẽ phản hồi sớm.
+                        </div>
+                        <form id="chatForm">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small text-uppercase text-muted">Họ tên</label>
+                                <input type="text" name="HoTen" class="form-control" value="@Session["UserName"]" readonly>
+                            </div>
+                            <!-- Email removed as requested -->
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small text-uppercase text-muted">Nội dung / Câu hỏi</label>
+                                <textarea name="NoiDung" id="chatContent" class="form-control" rows="4" placeholder="Bạn cần hỗ trợ gì không?" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
+                                <i class="fas fa-paper-plane me-2"></i> Gửi tin nhắn
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const fab = document.getElementById("chatFab");
+                const modalEl = document.getElementById("chatModal");
+                const modal = new bootstrap.Modal(modalEl);
+                const form = document.getElementById("chatForm");
+                const contentInput = document.getElementById("chatContent");
+
+                // Toggle Modal
+                fab.addEventListener("click", () => modal.show());
+
+                // Expose function to open chat with pre-filled content
+                window.openChatWithContext = function (productName) {
+                    contentInput.value = "Tôi muốn hỏi thêm thông tin về sản phẩm: " + productName + "\n---\n";
+                    modal.show();
+                };
+
+                // AJAX Submit
+                form.addEventListener("submit", function (e) {
+                    e.preventDefault();
+                    const btn = form.querySelector("button[type='submit']");
+                    const originalText = btn.innerHTML;
+                    
+                    btn.disabled = true;
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Đang gửi...';
+
+                    const formData = new FormData(form);
+
+                    fetch('@Url.Action("SendAjax", "Contact")', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(async r => {
+                        if (!r.ok) {
+                            const text = await r.text();
+                            throw new Error("Server Error: " + r.status + " | " + text.substring(0, 100)); // Show preview of error
+                        }
+                        return r.json();
+                    })
+                    .then(data => {
+                        btn.disabled = false;
+                        btn.innerHTML = originalText;
+                        if (data.success) {
+                            document.getElementById("chatSuccess").classList.remove("d-none");
+                            form.reset();
+                            setTimeout(() => {
+                                modal.hide();
+                                document.getElementById("chatSuccess").classList.add("d-none");
+                            }, 2000);
+                        } else {
+                            alert(data.message || "Có lỗi xảy ra!");
+                        }
+                    })
+                    .catch(err => {
+                        btn.disabled = false;
+                        btn.innerHTML = originalText;
+                        console.error(err);
+                        alert("Lỗi: " + err.message);
+                    });
+                });
+            });
+        </script>
+    }
 </body>
 </html>

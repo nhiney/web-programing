@@ -270,6 +270,103 @@
             background: #555; 
         }
 
+        /* Badge Pulse Animation */
+        @@keyframes pulse-red {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .badge-count {
+            animation: pulse-red 2s infinite;
+        }
+        
+        .sidebar-badge {
+            background: #ef4444;
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: auto; /* Push to right */
+        }
+
+        /* PREMIUM FORM STYLES */
+        .card-premium {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: var(--shadow-card);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card-premium:hover {
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .card-header-premium {
+            background: transparent;
+            border-bottom: 1px solid var(--border-color);
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .card-header-premium h5 {
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .form-label-premium {
+            color: var(--text-label);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .form-control-premium {
+            background: var(--bg-body);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 12px 16px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        .form-control-premium:focus {
+            background: var(--bg-body);
+            color: var(--text-main);
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+        .form-select-premium {
+            background-color: var(--bg-body);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 12px 16px;
+            border-radius: 8px;
+        }
+        .form-select-premium:focus {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+        
+        .btn-premium {
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-premium:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
     </style>
 </head>
 
@@ -299,6 +396,10 @@
         </a>
         <a href="@Url.Action("Index","OrderAdmin")" class="@(ViewBag.ActiveMenu=="Orders"?"active":"")">
             <i class="bi bi-receipt"></i><span>Đơn hàng</span>
+             @if ((ViewBag.NewOrdersCount ?? 0) > 0)
+             {
+                 <span class="sidebar-badge">@ViewBag.NewOrdersCount</span>
+             }
         </a>
         <a href="@Url.Action("Create","ImportAdmin")" class="@(ViewBag.ActiveMenu=="Import"?"active":"")">
             <i class="bi bi-box-arrow-in-down"></i><span>Nhập hàng</span>
@@ -308,6 +409,13 @@
         </a>
         <a href="@Url.Action("Index","CommentAdmin")" class="@(ViewBag.ActiveMenu=="Comment"?"active":"")">
             <i class="bi bi-chat-dots"></i><span>Bình luận</span>
+            @if ((ViewBag.NewCommentsCount ?? 0) > 0)
+            {
+                <span class="sidebar-badge">@ViewBag.NewCommentsCount</span>
+            }
+        </a>
+        <a href="@Url.Action("Index","MessageAdmin")" class="@(ViewBag.ActiveMenu=="Message"?"active":"")">
+            <i class="bi bi-envelope"></i><span>Tin nhắn</span>
         </a>
 
         <div class="menu-title">Hệ thống</div>
@@ -343,23 +451,46 @@
             <div class="dropdown">
                 <button class="icon-btn" title="Thông báo" data-bs-toggle="dropdown">
                     <i class="bi bi-bell"></i>
-                    @if (newOrdersCount > 0)
+                    @if ((ViewBag.TotalNotifications ?? 0) > 0)
                     {
-                        <span class="badge-count">@newOrdersCount</span>
+                        <span class="badge-count">@ViewBag.TotalNotifications</span>
                     }
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end" style="min-width:280px;">
+                <ul class="dropdown-menu dropdown-menu-end" style="min-width:300px;">
                     <li class="dropdown-header">Thông báo</li>
                     <li><hr class="dropdown-divider"></li>
-                    @if (newOrdersCount > 0)
+                    
+                    @if ((ViewBag.NewOrdersCount ?? 0) > 0)
                     {
                         <li>
                             <a class="dropdown-item" href="@Url.Action("Index","OrderAdmin", new { status = "CHỜ XỬ LÝ" })">
-                                <i class="bi bi-cart text-warning me-2"></i> @newOrdersCount đơn hàng mới cần xử lý
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-cart-fill text-warning fs-4 me-3"></i>
+                                    <div>
+                                        <div class="fw-bold text-wrap">@ViewBag.NewOrdersCount đơn hàng mới</div>
+                                        <small class="text-muted">Cần xử lý ngay</small>
+                                    </div>
+                                </div>
                             </a>
                         </li>
                     }
-                    else
+                    
+                    @if ((ViewBag.NewCommentsCount ?? 0) > 0)
+                    {
+                        <li>
+                            <a class="dropdown-item" href="@Url.Action("Index","CommentAdmin", new { status = "visible" })">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-chat-dots-fill text-info fs-4 me-3"></i>
+                                    <div>
+                                        <div class="fw-bold text-wrap">@ViewBag.NewCommentsCount bình luận chưa phản hồi</div>
+                                        <small class="text-muted">Khách hàng đang chờ</small>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                    }
+
+                    @if ((ViewBag.TotalNotifications ?? 0) == 0)
                     {
                         <li><a class="dropdown-item text-muted" href="#">Không có thông báo mới</a></li>
                     }
