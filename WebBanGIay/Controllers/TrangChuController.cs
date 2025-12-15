@@ -4,6 +4,8 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using WebBanGIay.Models;
+using System.Data.Entity;
+
 
 namespace WebBanGIay.Controllers
 {
@@ -14,7 +16,8 @@ namespace WebBanGIay.Controllers
         public ActionResult Index(string hang = "", string giaTu = "", string giaDen = "")
         {
 
-            var query = db.SANPHAM.AsQueryable();
+            var query = db.SANPHAM.Include(s => s.KHUYENMAI).AsQueryable();
+
 
             // LỌC THEO HÃNG
             if (!string.IsNullOrEmpty(hang))
@@ -47,7 +50,17 @@ namespace WebBanGIay.Controllers
 
             ViewBag.HangSelected = hang;
             ViewBag.GiaTu = giaTu;  
-            ViewBag.GiaDen = giaDen;  
+            ViewBag.HangSelected = hang;
+            ViewBag.GiaTu = giaTu;  
+            ViewBag.GiaDen = giaDen;
+
+            // FEATURED PROMOTION (for Banner)
+            // Logic: Highest discount active promotion
+            var featuredPromo = db.KHUYENMAI
+                .Where(p => p.TRANGTHAI == true && p.NGAYBATDAU <= DateTime.Now && p.NGAYKETTHUC >= DateTime.Now)
+                .OrderByDescending(p => p.PHANTRAMGIAM)
+                .FirstOrDefault();
+            ViewBag.FeaturedPromotion = featuredPromo;  
 
             return View();
         }

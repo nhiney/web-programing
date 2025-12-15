@@ -20,6 +20,9 @@ namespace WebBanGIay.Models
         public Nullable<int> DIEM { get; set; }
         public string BINHLUAN { get; set; }
         public Nullable<System.DateTime> NGAYDANHGIA { get; set; }
+        public string PHANHOI { get; set; }
+        public Nullable<System.DateTime> NGAYPHANHOI { get; set; }
+        public Nullable<int> TRANGTHAI { get; set; }
     
         public virtual KHACHHANG KHACHHANG { get; set; }
         public virtual SANPHAM SANPHAM { get; set; }

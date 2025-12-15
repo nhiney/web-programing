@@ -212,6 +212,94 @@ namespace WebBanGIay.Controllers
             return RedirectToAction("Index");
         }
 
+        // ===================== PRODUCT VARIANTS (AJAX) =====================
+        
+        [HttpGet]
+        public ActionResult GetVariants(string productId)
+        {
+            if (string.IsNullOrEmpty(productId)) return Json(new { success = false }, JsonRequestBehavior.AllowGet);
+
+            productId = productId.Trim();
+            var variants = db.BIEN_THE_SAN_PHAM
+                .Where(v => v.MASANPHAM == productId)
+                .Select(v => new {
+                    v.ID,
+                    v.MAUSAC,
+                    v.GIATHEOMAU
+                })
+                .ToList();
+
+            return Json(new { success = true, data = variants }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult AddVariant(string productId, string color, decimal price)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(productId) || string.IsNullOrEmpty(color))
+                    return Json(new { success = false, message = "Thiếu thông tin!" });
+
+                productId = productId.Trim();
+                // Check if exists
+                var exists = db.BIEN_THE_SAN_PHAM
+                    .Any(v => v.MASANPHAM == productId && v.MAUSAC == color);
+                
+                if (exists)
+                    return Json(new { success = false, message = "Màu sắc này đã tồn tại!" });
+
+                var variant = new BIEN_THE_SAN_PHAM
+                {
+                    MASANPHAM = productId,
+                    MAUSAC = color,
+                    GIATHEOMAU = price
+                };
+
+                db.BIEN_THE_SAN_PHAM.Add(variant);
+                db.SaveChanges();
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public ActionResult DeleteVariant(int id)
+        {
+            try
+            {
+                var variant = db.BIEN_THE_SAN_PHAM.Find(id);
+                if (variant == null)
+                    return Json(new { success = false, message = "Không tìm thấy biến thể!" });
+
+                // Check if used in Stocks
+                if (variant.TONKHO_SIZE.Any(t => t.SOLUONG > 0))
+                {
+                    return Json(new { success = false, message = "Không thể xóa: Đang có tồn kho cho biến thể này!" });
+                }
+                
+                // If 0 stock, we can probably delete the stock records first if FK requires it, 
+                // but for now let's assume we just delete the variant and generic FK cascade or manual delete
+                if (variant.TONKHO_SIZE.Any())
+                {
+                    db.TONKHO_SIZE.RemoveRange(variant.TONKHO_SIZE);
+                }
+
+                db.BIEN_THE_SAN_PHAM.Remove(variant);
+                db.SaveChanges();
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+
         protected override void Dispose(bool disposing)
         {
             if (disposing) db.Dispose();

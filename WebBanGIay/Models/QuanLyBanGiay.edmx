@@ -34,6 +34,9 @@
           <Property Name="DIEM" Type="int" />
           <Property Name="BINHLUAN" Type="nvarchar" MaxLength="1000" />
           <Property Name="NGAYDANHGIA" Type="datetime" />
+          <Property Name="PHANHOI" Type="nvarchar" MaxLength="1000" />
+          <Property Name="NGAYPHANHOI" Type="datetime" />
+          <Property Name="TRANGTHAI" Type="int" />
         </EntityType>
         <EntityType Name="HOADON">
           <Key>
@@ -96,6 +99,7 @@
           <Property Name="SOLUONGTON" Type="int" />
           <Property Name="MANHACUNGCAP" Type="char" MaxLength="20" />
           <Property Name="NGAYTAO" Type="datetime" />
+          <Property Name="MAKHUYENMAI" Type="int" />
         </EntityType>
         <EntityType Name="TAIKHOAN">
           <Key>
@@ -118,6 +122,18 @@
           <Property Name="SIZE" Type="int" Nullable="false" />
           <Property Name="SOLUONG" Type="int" Nullable="false" />
           <Property Name="IDBienThe" Type="int" />
+        </EntityType>
+        <EntityType Name="KHUYENMAI">
+          <Key>
+            <PropertyRef Name="MAKHUYENMAI" />
+          </Key>
+          <Property Name="MAKHUYENMAI" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TENKHUYENMAI" Type="nvarchar" MaxLength="200" Nullable="false" />
+          <Property Name="NGAYBATDAU" Type="datetime" Nullable="false" />
+          <Property Name="NGAYKETTHUC" Type="datetime" Nullable="false" />
+          <Property Name="PHANTRAMGIAM" Type="int" Nullable="false" />
+          <Property Name="TRANGTHAI" Type="bit" />
+          <Property Name="MOTA" Type="nvarchar" MaxLength="500" />
         </EntityType>
         <Association Name="FK_BIEN_THE_SAN_PHAM_SANPHAM">
           <End Role="SANPHAM" Type="Self.SANPHAM" Multiplicity="1" />
@@ -263,6 +279,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_SANPHAM_KHUYENMAI">
+          <End Role="KHUYENMAI" Type="Self.KHUYENMAI" Multiplicity="0..1" />
+          <End Role="SANPHAM" Type="Self.SANPHAM" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="KHUYENMAI">
+              <PropertyRef Name="MAKHUYENMAI" />
+            </Principal>
+            <Dependent Role="SANPHAM">
+              <PropertyRef Name="MAKHUYENMAI" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <EntityContainer Name="QLGIAYModelStoreContainer">
           <EntitySet Name="BIEN_THE_SAN_PHAM" EntityType="Self.BIEN_THE_SAN_PHAM" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CHITIET_HOADON" EntityType="Self.CHITIET_HOADON" Schema="dbo" store:Type="Tables" />
@@ -274,6 +302,7 @@
           <EntitySet Name="SANPHAM" EntityType="Self.SANPHAM" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="TAIKHOAN" EntityType="Self.TAIKHOAN" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="TONKHO_SIZE" EntityType="Self.TONKHO_SIZE" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="KHUYENMAI" EntityType="Self.KHUYENMAI" Schema="dbo" store:Type="Tables" />
           <AssociationSet Name="FK_BIEN_THE_SAN_PHAM_SANPHAM" Association="Self.FK_BIEN_THE_SAN_PHAM_SANPHAM">
             <End Role="SANPHAM" EntitySet="SANPHAM" />
             <End Role="BIEN_THE_SAN_PHAM" EntitySet="BIEN_THE_SAN_PHAM" />
@@ -322,6 +351,10 @@
             <End Role="SANPHAM" EntitySet="SANPHAM" />
             <End Role="TONKHO_SIZE" EntitySet="TONKHO_SIZE" />
           </AssociationSet>
+          <AssociationSet Name="FK_SANPHAM_KHUYENMAI" Association="QLGIAYModel.Store.FK_SANPHAM_KHUYENMAI">
+            <End Role="KHUYENMAI" EntitySet="KHUYENMAI" />
+            <End Role="SANPHAM" EntitySet="SANPHAM" />
+          </AssociationSet>
         </EntityContainer>
       </Schema></edmx:StorageModels>
     <!-- CSDL content -->
@@ -349,6 +382,9 @@
           <Property Name="DIEM" Type="Int32" />
           <Property Name="BINHLUAN" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
           <Property Name="NGAYDANHGIA" Type="DateTime" Precision="3" />
+          <Property Name="PHANHOI" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+          <Property Name="NGAYPHANHOI" Type="DateTime" Precision="3" />
+          <Property Name="TRANGTHAI" Type="Int32" />
           <NavigationProperty Name="KHACHHANG" Relationship="Self.FK_DANHGIA_KHACHHANG" FromRole="DANHGIASANPHAM" ToRole="KHACHHANG" />
           <NavigationProperty Name="SANPHAM" Relationship="Self.FK_DANHGIA_SANPHAM" FromRole="DANHGIASANPHAM" ToRole="SANPHAM" />
         </EntityType>
@@ -427,6 +463,8 @@
           <NavigationProperty Name="NHACUNGCAP" Relationship="Self.FK_SANPHAM_NHACUNGCAP" FromRole="SANPHAM" ToRole="NHACUNGCAP" />
           <NavigationProperty Name="BIEN_THE_SAN_PHAM" Relationship="QLGIAYModel.FK_BIEN_THE_SAN_PHAM_SANPHAM" FromRole="SANPHAM" ToRole="BIEN_THE_SAN_PHAM" />
           <NavigationProperty Name="TONKHO_SIZE" Relationship="QLGIAYModel.FK_TONKHO_SIZE_SANPHAM" FromRole="SANPHAM" ToRole="TONKHO_SIZE" />
+          <Property Name="MAKHUYENMAI" Type="Int32" />
+          <NavigationProperty Name="KHUYENMAI" Relationship="QLGIAYModel.FK_SANPHAM_KHUYENMAI" FromRole="SANPHAM" ToRole="KHUYENMAI" />
           </EntityType>
         <EntityType Name="TAIKHOAN">
           <Key>
@@ -550,6 +588,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_SANPHAM_KHUYENMAI">
+          <End Role="KHUYENMAI" Type="Self.KHUYENMAI" Multiplicity="0..1" />
+          <End Role="SANPHAM" Type="Self.SANPHAM" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="KHUYENMAI">
+              <PropertyRef Name="MAKHUYENMAI" />
+            </Principal>
+            <Dependent Role="SANPHAM">
+              <PropertyRef Name="MAKHUYENMAI" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <EntityContainer Name="QuanLyBanGiayEntities1" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="CHITIET_HOADON" EntityType="Self.CHITIET_HOADON" />
           <EntitySet Name="DANHGIASANPHAM" EntityType="Self.DANHGIASANPHAM" />
@@ -609,6 +659,11 @@
             <End Role="SANPHAM" EntitySet="SANPHAM" />
             <End Role="TONKHO_SIZE" EntitySet="TONKHO_SIZE" />
           </AssociationSet>
+          <EntitySet Name="KHUYENMAI" EntityType="QLGIAYModel.KHUYENMAI" />
+          <AssociationSet Name="FK_SANPHAM_KHUYENMAI" Association="QLGIAYModel.FK_SANPHAM_KHUYENMAI">
+            <End Role="KHUYENMAI" EntitySet="KHUYENMAI" />
+            <End Role="SANPHAM" EntitySet="SANPHAM" />
+          </AssociationSet>
           </EntityContainer>
         <EntityType Name="BIEN_THE_SAN_PHAM">
           <Key>
@@ -632,6 +687,19 @@
           <Property Name="IDBienThe" Type="Int32" />
           <NavigationProperty Name="BIEN_THE_SAN_PHAM" Relationship="QLGIAYModel.FK_TK_BIENTHE" FromRole="TONKHO_SIZE" ToRole="BIEN_THE_SAN_PHAM" />
           <NavigationProperty Name="SANPHAM" Relationship="QLGIAYModel.FK_TONKHO_SIZE_SANPHAM" FromRole="TONKHO_SIZE" ToRole="SANPHAM" />
+        </EntityType>
+        <EntityType Name="KHUYENMAI">
+          <Key>
+            <PropertyRef Name="MAKHUYENMAI" />
+          </Key>
+          <Property Name="MAKHUYENMAI" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TENKHUYENMAI" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="NGAYBATDAU" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="NGAYKETTHUC" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="PHANTRAMGIAM" Type="Int32" Nullable="false" />
+          <Property Name="TRANGTHAI" Type="Boolean" />
+          <Property Name="MOTA" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="SANPHAM" Relationship="QLGIAYModel.FK_SANPHAM_KHUYENMAI" FromRole="KHUYENMAI" ToRole="SANPHAM" />
         </EntityType>
         <Association Name="FK_BIEN_THE_SAN_PHAM_SANPHAM">
           <End Type="QLGIAYModel.SANPHAM" Role="SANPHAM" Multiplicity="1" />
@@ -694,6 +762,9 @@
                 <ScalarProperty Name="DIEM" ColumnName="DIEM" />
                 <ScalarProperty Name="BINHLUAN" ColumnName="BINHLUAN" />
                 <ScalarProperty Name="NGAYDANHGIA" ColumnName="NGAYDANHGIA" />
+                <ScalarProperty Name="PHANHOI" ColumnName="PHANHOI" />
+                <ScalarProperty Name="NGAYPHANHOI" ColumnName="NGAYPHANHOI" />
+                <ScalarProperty Name="TRANGTHAI" ColumnName="TRANGTHAI" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -761,6 +832,7 @@
                 <ScalarProperty Name="SOLUONGTON" ColumnName="SOLUONGTON" />
                 <ScalarProperty Name="MANHACUNGCAP" ColumnName="MANHACUNGCAP" />
                 <ScalarProperty Name="NGAYTAO" ColumnName="NGAYTAO" />
+                <ScalarProperty Name="MAKHUYENMAI" ColumnName="MAKHUYENMAI" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -795,6 +867,19 @@
                 <ScalarProperty Name="SIZE" ColumnName="SIZE" />
                 <ScalarProperty Name="MASANPHAM" ColumnName="MASANPHAM" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="KHUYENMAI">
+            <EntityTypeMapping TypeName="QLGIAYModel.KHUYENMAI">
+              <MappingFragment StoreEntitySet="KHUYENMAI">
+                <ScalarProperty Name="MAKHUYENMAI" ColumnName="MAKHUYENMAI" />
+                <ScalarProperty Name="TENKHUYENMAI" ColumnName="TENKHUYENMAI" />
+                <ScalarProperty Name="NGAYBATDAU" ColumnName="NGAYBATDAU" />
+                <ScalarProperty Name="NGAYKETTHUC" ColumnName="NGAYKETTHUC" />
+                <ScalarProperty Name="PHANTRAMGIAM" ColumnName="PHANTRAMGIAM" />
+                <ScalarProperty Name="TRANGTHAI" ColumnName="TRANGTHAI" />
+                <ScalarProperty Name="MOTA" ColumnName="MOTA" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

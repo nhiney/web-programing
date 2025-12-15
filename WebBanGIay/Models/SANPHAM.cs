@@ -32,6 +32,8 @@ namespace WebBanGIay.Models
         public Nullable<int> SOLUONGTON { get; set; }
         public string MANHACUNGCAP { get; set; }
         public Nullable<System.DateTime> NGAYTAO { get; set; }
+        public Nullable<int> MAKHUYENMAI { get; set; }
+
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CHITIET_HOADON> CHITIET_HOADON { get; set; }
@@ -42,5 +44,7 @@ namespace WebBanGIay.Models
         public virtual ICollection<BIEN_THE_SAN_PHAM> BIEN_THE_SAN_PHAM { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<TONKHO_SIZE> TONKHO_SIZE { get; set; }
+        public virtual KHUYENMAI KHUYENMAI { get; set; }
+
     }
 }

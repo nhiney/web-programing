@@ -1,0 +1,251 @@
+@model List<WebBanGIay.Models.SANPHAM>
+@{
+    ViewBag.Title = "Áp dụng khuyến mãi";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var promotion = ViewBag.Promotion as WebBanGIay.Models.KHUYENMAI;
+}
+
+<style>
+    .page-container {
+        color: var(--text-main);
+        padding: 24px;
+        font-family: "Inter", sans-serif;
+    }
+    .apply-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        box-shadow: var(--shadow-card);
+        overflow: hidden;
+    }
+    .card-header-custom {
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: var(--bg-body);
+    }
+    .search-input {
+        background: var(--bg-body);
+        border: 1px solid var(--border-color);
+        color: var(--text-main);
+        border-radius: 8px;
+        padding: 10px 16px;
+        width: 100%;
+        transition: 0.2s;
+    }
+    .search-input:focus {
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 2px var(--bg-active);
+        outline: none;
+    }
+    
+    .table-container {
+        max-height: 550px;
+        overflow-y: auto;
+    }
+    .table-custom { width: 100%; border-collapse: collapse; }
+    .table-custom thead { position: sticky; top: 0; background: var(--bg-hover); z-index: 10; }
+    .table-custom th {
+        padding: 16px 20px;
+        text-align: left;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: var(--text-label);
+        border-bottom: 2px solid var(--border-color);
+        box-shadow: 0 2px 0 var(--border-color); /* Fix sticky border */
+    }
+    .table-custom td {
+        padding: 12px 20px;
+        border-bottom: 1px solid var(--border-color);
+        color: var(--text-main);
+        vertical-align: middle;
+    }
+    .table-custom tbody tr { background: var(--bg-card); transition: background 0.2s; }
+    .table-custom tbody tr:hover { background: var(--bg-hover); }
+
+     .btn-submit {
+        background: var(--accent-color);
+        color: #fff;
+        padding: 10px 24px;
+        border-radius: 8px;
+        border: none;
+        font-weight: 600;
+        transition: 0.2s;
+    }
+    .btn-submit:hover { filter: brightness(1.1); }
+    
+    .btn-cancel {
+        background: var(--bg-body);
+        color: var(--text-muted);
+        padding: 10px 24px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        font-weight: 600;
+        text-decoration: none;
+        transition: 0.2s;
+    }
+    .btn-cancel:hover { background: var(--bg-hover); color: var(--text-main); }
+</style>
+
+<div class="page-container">
+    <div class="apply-card">
+        <div class="card-header-custom">
+            <div>
+                <h5 style="margin:0; font-weight:700; color:var(--text-main);">
+                    <i class="bi bi-tags-fill text-info me-2"></i> @promotion.TENKHUYENMAI
+                </h5>
+                <p style="margin:4px 0 0; color:var(--text-muted); font-size:0.9rem;">Chọn sản phẩm để áp dụng giảm giá</p>
+            </div>
+            <span class="badge" style="background: rgba(231, 74, 59, 0.1); color: #e74a3b; font-size: 1rem; padding: 8px 16px;">
+                GIẢM @promotion.PHANTRAMGIAM%
+            </span>
+        </div>
+        
+        <div class="p-4">
+            <form action="@Url.Action("Apply")" method="post">
+                <input type="hidden" name="promotionId" value="@promotion.MAKHUYENMAI" />
+                
+                <!-- Search Box -->
+                <div class="mb-4">
+                     <div class="position-relative">
+                        <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                        <input type="text" id="productSearch" class="search-input" style="padding-left: 40px;" placeholder="Tìm kiếm nhanh sản phẩm...">
+                    </div>
+                </div>
+
+                <div class="table-container mb-4 border rounded-3" style="border-color: var(--border-color) !important;">
+                    <table class="table-custom">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;" class="text-center">
+                                    <input type="checkbox" id="selectAll" class="form-check-input" style="cursor:pointer;" />
+                                </th>
+                                <th style="width: 80px;">Hình ảnh</th>
+                                <th>Tên sản phẩm</th>
+                                <th>Giá gốc</th>
+                                <th>Giá sau giảm</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                var isChecked = item.MAKHUYENMAI == promotion.MAKHUYENMAI;
+                                var hasOtherPromo = item.MAKHUYENMAI != null && item.MAKHUYENMAI != promotion.MAKHUYENMAI;
+                                var discountedPrice = item.GIA * (100 - promotion.PHANTRAMGIAM) / 100;
+
+                                <tr>
+                                    <td class="text-center">
+                                        <input type="checkbox" name="selectedProducts" value="@item.MASANPHAM.Trim()" class="form-check-input product-check" @(isChecked ? "checked" : "") style="cursor:pointer;" />
+                                    </td>
+                                    <td>
+                                        @{
+                                            var imgPath = "/source/images/shoes.png";
+                                            if (!string.IsNullOrEmpty(item.HINHANH))
+                                            {
+                                                if (item.HINHANH.StartsWith("/") || item.HINHANH.StartsWith("http")) { imgPath = item.HINHANH; }
+                                                else if (item.HINHANH.StartsWith("source/")) { imgPath = "/" + item.HINHANH; }
+                                                else { imgPath = "/source/images/Products/" + item.HINHANH; }
+                                            }
+                                        }
+                                        <img src="@imgPath" style="width: 48px; height: 48px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border-color);" 
+                                             onerror="this.onerror=null; this.src='/source/images/shoes.png';" />
+                                    </td>
+
+                                    <td style="font-weight: 500;">
+                                        @item.TENSANPHAM
+                                        <div style="font-size: 0.8rem; color: var(--text-muted);">Mã: @item.MASANPHAM</div>
+                                    </td>
+                                    <td>@string.Format("{0:N0}", item.GIA) đ</td>
+                                    <td style="color: var(--accent-color); font-weight: 700;">@string.Format("{0:N0}", discountedPrice) đ</td>
+                                    <td>
+                                        @if (hasOtherPromo)
+                                        {
+                                            <span class="badge" style="background: rgba(246, 194, 62, 0.15); color: #f6c23e;">Đang có KM khác</span>
+                                        }
+                                        else if (isChecked)
+                                        {
+                                            <span class="badge" style="background: rgba(28, 200, 138, 0.15); color: #1cc88a;">Đang áp dụng</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge" style="background: var(--bg-body); color: var(--text-muted); border: 1px solid var(--border-color);">Chưa áp dụng</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top" style="border-color: var(--border-color) !important;">
+                    
+                    <!-- Apply All Form -->
+                </div>
+                
+                <div class="d-flex justify-content-between w-100">
+                    <div>
+                         <button type="button" class="btn btn-outline-danger fw-bold" data-bs-toggle="modal" data-bs-target="#applyAllModal">
+                            <i class="bi bi-lightning-fill"></i> Áp dụng toàn bộ cửa hàng
+                        </button>
+                    </div>
+
+                    <div class="d-flex gap-3">
+                        <a href="@Url.Action("Index")" class="btn-cancel">Quay lại</a>
+                        <button type="submit" class="btn-submit">
+                            <i class="bi bi-save me-1"></i> Lưu áp dụng
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Apply All Confirmation Modal -->
+<div class="modal fade" id="applyAllModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content" style="background: var(--bg-card); color: var(--text-main);">
+      <div class="modal-header border-bottom-0">
+        <h5 class="modal-title fw-bold text-danger"><i class="bi bi-exclamation-triangle-fill"></i> Xác nhận</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Bạn có chắc chắn muốn áp dụng khuyến mãi <strong>@promotion.TENKHUYENMAI</strong> cho <strong>TOÀN BỘ</strong> sản phẩm trong cửa hàng?</p>
+        <p class="small text-muted mb-0">Lưu ý: Hành động này sẽ ghi đè lên các khuyến mãi hiện có của tất cả sản phẩm.</p>
+      </div>
+      <div class="modal-footer border-top-0">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+        <form action="@Url.Action("ApplyAll")" method="post">
+            <input type="hidden" name="promotionId" value="@promotion.MAKHUYENMAI" />
+            <button type="submit" class="btn btn-danger fw-bold">Đồng ý áp dụng</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    document.getElementById('selectAll').addEventListener('change', function() {
+        var checkboxes = document.querySelectorAll('.product-check');
+        for (var checkbox of checkboxes) {
+            // Only toggle visible rows to allow "Search -> Check -> Search -> Check" workflow
+            if (checkbox.closest('tr').style.display !== 'none') {
+                 checkbox.checked = this.checked;
+            }
+        }
+    });
+
+    // Client-side Filter
+    $(document).ready(function(){
+      $("#productSearch").on("keyup", function() {
+        var value = $(this).val().toLowerCase();
+        $("table tbody tr").filter(function() {
+          $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+      });
+    });
+</script>

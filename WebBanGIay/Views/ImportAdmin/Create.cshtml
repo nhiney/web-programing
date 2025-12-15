@@ -250,9 +250,10 @@
                         <table class="table-import" id="importTable">
                             <thead>
                                 <tr>
-                                    <th style="width: 40%">Sản phẩm</th>
-                                    <th style="width: 15%">Đơn vị</th>
-                                    <th style="width: 15%">Số lượng</th>
+                                    <th style="width: 30%">Sản phẩm</th>
+                                    <th style="width: 20%">Màu sắc</th>
+                                    <th style="width: 10%">Size</th>
+                                    <th style="width: 10%">Số lượng</th>
                                     <th style="width: 20%">Đơn giá (VNĐ)</th>
                                     <th style="width: 10%"></th>
                                 </tr>
@@ -297,17 +298,30 @@
              options += `<option value="${p.Id}" data-stock="${p.Stock}" data-price="${p.Price}">${p.Name}</option>`;
         });
 
+        // Size Options
+        var sizeOptions = '';
+        for(var s=36; s<=45; s++) {
+            sizeOptions += `<option value="${s}">${s}</option>`;
+        }
+
         tr.innerHTML = `
             <td>
                 <select name="itemProducts" class="form-select-custom product-select" onchange="onProductChange(this)" required>
                     ${options}
                 </select>
                 <div class="small text-muted mt-1 product-info" style="display:none;">
-                    Tồn: <span class="stock-val">0</span>
+                    Tổng tồn: <span class="stock-val">0</span>
                 </div>
             </td>
             <td>
-                <input type="text" class="form-control-custom" value="Đôi" readonly tabindex="-1" style="background:var(--bg-hover);">
+                <select name="itemVariants" class="form-select-custom variant-select" required>
+                    <option value="">-- Chọn màu --</option>
+                </select>
+            </td>
+            <td>
+                <select name="itemSizes" class="form-select-custom size-select" required>
+                    ${sizeOptions}
+                </select>
             </td>
             <td>
                 <input type="number" name="itemQuantities" class="form-control-custom qty-input" value="1" min="1" oninput="calculateRow(this)" required>
@@ -336,8 +350,10 @@
     function onProductChange(select) {
         var row = select.closest("tr");
         var option = select.options[select.selectedIndex];
+        var variantSelect = row.querySelector(".variant-select");
         
         if (option.value) {
+            var productId = option.value;
             var stock = option.getAttribute("data-stock");
             var price = option.getAttribute("data-price");
             
@@ -345,11 +361,32 @@
             row.querySelector(".product-info").style.display = "block";
             row.querySelector(".stock-val").innerText = stock;
             
-            // Set default price
+            // Set default price (import price usually lower, but set to sell price as placeholder)
             row.querySelector(".price-input").value = price;
+
+            // Load Variants
+            variantSelect.innerHTML = '<option>Đang tải...</option>';
+            fetch('/ImportAdmin/GetProductVariants?productId=' + productId)
+                .then(r => r.json())
+                .then(res => {
+                    if (res.success) {
+                        var html = '<option value="">-- Chọn màu --</option>';
+                        res.data.forEach(v => {
+                            html += `<option value="${v.ID}">${v.MAUSAC}</option>`;
+                        });
+                        variantSelect.innerHTML = html;
+                    } else {
+                         variantSelect.innerHTML = '<option value="">Lỗi tải màu</option>';
+                    }
+                })
+                .catch(e => {
+                     variantSelect.innerHTML = '<option value="">Lỗi tải màu</option>';
+                });
+
         } else {
             row.querySelector(".product-info").style.display = "none";
             row.querySelector(".price-input").value = 0;
+            variantSelect.innerHTML = '<option value="">-- Chọn màu --</option>';
         }
         calculateTotal();
     }

@@ -20,7 +20,8 @@ namespace WebBanGIay.Controllers
             }
 
             // Lấy sản phẩm theo mã, bao gồm nhà cung cấp
-            var sanPham = db.SANPHAM.Include(s => s.NHACUNGCAP).FirstOrDefault(s => s.MASANPHAM == id);
+            var sanPham = db.SANPHAM.Include(s => s.NHACUNGCAP).Include(s => s.KHUYENMAI).FirstOrDefault(s => s.MASANPHAM == id);
+
             if (sanPham == null) return HttpNotFound("Sản phẩm không tồn tại!");
 
             // Giá gốc hoặc giá khuyến mãi
@@ -47,7 +48,7 @@ namespace WebBanGIay.Controllers
 
             // Danh sách đánh giá
             var danhGiaList = db.DANHGIASANPHAM
-                .Where(d => d.MASANPHAM == id)
+                .Where(d => d.MASANPHAM == id && d.TRANGTHAI != 0)
                 .Include(d => d.KHACHHANG)
                 .ToList();
             ViewBag.DanhGiaList = danhGiaList;
@@ -83,9 +84,10 @@ namespace WebBanGIay.Controllers
 
         public ActionResult DanhSach()
         {
-            var sanPhams = db.SANPHAM.Include(s => s.NHACUNGCAP).ToList();
+            var sanPhams = db.SANPHAM.Include(s => s.NHACUNGCAP).Include(s => s.KHUYENMAI).ToList();
             return View(sanPhams);
         }
+
 
         public async Task<ActionResult> SPhamTHuongHieu(string maNhaCungCap)
         {
@@ -100,7 +102,9 @@ namespace WebBanGIay.Controllers
                                       .FirstOrDefault();
                 ViewBag.TenThuongHieu = tenHang;
             }
+            query = query.Include(p => p.KHUYENMAI);
             var listSanPham = await query.ToListAsync();
+
             return View("SPhamTHuongHieu", listSanPham);
         }
         [HttpPost]

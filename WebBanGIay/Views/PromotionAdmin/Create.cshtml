@@ -1,0 +1,189 @@
+@model WebBanGIay.Models.KHUYENMAI
+@{
+    ViewBag.Title = "Thêm khuyến mãi";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    .page-container {
+        color: var(--text-main);
+        padding: 24px;
+        font-family: "Inter", sans-serif;
+    }
+    .form-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 32px;
+        max-width: 700px;
+        margin: 0 auto;
+        box-shadow: var(--shadow-card);
+    }
+    .form-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 24px;
+        color: var(--text-main);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .form-label {
+        font-weight: 600;
+        color: var(--text-label);
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+    }
+    .form-control, .form-select {
+        background: var(--bg-body);
+        border: 1px solid var(--border-color);
+        color: var(--text-main);
+        border-radius: 8px;
+        padding: 12px 16px;
+        transition: 0.2s;
+    }
+    .form-control:focus, .form-select:focus {
+        background: var(--bg-body);
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 3px var(--bg-active);
+        color: var(--text-main);
+    }
+    .btn-submit {
+        background: var(--accent-color);
+        color: #fff;
+        padding: 12px 24px;
+        border-radius: 8px;
+        border: none;
+        font-weight: 600;
+        transition: 0.2s;
+    }
+    .btn-submit:hover { filter: brightness(1.1); }
+    
+    .btn-cancel {
+        background: var(--bg-body);
+        color: var(--text-muted);
+        padding: 12px 24px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        font-weight: 600;
+        text-decoration: none;
+        transition: 0.2s;
+    }
+    .btn-cancel:hover { background: var(--bg-hover); color: var(--text-main); }
+
+    /* Theme Selection */
+    .theme-option {
+        position: relative;
+        cursor: pointer;
+        width: 120px;
+    }
+    .theme-option input { display: none; }
+    .theme-card {
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        padding: 10px;
+        text-align: center;
+        transition: 0.2s;
+        background: var(--bg-body);
+        color: var(--text-muted);
+    }
+    .theme-card:hover { transform: translateY(-3px); }
+    .theme-card i { font-size: 1.5rem; display: block; margin-bottom: 5px; }
+    .theme-option input:checked + .theme-card {
+        border-color: var(--accent-color);
+        color: var(--accent-color);
+        background: rgba(78, 115, 223, 0.05); /* Accent tint */
+        font-weight: 700;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    /* Theme Colors Preview */
+    .theme-tet i { color: #f6c23e; }
+    .theme-xmas i { color: #e74a3b; }
+    .theme-black i { color: #333; }
+    .theme-summer i { color: #fd7e14; }
+
+</style>
+
+<div class="page-container">
+    <div class="form-card">
+        <h4 class="form-title">
+            <i class="bi bi-plus-circle text-primary"></i> 
+            Tạo chương trình khuyến mãi mới
+        </h4>
+
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="mb-4">
+                <label class="form-label">Tên chương trình <span class="text-danger">*</span></label>
+                <input type="text" name="TENKHUYENMAI" class="form-control" required placeholder="Nhập tên chương trình (VD: Sale Giáng Sinh)..." />
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <label class="form-label">Ngày bắt đầu <span class="text-danger">*</span></label>
+                    <input type="date" name="NGAYBATDAU" class="form-control" required value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                </div>
+                <div class="col-md-6 mb-4">
+                    <label class="form-label">Ngày kết thúc <span class="text-danger">*</span></label>
+                    <input type="date" name="NGAYKETTHUC" class="form-control" required />
+                    @Html.ValidationMessageFor(m => m.NGAYKETTHUC, "", new { @class = "text-danger small mt-1" })
+                </div>
+            </div>
+
+            <div class="mb-5">
+                <label class="form-label">Mức giảm giá (%) <span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <input type="number" name="PHANTRAMGIAM" class="form-control" required min="1" max="100" placeholder="VD: 20" />
+                    <span class="input-group-text bg-transparent border-start-0" style="border-color: var(--border-color); color: var(--text-muted);">%</span>
+                </div>
+            </div>
+
+            <div class="mb-5">
+                <label class="form-label">Chủ đề hiển thị</label>
+                <div class="d-flex gap-3 flex-wrap">
+                    <label class="theme-option">
+                        <input type="radio" name="MOTA" value="default" checked>
+                        <div class="theme-card">
+                            <i class="bi bi-star-fill text-primary"></i> Mặc định
+                        </div>
+                    </label>
+                    <label class="theme-option">
+                        <input type="radio" name="MOTA" value="tet">
+                        <div class="theme-card theme-tet">
+                            <i class="bi bi-flower1"></i> Tết
+                        </div>
+                    </label>
+                    <label class="theme-option">
+                        <input type="radio" name="MOTA" value="christmas">
+                        <div class="theme-card theme-xmas">
+                            <i class="bi bi-snow2"></i> Noel
+                        </div>
+                    </label>
+                    <label class="theme-option">
+                        <input type="radio" name="MOTA" value="blackfriday">
+                        <div class="theme-card theme-black">
+                            <i class="bi bi-tag-fill"></i> BlackFri
+                        </div>
+                    </label>
+                    <label class="theme-option">
+                        <input type="radio" name="MOTA" value="summer">
+                        <div class="theme-card theme-summer">
+                            <i class="bi bi-sun-fill"></i> Hè
+                        </div>
+                    </label>
+                </div>
+                <small class="text-muted mt-2 d-block">Chọn chủ đề sẽ thay đổi màu sắc hiển thị banner ngoài trang chủ.</small>
+            </div>
+
+
+            <div class="d-flex justify-content-end gap-3 pt-3 border-top" style="border-color: var(--border-color) !important;">
+                <a href="@Url.Action("Index")" class="btn-cancel">Hủy bỏ</a>
+                <button type="submit" class="btn-submit">
+                    <i class="bi bi-check-lg me-1"></i> Lưu chương trình
+                </button>
+            </div>
+        }
+    </div>
+</div>

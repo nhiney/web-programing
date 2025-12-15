@@ -285,28 +285,34 @@
             <h5>@adminName</h5>
         </div>
 
-        <div class="menu-title">Dashboard</div>
+        <div class="menu-title">Bảng điều khiển</div>
         <a href="@Url.Action("Index","Admin")" class="@(ViewBag.ActiveMenu=="Dashboard"?"active":"")">
-            <i class="bi bi-speedometer2"></i><span>Dashboard</span>
+            <i class="bi bi-speedometer2"></i><span>Tổng quan</span>
         </a>
 
         <div class="menu-title">Quản lý</div>
         <a href="@Url.Action("Users","Admin")" class="@(ViewBag.ActiveMenu=="Users"?"active":"")">
-            <i class="bi bi-people"></i><span>Users</span>
+            <i class="bi bi-people"></i><span>Người dùng</span>
         </a>
         <a href="@Url.Action("Index","ProductAdmin")" class="@(ViewBag.ActiveMenu=="Products"?"active":"")">
-            <i class="bi bi-bag"></i><span>Products</span>
+            <i class="bi bi-bag"></i><span>Sản phẩm</span>
         </a>
         <a href="@Url.Action("Index","OrderAdmin")" class="@(ViewBag.ActiveMenu=="Orders"?"active":"")">
-            <i class="bi bi-receipt"></i><span>Orders</span>
+            <i class="bi bi-receipt"></i><span>Đơn hàng</span>
         </a>
         <a href="@Url.Action("Create","ImportAdmin")" class="@(ViewBag.ActiveMenu=="Import"?"active":"")">
             <i class="bi bi-box-arrow-in-down"></i><span>Nhập hàng</span>
         </a>
+        <a href="@Url.Action("Index","PromotionAdmin")" class="@(ViewBag.ActiveMenu=="Promotion"?"active":"")">
+            <i class="bi bi-tags"></i><span>Khuyến Mãi</span>
+        </a>
+        <a href="@Url.Action("Index","CommentAdmin")" class="@(ViewBag.ActiveMenu=="Comment"?"active":"")">
+            <i class="bi bi-chat-dots"></i><span>Bình luận</span>
+        </a>
 
         <div class="menu-title">Hệ thống</div>
         <a href="@Url.Action("Logout","Account")">
-            <i class="bi bi-door-open"></i><span>Logout</span>
+            <i class="bi bi-door-open"></i><span>Đăng xuất</span>
         </a>
     </div>
 
@@ -319,23 +325,23 @@
         <div class="top-icons">
             
             <!-- Dark Mode Toggle -->
-            <button class="icon-btn" id="themeToggle" title="Toggle Theme">
+            <button class="icon-btn" id="themeToggle" title="Chế độ giao diện">
                 <i class="bi bi-moon-stars"></i>
             </button>
 
             <!-- Mail/Messages -->
-            <button class="icon-btn" title="Messages" data-bs-toggle="dropdown">
+            <button class="icon-btn" title="Tin nhắn" data-bs-toggle="dropdown">
                 <i class="bi bi-envelope"></i>
             </button>
             <ul class="dropdown-menu dropdown-menu-end" style="min-width:250px;">
-                <li class="dropdown-header">Messages</li>
+                <li class="dropdown-header">Tin nhắn</li>
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item" href="#">Chưa có tin nhắn mới</a></li>
             </ul>
 
             <!-- Notifications -->
             <div class="dropdown">
-                <button class="icon-btn" title="Notifications" data-bs-toggle="dropdown">
+                <button class="icon-btn" title="Thông báo" data-bs-toggle="dropdown">
                     <i class="bi bi-bell"></i>
                     @if (newOrdersCount > 0)
                     {
