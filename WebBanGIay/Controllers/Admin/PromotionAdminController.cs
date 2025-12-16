@@ -9,7 +9,7 @@ using WebBanGIay.Models;
 namespace WebBanGIay.Controllers.Admin
 {
     // [Authorize(Roles = "QUẢN TRỊ,ADMIN")]
-    public class PromotionAdminController : Controller
+    public class PromotionAdminController : BaseAdminController
     {
         private QuanLyBanGiayEntities1 db = new QuanLyBanGiayEntities1();
 

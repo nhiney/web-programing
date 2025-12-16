@@ -10,16 +10,11 @@ using WebBanGIay.Models;
 
 namespace WebBanGIay.Controllers
 {
-    public class AdminController : Controller
+    public class AdminController : BaseAdminController
     {
         private readonly QuanLyBanGiayEntities1 db = new QuanLyBanGiayEntities1();
 
-        // Set notification badge data for all admin pages
-        protected override void OnActionExecuting(ActionExecutingContext filterContext)
-        {
-            base.OnActionExecuting(filterContext);
-            ViewBag.NewOrdersCount = db.HOADON.Count(o => o.TRANGTHAI == "CHỜ XỬ LÝ");
-        }
+
 
         // ====== HASH MẬT KHẨU ======
         private string HashPassword(string password)
@@ -333,6 +328,32 @@ namespace WebBanGIay.Controllers
             {
                 TempData["Error"] = "Không thể xóa tài khoản: " + ex.Message;
             }
+
+            return RedirectToAction("Users");
+        }
+
+        // ====================== USER LOCK ======================
+        public ActionResult ToggleLock(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+                return HttpNotFound();
+
+            id = id.Trim();
+            var user = db.TAIKHOAN.Find(id);
+            if (user == null)
+                return HttpNotFound();
+
+            // Toggle logic: If null or true -> set to false. If false -> set to true.
+            bool isActive = user.TRANGTHAI ?? true;
+            user.TRANGTHAI = !isActive;
+            
+            db.SaveChanges();
+
+            TempData["Success"] = user.TRANGTHAI.Value ? "Đã mở khóa tài khoản!" : "Đã khóa tài khoản thành công!";
+            
+            // Redirect back to where the request came from if possible, else Users
+            if (Request.UrlReferrer != null)
+                return Redirect(Request.UrlReferrer.ToString());
 
             return RedirectToAction("Users");
         }

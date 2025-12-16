@@ -90,5 +90,75 @@
                 </button>
             </div>
         }
+
+        <!-- Message History Section -->
+        <div class="mt-5" id="historySection" style="display:none; border-top: 1px solid #eee; padding-top: 30px;">
+            <h3 class="text-center mb-4" style="font-size: 1.3rem; font-weight: 600; color: #2c3e50;">
+                <i class="bi bi-clock-history me-2"></i>Lịch sử tin nhắn
+            </h3>
+            <div id="messageList">
+                <!-- Messages loaded here -->
+            </div>
+        </div>
     </div>
+
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        loadMessageHistory();
+    });
+
+    function loadMessageHistory() {
+        fetch('/Contact/GetHistory')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.data.length > 0) {
+                    document.getElementById('historySection').style.display = 'block';
+                    const listContainer = document.getElementById('messageList');
+                    listContainer.innerHTML = '';
+
+                    data.data.forEach(msg => {
+                        let replyHtml = '';
+                        if (msg.PhanHoi) {
+                            replyHtml = `
+                                <div class="mt-3 p-3 bg-light rounded border-start border-4 border-primary">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="bi bi-person-badge-fill text-primary me-2"></i>
+                                        <strong class="text-primary">Admin phản hồi:</strong>
+                                        <small class="text-muted ms-auto">
+                                            ${msg.NgayPhanHoi ? new Date(parseInt(msg.NgayPhanHoi.replace(/\/Date\((-?\d+)\)\//, '$1'))).toLocaleString() : ''}
+                                        </small>
+                                    </div>
+                                    <p class="mb-0 text-dark">${msg.PhanHoi}</p>
+                                </div>
+                            `;
+                        } else {
+                            replyHtml = `<div class="mt-2 text-muted fst-italic"><small>Chưa có phản hồi</small></div>`;
+                        }
+
+                        // Try to parse NgayGui if possible, else just use raw string or simple format
+                         let dateDisplay = msg.NgayGui;
+                         if(msg.NgayGui.startsWith("/Date")) {
+                              dateDisplay = new Date(parseInt(msg.NgayGui.replace(/\/Date\((-?\d+)\)\//, '$1'))).toLocaleString();
+                         }
+
+                        const card = `
+                            <div class="card mb-3 shadow-sm">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between text-muted small mb-2">
+                                        <span><i class="bi bi-clock"></i> ${dateDisplay}</span>
+                                        <span class="badge bg-${msg.PhanHoi ? 'success' : 'secondary'}">${msg.PhanHoi ? 'Đã phản hồi' : 'Đang chờ'}</span>
+                                    </div>
+                                    <p class="card-text fw-bold text-dark mb-1">Q: ${msg.NoiDung}</p>
+                                    ${replyHtml}
+                                </div>
+                            </div>
+                        `;
+                        listContainer.innerHTML += card;
+                    });
+                }
+            })
+            .catch(error => console.error('Error loading history:', error));
+    }
+</script>

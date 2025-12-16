@@ -440,11 +440,34 @@
             <!-- Mail/Messages -->
             <button class="icon-btn" title="Tin nhắn" data-bs-toggle="dropdown">
                 <i class="bi bi-envelope"></i>
+                @if ((ViewBag.NewMessagesCount ?? 0) > 0)
+                {
+                    <span class="badge-count">@ViewBag.NewMessagesCount</span>
+                }
             </button>
             <ul class="dropdown-menu dropdown-menu-end" style="min-width:250px;">
-                <li class="dropdown-header">Tin nhắn</li>
+                <li class="dropdown-header">Tin nhắn hỗ trợ</li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="#">Chưa có tin nhắn mới</a></li>
+                @if ((ViewBag.NewMessagesCount ?? 0) > 0)
+                {
+                    <li>
+                        <a class="dropdown-item" href="@Url.Action("Index","MessageAdmin")">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-envelope-exclamation text-primary fs-4 me-3"></i>
+                                <div>
+                                    <div class="fw-bold">@ViewBag.NewMessagesCount tin nhắn mới</div>
+                                    <small class="text-muted">Nhấn để xem và phản hồi</small>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                }
+                else
+                {
+                    <li><a class="dropdown-item text-muted" href="@Url.Action("Index","MessageAdmin")">Không có tin nhắn mới</a></li>
+                }
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-center small" href="@Url.Action("Index","MessageAdmin")">Xem tất cả</a></li>
             </ul>
 
             <!-- Notifications -->

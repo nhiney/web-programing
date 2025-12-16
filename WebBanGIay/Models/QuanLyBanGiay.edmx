@@ -147,6 +147,8 @@
           <Property Name="NoiDung" Type="nvarchar(max)" />
           <Property Name="NgayGui" Type="datetime" />
           <Property Name="TrangThai" Type="bit" />
+          <Property Name="PhanHoi" Type="nvarchar(max)" />
+          <Property Name="NgayPhanHoi" Type="datetime" />
         </EntityType>
         <Association Name="FK_BIEN_THE_SAN_PHAM_SANPHAM">
           <End Role="SANPHAM" Type="Self.SANPHAM" Multiplicity="1" />
@@ -491,6 +493,8 @@
           <Property Name="NoiDung" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="NgayGui" Type="DateTime" Precision="3" />
           <Property Name="TrangThai" Type="Boolean" />
+          <Property Name="PhanHoi" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="NgayPhanHoi" Type="DateTime" Precision="3" />
         </EntityType>
         <EntityType Name="TAIKHOAN">
           <Key>
@@ -923,6 +927,8 @@
                 <ScalarProperty Name="NoiDung" ColumnName="NoiDung" />
                 <ScalarProperty Name="NgayGui" ColumnName="NgayGui" />
                 <ScalarProperty Name="TrangThai" ColumnName="TrangThai" />
+                <ScalarProperty Name="PhanHoi" ColumnName="PhanHoi" />
+                <ScalarProperty Name="NgayPhanHoi" ColumnName="NgayPhanHoi" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

@@ -8,15 +8,11 @@ using WebBanGIay.Models;
 
 namespace WebBanGIay.Controllers
 {
-    public class ProductAdminController : Controller
+    public class ProductAdminController : BaseAdminController
     {
         private readonly QuanLyBanGiayEntities1 db = new QuanLyBanGiayEntities1();
 
-        protected override void OnActionExecuting(ActionExecutingContext filterContext)
-        {
-            base.OnActionExecuting(filterContext);
-            ViewBag.NewOrdersCount = db.HOADON.Count(o => o.TRANGTHAI == "CHỜ XỬ LÝ");
-        }
+
 
         // ===================== LIST PRODUCTS =====================
         public ActionResult Index(string q = "", int page = 1, int pageSize = 12)

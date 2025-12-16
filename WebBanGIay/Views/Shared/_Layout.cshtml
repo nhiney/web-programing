@@ -657,10 +657,17 @@
     @if (Session["UserName"] != null)
     {
         <!-- Floating Button -->
-        <button id="chatFab" class="btn btn-primary rounded-circle shadow-lg" 
-                style="position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; z-index: 9999; display: flex; align-items: center; justify-content: center;">
-            <i class="fas fa-comment-dots fs-3"></i>
+        <button id="chatFab" class="btn btn-primary rounded-circle shadow-lg d-flex align-items-center justify-content-center" 
+                style="position: fixed; bottom: 30px; right: 30px; width: 65px; height: 65px; z-index: 9999; animation: pulse 2s infinite;">
+            <i class="fas fa-robot fs-2"></i>
         </button>
+        <style>
+            @@keyframes pulse {
+                0% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.7); }
+                70% { box-shadow: 0 0 0 15px rgba(13, 110, 253, 0); }
+                100% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0); }
+            }
+        </style>
 
         <!-- Modal -->
         <div class="modal fade" id="chatModal" tabindex="-1" aria-hidden="true">
@@ -679,6 +686,11 @@
                                 <label class="form-label fw-bold small text-uppercase text-muted">Họ tên</label>
                                 <input type="text" name="HoTen" class="form-control" value="@Session["UserName"]" readonly>
                             </div>
+                            
+                            <!-- Chat History Container -->
+                            <div id="chatHistory" class="chat-history">
+                                <!-- Messages will be loaded here via JS -->
+                            </div>
                             <!-- Email removed as requested -->
                             <div class="mb-3">
                                 <label class="form-label fw-bold small text-uppercase text-muted">Nội dung / Câu hỏi</label>
@@ -693,6 +705,49 @@
             </div>
         </div>
 
+        <style>
+            .chat-history {
+                max-height: 300px;
+                overflow-y: auto;
+                margin-bottom: 15px;
+                padding: 10px;
+                background: #f8f9fa;
+                border-radius: 8px;
+                border: 1px solid #e9ecef;
+            }
+            .chat-msg {
+                margin-bottom: 15px;
+            }
+            .chat-msg.user {
+                text-align: right;
+            }
+            .chat-bubble {
+                display: inline-block;
+                padding: 8px 12px;
+                border-radius: 12px;
+                max-width: 80%;
+                word-wrap: break-word;
+            }
+            .chat-msg.user .chat-bubble {
+                background: #007bff;
+                color: #fff;
+                border-bottom-right-radius: 2px;
+            }
+            .chat-msg.admin .chat-bubble {
+                background: #e9ecef;
+                color: #333;
+                border-bottom-left-radius: 2px;
+                text-align: left;
+            }
+            .chat-time {
+                display: block;
+                font-size: 0.75rem;
+                color: #999;
+                margin-top: 4px;
+            }
+        </style>
+
+        <!-- Script for Chat Functionality -->
         <script>
             document.addEventListener("DOMContentLoaded", function () {
                 const fab = document.getElementById("chatFab");
@@ -700,14 +755,82 @@
                 const modal = new bootstrap.Modal(modalEl);
                 const form = document.getElementById("chatForm");
                 const contentInput = document.getElementById("chatContent");
+                const historyContainer = document.getElementById("chatHistory"); // New Container
 
-                // Toggle Modal
-                fab.addEventListener("click", () => modal.show());
+                // Load History Function
+                function loadChatHistory() {
+                    historyContainer.innerHTML = '<div class="text-center text-muted"><small>Đang tải tin nhắn...</small></div>';
+                    
+                    fetch('/Contact/GetHistory')
+                        .then(r => r.json())
+                        .then(data => {
+                            historyContainer.innerHTML = '';
+                            if (data.success && data.data && data.data.length > 0) {
+                                // Reverse to show oldest first at top, newest at bottom (chat style)
+                                const messages = data.data.slice().reverse(); 
+                                
+                                messages.forEach(msg => {
+                                    // 1. User Message
+                                    let dateDisplay = msg.NgayGui;
+                                    if(msg.NgayGui.startsWith("/Date")) {
+                                        dateDisplay = new Date(parseInt(msg.NgayGui.replace(/\/Date\((-?\d+)\)\//, '$1'))).toLocaleString();
+                                    }
+
+                                    const userHtml = `
+                                        <div class="chat-msg user">
+                                            <div class="chat-bubble">
+                                                ${msg.NoiDung}
+                                            </div>
+                                            <small class="chat-time">${dateDisplay}</small>
+                                        </div>
+                                    `;
+                                    historyContainer.innerHTML += userHtml;
+
+                                    // 2. Admin Reply (if any)
+                                    if (msg.PhanHoi) {
+                                         let replyDate = '';
+                                         if(msg.NgayPhanHoi && msg.NgayPhanHoi.startsWith("/Date")) {
+                                            replyDate = new Date(parseInt(msg.NgayPhanHoi.replace(/\/Date\((-?\d+)\)\//, '$1'))).toLocaleString();
+                                         }
+                                        const adminHtml = `
+                                            <div class="chat-msg admin">
+                                                <div class="chat-bubble">
+                                                    <div class="fw-bold small text-primary mb-1"><i class="fas fa-headset me-1"></i>Admin Support</div>
+                                                    ${msg.PhanHoi}
+                                                </div>
+                                                <small class="chat-time">${replyDate}</small>
+                                            </div>
+                                        `;
+                                        historyContainer.innerHTML += adminHtml;
+                                    }
+                                });
+
+                                // Scroll to bottom
+                                setTimeout(() => {
+                                    historyContainer.scrollTop = historyContainer.scrollHeight;
+                                }, 100);
+
+                            } else {
+                                historyContainer.innerHTML = '<div class="text-center text-muted py-3"><small>Chưa có tin nhắn nào. Hãy gửi câu hỏi cho chúng tôi!</small></div>';
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            historyContainer.innerHTML = '<div class="text-danger small text-center">Không thể tải lịch sử chat</div>';
+                        });
+                }
+
+                // Toggle Modal & Load History
+                fab.addEventListener("click", () => {
+                    modal.show();
+                    loadChatHistory();
+                });
 
                 // Expose function to open chat with pre-filled content
                 window.openChatWithContext = function (productName) {
                     contentInput.value = "Tôi muốn hỏi thêm thông tin về sản phẩm: " + productName + "\n---\n";
                     modal.show();
+                    loadChatHistory(); // Also load history here
                 };
 
                 // AJAX Submit
@@ -736,12 +859,17 @@
                         btn.disabled = false;
                         btn.innerHTML = originalText;
                         if (data.success) {
-                            document.getElementById("chatSuccess").classList.remove("d-none");
-                            form.reset();
-                            setTimeout(() => {
-                                modal.hide();
-                                document.getElementById("chatSuccess").classList.add("d-none");
-                            }, 2000);
+                            // Clear input
+                            contentInput.value = '';
+                            
+                            // Reload history to show new message (and maybe a temp "sent" status)
+                            loadChatHistory();
+                            
+                            // Optional: Show success alert briefly
+                            // document.getElementById("chatSuccess").classList.remove("d-none");
+                            // setTimeout(() => {
+                            //    document.getElementById("chatSuccess").classList.add("d-none");
+                            // }, 2000);
                         } else {
                             alert(data.message || "Có lỗi xảy ra!");
                         }
