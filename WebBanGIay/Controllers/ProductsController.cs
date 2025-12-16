@@ -14,6 +14,12 @@ namespace WebBanGIay.Controllers
 
         public ActionResult ChiTiet(string id)
         {
+            // 1. Check Login
+            if (Session["UserID"] == null)
+            {
+                return RedirectToAction("Login", "Account", new { returnUrl = Request.Url.AbsoluteUri });
+            }
+
             if (string.IsNullOrEmpty(id))
             {
                 return HttpNotFound("Không tìm thấy sản phẩm!");

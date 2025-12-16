@@ -169,17 +169,35 @@
         }
     </div>
 
+
+
     @if (banChay.Count > 0)
     {
-        <h2 class="section-title">Sản phẩm nổi bật</h2>
+        <h2 class="section-title" id="featured-products">Sản phẩm nổi bật</h2>
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 mb-5">
             @foreach (var item in banChay)
             {
                 <div class="col">
                     <div class="product-item">
-                        @if (item.GIAKHUYENMAI.HasValue && item.GIAKHUYENMAI > 0)
+                        @{
+                             decimal finalPrice = item.GIA;
+                             int discountPercent = 0;
+                             if (item.KHUYENMAI != null && item.KHUYENMAI.TRANGTHAI == true && 
+                                 DateTime.Now >= item.KHUYENMAI.NGAYBATDAU && DateTime.Now <= item.KHUYENMAI.NGAYKETTHUC)
+                             {
+                                 discountPercent = item.KHUYENMAI.PHANTRAMGIAM;
+                                 finalPrice = item.GIA * (100 - discountPercent) / 100;
+                             }
+                             else if (item.GIAKHUYENMAI.HasValue && item.GIAKHUYENMAI > 0 && item.GIAKHUYENMAI < item.GIA)
+                             {
+                                 finalPrice = item.GIAKHUYENMAI.Value;
+                                 discountPercent = (int)Math.Round((double)((item.GIA - finalPrice) / item.GIA * 100));
+                             }
+                        }
+
+                        @if (discountPercent > 0)
                         {
-                            <span class="badge-percent">Sale</span>
+                            <span class="badge-percent">-@discountPercent%</span>
                         }
                         <div class="product-img-container">
                              @{
@@ -195,9 +213,9 @@
                              </div>
                             
                              <div class="price-wrap">
-                                 @if (item.GIAKHUYENMAI.HasValue && item.GIAKHUYENMAI > 0)
+                                 @if (discountPercent > 0)
                                  {
-                                     <span class="price">@String.Format("{0:0,0}", item.GIAKHUYENMAI) ₫</span>
+                                     <span class="price">@String.Format("{0:0,0}", finalPrice) ₫</span>
                                      <span class="price-old">@String.Format("{0:0,0}", item.GIA) ₫</span>
                                  }
                                  else
@@ -214,6 +232,62 @@
                 </div>
             }
         </div>
+        
+        <div class="text-center mb-5">
+             <a href="@Url.Action("Index", "Products")" class="btn btn-buy px-5 py-3 shadow-sm" style="font-size: 1.1rem;">
+                <i class="fas fa-store me-2"></i> Tới cửa hàng
+            </a>
+        </div>
     }
 
 </div>
+
+<style>
+    .falling-element {
+        position: fixed;
+        top: -50px;
+        z-index: 9999;
+        pointer-events: none;
+        animation: fall linear forwards;
+    }
+    @@keyframes fall {
+        to { transform: translateY(110vh) rotate(360deg); }
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var promoName = "@(ViewBag.FeaturedPromotion != null ? ((WebBanGIay.Models.KHUYENMAI)ViewBag.FeaturedPromotion).TENKHUYENMAI.ToLower() : "")";
+        var icon = "";
+        var count = 30; 
+
+        if (promoName.includes("tết") || promoName.includes("tet")) {
+            icon = "🧧"; // Lì xì
+        } else if (promoName.includes("noel") || promoName.includes("christmas") || promoName.includes("giáng sinh")) {
+            icon = "❄️"; // Tuyết
+        } else if (promoName.includes("hè") || promoName.includes("summer")) {
+            icon = "🍂"; // Lá vàng
+        } else if (promoName.includes("black friday")) {
+            icon = "🎟️"; // Vé
+        } else if (promoName.includes("valentine") || promoName.includes("tình nhân")) {
+            icon = "❤️"; // Trái tim
+        }
+
+        if (icon) {
+            var container = document.body;
+            for (var i = 0; i < count; i++) {
+                var el = document.createElement("div");
+                el.classList.add("falling-element");
+                el.innerHTML = icon;
+                if(icon === "🧧" && Math.random() > 0.5) el.innerHTML = "🌸"; // Mix hoa đào for Tet
+
+                el.style.left = Math.random() * 100 + "vw";
+                el.style.fontSize = (Math.random() * 20 + 15) + "px";
+                el.style.animationDuration = (Math.random() * 5 + 5) + "s"; // Slow fall 5-10s
+                el.style.animationDelay = (Math.random() * 5) + "s";
+                el.style.opacity = Math.random() * 0.5 + 0.5;
+                container.appendChild(el);
+            }
+        }
+    });
+</script>
