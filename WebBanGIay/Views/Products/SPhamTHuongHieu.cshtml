@@ -108,20 +108,18 @@
             {
                 foreach (var sp in Model)
                 {
-                    @{
-                        decimal finalPrice = sp.GIA;
-                        double phanTramGiamSP = 0;
-                        if (sp.KHUYENMAI != null && sp.KHUYENMAI.TRANGTHAI == true && 
-                            DateTime.Now >= sp.KHUYENMAI.NGAYBATDAU && DateTime.Now <= sp.KHUYENMAI.NGAYKETTHUC)
-                        {
-                            phanTramGiamSP = sp.KHUYENMAI.PHANTRAMGIAM;
-                            finalPrice = sp.GIA * (decimal)(100 - phanTramGiamSP) / 100;
-                        }
-                        else if (sp.GIA > 0 && sp.GIAKHUYENMAI > 0 && sp.GIAKHUYENMAI < sp.GIA)
-                        {
-                            finalPrice = sp.GIAKHUYENMAI.Value;
-                            phanTramGiamSP = Math.Round((double)((sp.GIA - finalPrice) / sp.GIA * 100));
-                        }
+                    decimal finalPrice = sp.GIA;
+                    double phanTramGiamSP = 0;
+                    if (sp.KHUYENMAI != null && sp.KHUYENMAI.TRANGTHAI == true && 
+                        DateTime.Now >= sp.KHUYENMAI.NGAYBATDAU && DateTime.Now <= sp.KHUYENMAI.NGAYKETTHUC)
+                    {
+                        phanTramGiamSP = sp.KHUYENMAI.PHANTRAMGIAM;
+                        finalPrice = sp.GIA * (decimal)(100 - phanTramGiamSP) / 100;
+                    }
+                    else if (sp.GIA > 0 && sp.GIAKHUYENMAI > 0 && sp.GIAKHUYENMAI < sp.GIA)
+                    {
+                        finalPrice = sp.GIAKHUYENMAI.Value;
+                        phanTramGiamSP = Math.Round((double)((sp.GIA - finalPrice) / sp.GIA * 100));
                     }
 
                     <div class="col-6 col-md-4 col-lg-3 mb-4">
