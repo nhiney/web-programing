@@ -1,0 +1,71 @@
+@{
+    ViewBag.Title = "Chuyển khoản Ngân hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow-lg border-0 text-center">
+                <div class="card-header bg-success text-white py-3">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-university me-2"></i>Chuyển khoản Ngân hàng</h5>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-muted mb-3">Mở ứng dụng ngân hàng và quét mã QR bên dưới để thanh toán.</p>
+                    
+                    <div class="qr-container mb-4 p-3 bg-white rounded shadow-sm border position-relative">
+                        <img src="@ViewBag.QRUrl" alt="VietQR Code" class="img-fluid rounded" style="max-height: 300px;">
+                        <div class="mt-2 small text-muted">VietQR hỗ trợ 24/7</div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-3 px-3">
+                        <span class="text-muted">Tổng tiền:</span>
+                        <span class="h4 fw-bold text-primary mb-0">@string.Format("{0:N0}", ViewBag.TongTien) ₫</span>
+                    </div>
+                    
+                    <div class="alert alert-info bg-opacity-10 text-start border-info border-opacity-25 small mb-4">
+                        <i class="fas fa-info-circle me-2"></i>Sau khi chuyển khoản thành công, vui lòng nhấn nút <strong>"Xác nhận đã chuyển"</strong> bên dưới. Hệ thống sẽ gửi mã OTP về email của bạn để hoàn tất.
+                    </div>
+
+                    @using (Html.BeginForm("ConfirmTransfer", "Payment", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+                        
+                        <div class="mb-3 text-start">
+                             <label class="form-label fw-bold">Email nhận mã OTP <span class="text-danger">*</span></label>
+                             <input type="email" name="email" class="form-control" value="@ViewBag.UserEmail" placeholder="nhap.email@example.com" required>
+                        </div>
+                        
+                        <div class="mb-3 text-start">
+                             <label class="form-label fw-bold">Địa chỉ nhận hàng <span class="text-danger">*</span></label>
+                             <input type="text" name="address" class="form-control" value="@ViewBag.UserAddress" placeholder="Số nhà, đường, phường, quận..." required>
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100 py-3 fw-bold shadow-sm hover-scale">
+                            <i class="fas fa-check-circle me-2"></i>Xác nhận đã chuyển khoản
+                        </button>
+                    }
+                    
+                    <div class="text-center mt-3">
+                         <a href="@Url.Action("Index")" class="text-muted small text-decoration-none hover-underline">
+                              <i class="fas fa-arrow-left me-1"></i> Chọn phương thức khác
+                         </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-scale {
+        transition: transform 0.2s;
+    }
+    .hover-scale:hover {
+        transform: scale(1.02);
+    }
+    .hover-underline:hover {
+        text-decoration: underline !important;
+        color: #0f172a !important;
+    }
+</style>

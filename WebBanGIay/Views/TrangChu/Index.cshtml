@@ -1,657 +1,219 @@
 ﻿@{
     ViewBag.Title = "MEODIGIAY - Trang Chủ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
     var banChay = ViewBag.SanPhamBanChay as List<WebBanGIay.Models.SANPHAM> ?? new List<WebBanGIay.Models.SANPHAM>();
 }
 @using System.Collections.Generic
 @using WebBanGIay.Models
 
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewBag.Title</title>
+<style>
+    :root {
+        --primary: #ff3b30;
+        --primary-gradient: linear-gradient(135deg, #ff3b30, #ff6b6b);
+        --text-dark: #222;
+        --text-muted: #666;
+        --bg-light: #f8f9fa;
+    }
+    
+    /* Styles specific to Home Page */
+    .section-title {
+        font-weight: 700;
+        font-size: 2rem;
+        text-align: center;
+        margin-bottom: 2rem;
+        letter-spacing: 1px;
+        color: var(--text-dark);
+        position: relative;
+    }
+    .section-title:after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 3px;
+        background: var(--primary-gradient);
+        border-radius: 3px;
+    }
 
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    .filter-bar {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        margin-bottom: 2rem;
+        border: 1px solid #eee;
+        position: relative;
+        overflow: hidden;
+    }
+    .filter-bar:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 100%;
+        background: var(--primary-gradient);
+    }
+    .filter-bar .form-label { font-weight: 600; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+    .filter-bar .form-select, .filter-bar .btn { border-radius: 30px; font-size: 0.95rem; padding: 0.6rem 1.2rem; }
+    .filter-bar .form-select { border: 2px solid #eee; transition: all 0.3s ease; }
+    .filter-bar .form-select:focus { border-color: var(--primary); box-shadow: 0 0 0 0.2rem rgba(255, 59, 48, 0.25); }
+    .filter-bar .btn-danger { background: var(--primary-gradient); border: none; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 3px 10px rgba(255,59,48,0.3); }
+    .filter-bar .btn-danger:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(255,59,48,0.4); }
 
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    .product-item {
+        background: white;
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        transition: all 0.35s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+        position: relative;
+    }
+    .product-item:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.15); }
+    .product-item:hover .product-img { transform: scale(1.08); }
 
-    <style>
-        :root {
-            --primary: #ff3b30;
-            --primary-gradient: linear-gradient(135deg, #ff3b30, #ff6b6b);
-            --text-dark: #222;
-            --text-muted: #666;
-            --bg-light: #f8f9fa;
-        }
+    .product-img-container {
+        position: relative;
+        width: 100%;
+        height: 180px;
+        background: #f9f9f9;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+    }
+    .product-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+    
+    .badge-percent { position: absolute; top: 10px; right: 10px; background: #ff3b30; color: white; padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 0.8rem; box-shadow: 0 4px 10px rgba(255,59,48,0.3); z-index: 2; }
+    
+    .product-title a {
+        text-decoration: none;
+        color: var(--text-dark);
+        font-weight: 600;
+        font-size: 1rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+        transition: color 0.2s;
+    }
+    .product-title a:hover { color: var(--primary); }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f5f5;
-            color: var(--text-dark);
-        }
+    .price-wrap { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 1rem; }
+    .price { font-weight: 800; font-size: 1.1rem; color: #ff3b30; }
+    .price-old { text-decoration: line-through; color: #aaa; font-size: 0.9rem; }
 
-        .section-title {
-            font-weight: 700;
-            font-size: 2rem;
-            text-align: center;
-            margin-bottom: 2rem;
-            letter-spacing: 1px;
-            color: var(--text-dark);
-            position: relative;
-        }
+    .btn-buy {
+        margin-top: auto;
+        border-radius: 30px;
+        font-weight: 600;
+        background: white;
+        color: var(--text-dark);
+        border: 2px solid #eee;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    .btn-buy:hover {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+        box-shadow: 0 5px 15px rgba(255, 59, 48, 0.2);
+    }
+</style>
 
-            .section-title:after {
-                content: '';
-                position: absolute;
-                bottom: -10px;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 60px;
-                height: 3px;
-                background: var(--primary-gradient);
-                border-radius: 3px;
-            }
-
-        .filter-bar {
-            background: white;
-            border-radius: 16px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            margin-bottom: 2rem;
-            border: 1px solid #eee;
-            position: relative;
-            overflow: hidden;
-        }
-
-            .filter-bar:before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 5px;
-                height: 100%;
-                background: var(--primary-gradient);
-            }
-
-            .filter-bar .form-label {
-                font-weight: 600;
-                font-size: 0.9rem;
-                color: var(--text-muted);
-                margin-bottom: 0.5rem;
-            }
-
-            .filter-bar .form-select,
-            .filter-bar .btn {
-                border-radius: 30px;
-                font-size: 0.95rem;
-                padding: 0.6rem 1.2rem;
-            }
-
-            .filter-bar .form-select {
-                border: 2px solid #eee;
-                transition: all 0.3s ease;
-            }
-
-                .filter-bar .form-select:focus {
-                    border-color: var(--primary);
-                    box-shadow: 0 0 0 0.2rem rgba(255, 59, 48, 0.25);
-                }
-
-            .filter-bar .btn-danger {
-                background: var(--primary-gradient);
-                border: none;
-                font-weight: 600;
-                transition: all 0.3s ease;
-                box-shadow: 0 3px 10px rgba(255,59,48,0.3);
-            }
-
-                .filter-bar .btn-danger:hover {
-                    transform: translateY(-3px);
-                    box-shadow: 0 8px 20px rgba(255,59,48,0.4);
-                }
-
-        .product-item {
-            background: white;
-            border-radius: 18px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-            transition: all 0.35s ease;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            text-align: center;
-            position: relative;
-        }
-
-            .product-item:hover {
-                transform: translateY(-10px);
-                box-shadow: 0 15px 30px rgba(0,0,0,0.15);
-            }
-
-                .product-item:hover .product-img {
-                    transform: scale(1.08);
-                }
-
-        .product-img-container {
-            position: relative;
-            width: 100%;
-            height: 180px;
-            background: #f9f9f9;
-            border-radius: 12px;
-            overflow: hidden;
-            margin-bottom: 1rem;
-        }
-
-        .product-img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            padding: 12px;
-            transition: transform 0.3s ease;
-        }
-
-        .product-discount-tag {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background: var(--primary-gradient);
-            color: white;
-            font-weight: bold;
-            font-size: 0.85rem;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 3px 12px rgba(255,59,48,0.5);
-            z-index: 10;
-            border: 3px solid white;
-            transition: all 0.3s ease;
-        }
-
-            .product-discount-tag:hover {
-                transform: scale(1.1);
-            }
-
-        .product-name {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--text-dark);
-            margin: 0.5rem 0 0.8rem;
-            line-height: 1.4;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            height: 2.8em;
-            padding: 0 0.5rem;
-        }
-
-        .price-container {
-            margin-top: auto;
-            padding: 0.5rem 0;
-        }
-
-        .price-old {
-            color: #999;
-            text-decoration: line-through;
-            font-size: 0.9rem;
-        }
-
-        .price-new {
-            color: var(--primary);
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
-
-        .btn-detail {
-            padding: 0.5rem 1.2rem;
-            border-radius: 30px;
-            background: var(--primary-gradient);
-            color: white;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            display: inline-block;
-            margin: 0.5rem 0;
-        }
-
-            .btn-detail:hover {
-                background: linear-gradient(135deg, #ff6b6b, #ff3b30);
-                transform: translateY(-2px);
-                color: white;
-                box-shadow: 0 5px 15px rgba(255,59,48,0.3);
-            }
-
-        /* Cải thiện giao diện cho trang không có sản phẩm */
-        .text-muted.fs-5 {
-            padding: 2rem;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            margin: 1rem 0;
-        }
-
-        /* Hiệu ứng cho section */
-        .py-5.bg-light {
-            position: relative;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
-        }
-
-            .py-5.bg-light:before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                height: 5px;
-                background: var(--primary-gradient);
-            }
-                background: var(--primary-gradient);
-            }
-
-        /* BANNER STYLES - SMOOTH & PROFESSIONAL */
-        .promo-banner {
-            position: relative;
-            border-radius: 20px;
-            overflow: hidden;
-            margin-bottom: 3rem;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            min-height: 260px;
-            padding: 0 5%;
-        }
-
-        /* Subtle Background Overlay (Glassmorphism-ish) */
-        .promo-banner::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
-            z-index: 1;
-        }
-
-        .promo-content {
-            position: relative;
-            z-index: 5;
-            max-width: 65%;
-            color: white;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .promo-tag {
-            display: inline-block;
-            background: rgba(255,255,255,0.25);
-            backdrop-filter: blur(4px);
-            padding: 6px 14px;
-            border-radius: 4px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            font-size: 0.85rem;
-            margin-bottom: 0.8rem;
-            text-transform: uppercase;
-        }
-
-        .promo-title {
-            font-size: 3rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            line-height: 1.1;
-            margin-bottom: 1rem;
-        }
-        
-        .promo-title span {
-            color: #fff;
-            font-style: italic;
-        }
-
-        .promo-desc {
-            font-size: 1.1rem;
-            margin-bottom: 2rem;
-            opacity: 0.95;
-            font-weight: 400;
-            max-width: 80%;
-        }
-
-        .promo-badge {
-            background: #fff;
-            color: #333;
-            padding: 0.8rem 2rem;
-            border-radius: 50px;
-            font-weight: 800;
-            font-size: 1.2rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            z-index: 6;
-            position: relative;
-        }
-
-        /* ANIMATIONS CONTAINERS */
-        .effect-container {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            overflow: hidden;
-            z-index: 2;
-            pointer-events: none;
-        }
-
-        /* --- THEMES --- */
-
-        /* DEFAULT / SUMMER: Smooth Blue-Cyan Gradient + Sun Rays */
-        .theme-default, .theme-summer {
-            background: linear-gradient(120deg, #4facfe 0%, #00f2fe 100%);
-        }
-        .theme-default .promo-badge { color: #0072ff; }
-
-        /* BLACK FRIDAY: Smooth Purple-Black + Glitch/Neon vibe */
-        .theme-blackfriday {
-            background: linear-gradient(120deg, #240b36 0%, #c31432 100%);
-        }
-        .theme-blackfriday .promo-badge { background: #f6d365; color: #000; }
-
-        /* CHRISTMAS: Deep Green-Red + SNOWFALL */
-        .theme-christmas {
-            background: linear-gradient(120deg, #0f2027 0%, #203a43 50%, #2c5364 100%); /* Night Sky */
-        }
-        .theme-christmas .promo-badge { color: #d63333; }
-        
-        /* Snow Animation */
-        .snowflake {
-            position: absolute;
-            top: -20px;
-            color: #fff;
-            font-size: 1.2rem;
-            opacity: 0.8;
-            animation: fall linear infinite;
-        }
-
-        /* Tet: Red Envelope 🧧 & Peach Blossom 🌸 */
-        .tet-item {
-            position: absolute;
-            top: -20px;
-            font-size: 1.5rem;
-            animation: flower-fall linear infinite;
-        }
-
-        /* Summer: Yellow Leaf 🍂 */
-        .summer-leaf {
-            position: absolute;
-            top: -20px;
-            font-size: 1.2rem;
-            animation: flower-fall linear infinite;
-        }
-
-        /* Black Friday: Percent % or Tag 🏷️ */
-        .bf-item {
-            position: absolute;
-            top: -20px;
-            color: rgba(255,255,255,0.3);
-            font-weight: 900;
-            font-size: 1.5rem;
-            animation: fall linear infinite;
-        }
-
-        @@keyframes fall {
-            0% { transform: translateY(-10vh) translateX(0) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(100vh) translateX(20px) rotate(20deg); opacity: 0.3; }
-        }
-
-        @@keyframes flower-fall {
-            0% { transform: translateY(-10px) rotate(0deg) translateX(0); opacity: 1; }
-            50% { transform: translateY(50vh) rotate(180deg) translateX(20px); opacity: 0.8; }
-            100% { transform: translateY(100vh) rotate(360deg) translateX(-20px); opacity: 0; }
-        }
-
-
-
-        /* Enhanced Price Tag */
-        .product-discount-tag {
-            background: #ff3b30; /* Fallback */
-            font-weight: 900;
-            font-size: 1rem;
-            width: 55px;
-            height: 55px;
-            box-shadow: 0 5px 15px rgba(255,59,48,0.4);
-            border: 2px solid rgba(255,255,255,0.8);
-        }
-    </style>
-
-</head>
-
-<body>
-    <!-- BANNER SECTION REMOVED AS REQUESTED -->
-    <!-- 
-    <div class="container mt-4">
-        @if (ViewBag.FeaturedPromotion != null)
+<div class="container my-5">
+    
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+        @using (Html.BeginForm("Index", "TrangChu", FormMethod.Get, new { @class = "row g-3 align-items-end" }))
         {
-            var p = ViewBag.FeaturedPromotion as WebBanGIay.Models.KHUYENMAI;
-            var theme = string.IsNullOrEmpty(p.MOTA) ? "default" : p.MOTA;
-            
-            <div class="promo-banner theme-@theme">
-               ...
+            <div class="col-md-4 col-lg-3">
+                <label class="form-label">Tên sản phẩm</label>
+                <input type="text" name="TenSP" class="form-control form-select shadow-none" placeholder="Nhập tên giày..." value="@Request.QueryString["TenSP"]">
+            </div>
+            <div class="col-md-3 col-lg-2">
+                <label class="form-label">Mức giá</label>
+                <select name="MucGia" class="form-select shadow-none">
+                    <option value="">Tất cả</option>
+                    <option value="duoi-500" @(Request.QueryString["MucGia"] == "duoi-500" ? "selected" : "")>Dưới 500k</option>
+                    <option value="500-1tr" @(Request.QueryString["MucGia"] == "500-1tr" ? "selected" : "")>500k - 1 triệu</option>
+                    <option value="tren-1tr" @(Request.QueryString["MucGia"] == "tren-1tr" ? "selected" : "")>Trên 1 triệu</option>
+                </select>
+            </div>
+            <div class="col-md-3 col-lg-2">
+                <label class="form-label">Sắp xếp</label>
+                <select name="SapXep" class="form-select shadow-none">
+                    <option value="">Mặc định</option>
+                    <option value="gia-tang" @(Request.QueryString["SapXep"] == "gia-tang" ? "selected" : "")>Giá tăng dần</option>
+                    <option value="gia-giam" @(Request.QueryString["SapXep"] == "gia-giam" ? "selected" : "")>Giá giảm dần</option>
+                    <option value="moi-nhat" @(Request.QueryString["SapXep"] == "moi-nhat" ? "selected" : "")>Mới nhất</option>
+                </select>
+            </div>
+            <div class="col-md-2 col-lg-2">
+                 <!-- Nút tìm kiếm -->
+                <button type="submit" class="btn btn-danger w-100 h-100 d-flex align-items-center justify-content-center">
+                    <i class="fas fa-filter me-2"></i> Lọc
+                </button>
+            </div>
+             <div class="col-md-2 col-lg-3 text-end d-none d-lg-block">
+                @if (Request.QueryString.Count > 0)
+                {
+                     <a href="@Url.Action("Index")" class="btn btn-outline-secondary rounded-pill px-4"><i class="fas fa-undo me-1"></i> Xóa lọc</a>
+                }
             </div>
         }
-    </div> 
-    -->
+    </div>
 
-    <!-- Animation Container (Moved outside banner to explicit container if needed, but since banner is gone, relevant theme animations might be lost unless we keep the container) -->
-    <!-- The user said "increase amount of flowers... for sale programs". If I remove the banner, the SALE PROGRAM itself might not be visible? -->
-    <!-- WAIT. If "bỏ banner" means remove it, then there is no PLACE for flowers? -->
-    <!-- The falling items were INSIDE .promo-banner. If I remove .promo-banner, I remove the flowers too. -->
-    <!-- Maybe the user wants the falling items on the WHOLE body? -->
-    <!-- The User Request: "- tăng lượng hoa/lì xì/ lá rơi theo chương trình sale nhiều hơn" -->
-    <!-- If I remove the banner, where do the flowers go? -->
-    <!-- Maybe they want the banner GONE but the Effects TO STAY? -->
-    <!-- Or maybe "bỏ banner hiển thị trong trang chủ ( ở phần quản lý khuyến mãi admin)" means something else? -->
-    <!-- Re-reading: "remove the banner display in home page (in the admin promotion management section)" -->
-    <!-- Could it mean "Remove the banner FROM THE ADMIN PAGE"? No, "trong trang chủ". -->
-    
-    <!-- Hypothesis: User wants the banner gone, but maybe kept the falling effect globally? Or maybe they just hate the banner. -->
-    <!-- But then "Increase flowers" implies they still want the flowers. -->
-    <!-- STARTING STRATEGY: I will comment out the banner content BUT keep the animation container? No, it's relative to banner. -->
-    <!-- I will make the animations GLOBAL (fixed position) so they appear over the site, and REMOVE the banner image/text. -->
-    <!-- This satisfies both: Banner text/box gone, but "Flowers/Red Envelopes" remain and are increased. -->
-
-    @if (ViewBag.FeaturedPromotion != null)
+    @if (banChay.Count > 0)
     {
-        var p = ViewBag.FeaturedPromotion as WebBanGIay.Models.KHUYENMAI;
-        var theme = string.IsNullOrEmpty(p.MOTA) ? "default" : p.MOTA;
-        
-        <!-- GLOBAL EFFECTS CONTAINER -->
-        <div class="effect-container-global">
-             <style>
-                .effect-container-global {
-                    position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
-                    pointer-events: none; z-index: 9999; overflow: hidden;
-                }
-             </style>
-             
-            @if(theme == "christmas") {
-                for(int i=0; i<15; i++) { <div class="snowflake" style="left: @(i*7)%; animation-duration: @(3+i%5)s; animation-delay: @(i%3)s;">❄</div> }
-            }
-            @if(theme == "tet") {
-                for(int i=0; i<15; i++) { 
-                    <div class="tet-item" style="left: @(i*7)%; animation-duration: @(4+i%5)s; animation-delay: @(i%3)s;">@(i%2==0?"🧧":"🌸")</div>
-                }
-            }
-            @if(theme == "summer" || theme == "default") {
-                 for(int i=0; i<15; i++) { 
-                    <div class="summer-leaf" style="left: @(i*7)%; animation-duration: @(5+i%5)s; animation-delay: @(i%3)s;">@(i%2==0?"🍂":"🍃")</div>
-                 }
-            }
-            @if(theme == "blackfriday") {
-                for(int i=0; i<15; i++) { 
-                    <div class="bf-item" style="left: @(i*7)%; animation-duration: @(4+i%5)s; animation-delay: @(i%3)s;">@(i%2==0?"%":"SALE")</div>
-                }
+        <h2 class="section-title">Sản phẩm nổi bật</h2>
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 mb-5">
+            @foreach (var item in banChay)
+            {
+                <div class="col">
+                    <div class="product-item">
+                        @if (item.GIAKHUYENMAI.HasValue && item.GIAKHUYENMAI > 0)
+                        {
+                            <span class="badge-percent">Sale</span>
+                        }
+                        <div class="product-img-container">
+                             @{
+                                 string imgHinhAnh = !string.IsNullOrEmpty(item.HINHANH) ? "/source/images/products/" + item.HINHANH : "https://via.placeholder.com/300x300?text=No+Image";
+                             }
+                            <img src="@imgHinhAnh" class="product-img" alt="@item.TENSANPHAM" loading="lazy">
+                        </div>
+                        <div class="p-3 d-flex flex-column h-100">
+                            <div class="product-title">
+                                <a href="@Url.Action("ChiTiet", "Products", new { id = item.MASANPHAM.Trim() })" title="@item.TENSANPHAM">
+                                    @item.TENSANPHAM
+                                </a>
+                             </div>
+                            
+                             <div class="price-wrap">
+                                 @if (item.GIAKHUYENMAI.HasValue && item.GIAKHUYENMAI > 0)
+                                 {
+                                     <span class="price">@String.Format("{0:0,0}", item.GIAKHUYENMAI) ₫</span>
+                                     <span class="price-old">@String.Format("{0:0,0}", item.GIA) ₫</span>
+                                 }
+                                 else
+                                 {
+                                     <span class="price">@String.Format("{0:0,0}", item.GIA) ₫</span>
+                                 }
+                             </div>
+
+                             <a href="@Url.Action("ChiTiet", "Products", new { id = item.MASANPHAM.Trim() })" class="btn btn-buy w-100 py-2">
+                                <i class="fas fa-info-circle me-1"></i> Xem chi tiết
+                             </a>
+                        </div>
+                    </div>
+                </div>
             }
         </div>
     }
 
-    <!-- FILTER BAR -->
-    <div class="container">
-        <div class="filter-bar">
-            <form id="filterForm" method="get" class="row g-3 align-items-end">
-
-                <div class="col-12 col-md-4">
-                    <label class="form-label">Hãng giày</label>
-                    <select name="hang" class="form-select">
-                        <option value="">Tất cả hãng</option>
-                        @foreach (var h in ViewBag.HangList)
-                        {
-                            <option value="@h" @(ViewBag.HangSelected == h ? "selected" : "")>@h</option>
-                        }
-                    </select>
-                </div>
-
-                <div class="col-12 col-md-3">
-                    <label class="form-label">Giá từ</label>
-                    <select name="giaTu" class="form-select">
-                        <option value="">Không giới hạn</option>
-                        <option value="2000000" @(ViewBag.GiaTu == "2000000" ? "selected" : "")>Từ 2 triệu</option>
-                        <option value="4000000" @(ViewBag.GiaTu == "4000000" ? "selected" : "")>Từ 4 triệu</option>
-                    </select>
-                </div>
-
-                <div class="col-12 col-md-3">
-                    <label class="form-label">Giá đến</label>
-                    <select name="giaDen" class="form-select">
-                        <option value="">Không giới hạn</option>
-                        <option value="2000000" @(ViewBag.GiaDen == "2000000" ? "selected" : "")>Dưới 2 triệu</option>
-                        <option value="4000000" @(ViewBag.GiaDen == "4000000" ? "selected" : "")>Dưới 4 triệu</option>
-                        <option value="999999999" @(ViewBag.GiaDen == "999999999" ? "selected" : "")>Trên 4 triệu</option>
-                    </select>
-                </div>
-
-                <div class="col-12 col-md-2">
-                    <button type="submit" class="btn btn-danger w-100">Lọc</button>
-                </div>
-
-            </form>
-        </div>
-    </div>
-
-    <!-- PRODUCT LIST -->
-    <section class="py-5 bg-light">
-        <div class="container">
-            <h2 class="section-title">Tất cả sản phẩm</h2>
-
-            <div id="sanPhamList" class="row">
-
-                @if (banChay.Any())
-                {
-                    foreach (var sp in banChay)
-                    {
-                                        decimal finalPrice = sp.GIA;
-
-                                        double percent = 0;
-                                        if (sp.KHUYENMAI != null && sp.KHUYENMAI.TRANGTHAI == true && 
-                                            DateTime.Now >= sp.KHUYENMAI.NGAYBATDAU && DateTime.Now <= sp.KHUYENMAI.NGAYKETTHUC)
-                                        {
-                                            percent = sp.KHUYENMAI.PHANTRAMGIAM;
-                                            finalPrice = sp.GIA * (decimal)(100 - percent) / 100;
-                                        }
-                                        else if (sp.GIAKHUYENMAI > 0 && sp.GIAKHUYENMAI < sp.GIA)
-                                        {
-                                            // Fallback to old manually set sale price if any
-                                            finalPrice = sp.GIAKHUYENMAI.Value;
-                                            percent = Math.Round((double)((sp.GIA - finalPrice) / sp.GIA * 100));
-                                        }
-
-
-                                    <div class="col-6 col-md-3 mb-4">
-                                        <div class="product-item">
-                                            <div class="product-img-container">
-
-                                    @if (percent > 0)
-                                    {
-                                        <div class="product-discount-tag">-@percent%</div>
-                                    }
-
-                                    <a href="/Products/ChiTiet/@sp.MASANPHAM">
-                                        <img src="@(string.IsNullOrWhiteSpace(sp.HINHANH)
-                                            ? "/source/images/products/no-image.jpg"
-                                            : "/source/images/products/" + sp.HINHANH)"
-                                             alt="@sp.TENSANPHAM"
-                                             class="product-img"
-                                             loading="lazy">
-                                    </a>
-                                </div>
-
-                                <!-- TÊN -->
-                                <p class="product-name">@sp.TENSANPHAM</p>
-
-                                <!-- GIÁ -->
-                                <div class="price-container">
-                                    @if (percent > 0)
-                                    {
-                                        <span class="price-old">@String.Format("{0:N0}", sp.GIA)đ</span>
-                                        <div class="price-new">@String.Format("{0:N0}", finalPrice)đ</div>
-                                    }
-                                    else
-                                    {
-                                        <div class="price-new">@String.Format("{0:N0}", sp.GIA)đ</div>
-                                    }
-                                </div>
-
-                                <a class="btn-detail" href="/Products/ChiTiet/@sp.MASANPHAM">Xem chi tiết</a>
-
-                            </div>
-                        </div>
-                    }
-                }
-                else
-                {
-                    <div class="col-12 text-center py-5">
-                        <p class="text-muted fs-5">Không tìm thấy sản phẩm phù hợp.</p>
-                    </div>
-                }
-
-            </div>
-        </div>
-    </section>
-
-    <!-- AJAX FILTER -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function () {
-
-            let currentScroll = 0;
-
-            $('#filterForm').on('submit', function (e) {
-                e.preventDefault();
-                currentScroll = $(window).scrollTop();
-
-                const formData = $(this).serialize();
-
-                $.get(window.location.pathname, formData, function (data) {
-
-                    $('#sanPhamList').html($(data).find('#sanPhamList').html());
-
-                    setTimeout(() => $(window).scrollTop(currentScroll), 100);
-
-                    const newUrl = window.location.pathname + '?' + formData;
-                    history.replaceState(null, null, newUrl);
-
-                }).fail(function () {
-                    alert('Có lỗi xảy ra khi tải sản phẩm. Vui lòng thử lại.');
-                });
-            });
-
-            if (window.location.search) {
-                $('#filterForm').trigger('submit');
-            }
-        });
-    </script>
-
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    @{ Html.RenderAction("Index", "Chatbot"); }
-</body>
-</html>
+</div>

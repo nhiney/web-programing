@@ -1,0 +1,92 @@
+@{
+    ViewBag.Title = "Xác thực OTP";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow-lg border-0 text-center">
+                <div class="card-body p-5">
+                    <div class="mb-4">
+                        <div class="icon-circle bg-primary bg-opacity-10 text-primary mx-auto mb-3" style="width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem;">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <h4 class="fw-bold">Xác thực OTP</h4>
+                        <p class="text-muted">Mã xác thực đã được gửi đến <strong>Email</strong> đăng ký của bạn.</p>
+                    </div>
+
+                    @if (ViewBag.Error != null)
+                    {
+                        <div class="alert alert-danger">@ViewBag.Error</div>
+                    }
+
+                    @using (Html.BeginForm("VerifyOTP", "Payment", FormMethod.Post, new { id = "otpForm" }))
+                    {
+                        <div class="d-flex justify-content-between gap-2 mb-4 otp-container">
+                            <input type="text" name="otp1" class="form-control text-center otp-input" maxlength="1" required autofocus>
+                            <input type="text" name="otp2" class="form-control text-center otp-input" maxlength="1" required>
+                            <input type="text" name="otp3" class="form-control text-center otp-input" maxlength="1" required>
+                            <input type="text" name="otp4" class="form-control text-center otp-input" maxlength="1" required>
+                            <input type="text" name="otp5" class="form-control text-center otp-input" maxlength="1" required>
+                            <input type="text" name="otp6" class="form-control text-center otp-input" maxlength="1" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-3 fw-bold mb-3">Xác Nhân</button>
+                    }
+
+                    <div class="text-muted small">
+                        Bạn chưa nhận được mã? <a href="#" class="text-decoration-none fw-bold" id="resend-link">Gửi lại (30s)</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .otp-input {
+        width: 100%;
+        height: 50px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        border-radius: 8px;
+    }
+    .otp-input:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.25);
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const inputs = document.querySelectorAll(".otp-input");
+        
+        inputs.forEach((input, index) => {
+            input.addEventListener("keyup", (e) => {
+                if (e.key >= 0 && e.key <= 9) {
+                    if (index < inputs.length - 1) inputs[index + 1].focus();
+                } else if (e.key === "Backspace") {
+                    if (index > 0) inputs[index - 1].focus();
+                }
+            });
+        });
+
+        // Timer Simulation
+        let timeLeft = 30;
+        const resendLink = document.getElementById('resend-link');
+        const timer = setInterval(() => {
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                resendLink.innerText = "Gửi lại ngay";
+                resendLink.style.pointerEvents = "auto";
+                resendLink.style.color = "#0d6efd";
+            } else {
+                 resendLink.innerText = `Gửi lại (${timeLeft}s)`;
+                 resendLink.style.pointerEvents = "none";
+                 resendLink.style.color = "#aaa";
+                 timeLeft--;
+            }
+        }, 1000);
+    });
+</script>

@@ -151,8 +151,6 @@ CREATE TABLE LIENHE (
 );
 GO  
 
-
-
 select*from TONKHO_SIZE
 select*from DANHGIASANPHAM
 select*from SANPHAM
@@ -388,6 +386,7 @@ select*from NHACUNGCAP;
 select*from KHACHHANG;
 select*from TONKHO_SIZE;
 select*from BIEN_THE_SAN_PHAM;
+
 
 
 -- Add MAKHUYENMAI to SANPHAM table

@@ -18,9 +18,18 @@ namespace WebBanGIay.Controllers
             {
                 return HttpNotFound("Không tìm thấy sản phẩm!");
             }
+            id = id.Trim();
 
-            // Lấy sản phẩm theo mã, bao gồm nhà cung cấp
-            var sanPham = db.SANPHAM.Include(s => s.NHACUNGCAP).Include(s => s.KHUYENMAI).FirstOrDefault(s => s.MASANPHAM == id);
+            // Tìm mã sản phẩm chính xác từ DB (bỏ qua khoảng trắng thừa)
+            var validId = db.Database.SqlQuery<string>("SELECT MASANPHAM FROM SANPHAM WHERE LTRIM(RTRIM(MASANPHAM)) = {0}", id).FirstOrDefault();
+
+            if (validId == null) return HttpNotFound("Sản phẩm không tồn tại!");
+
+            // Lấy sản phẩm theo mã chính xác tìm được
+            var sanPham = db.SANPHAM
+                .Include(s => s.NHACUNGCAP)
+                .Include(s => s.KHUYENMAI)
+                .FirstOrDefault(s => s.MASANPHAM == validId);
 
             if (sanPham == null) return HttpNotFound("Sản phẩm không tồn tại!");
 

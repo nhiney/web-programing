@@ -1,0 +1,164 @@
+/* Dark Mode Variables Override */
+[data-theme="dark"] {
+    --dark-color: #f8f9fa;
+    --light-color: #1a1a1a;
+    --text-color: #e0e0e0;
+    --bg-body: #121212;
+    --bg-card: #1e1e1e;
+    --bg-header: #1e1e1e;
+    --border-color: #333;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+
+    /* Bootstrap overrides variables */
+    --bs-body-bg: #121212;
+    --bs-body-color: #e0e0e0;
+}
+
+[data-theme="dark"] body {
+    background-color: var(--bg-body);
+    color: var(--text-color);
+}
+
+/* Sections Backgrounds */
+[data-theme="dark"] .features-section,
+[data-theme="dark"] .brand-menu,
+[data-theme="dark"] .payment-section,
+[data-theme="dark"] .bg-white,
+[data-theme="dark"] .bg-light {
+    background-color: var(--bg-body) !important;
+    color: var(--text-color);
+}
+
+/* Header & Nav */
+[data-theme="dark"] header {
+    background: var(--bg-header);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid #333;
+}
+
+[data-theme="dark"] .navbar-light .navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+[data-theme="dark"] .navbar-light .navbar-nav .nav-link:hover,
+[data-theme="dark"] .navbar-light .navbar-nav .nav-link.active {
+    color: #ff6b6b;
+}
+
+[data-theme="dark"] .navbar-brand {
+    color: #ff6b6b !important;
+}
+
+/* Inputs & global text */
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] select,
+[data-theme="dark"] .form-control {
+    background-color: #2d2d2d;
+    border-color: #444;
+    color: #fff;
+}
+
+[data-theme="dark"] .form-control:focus {
+    background-color: #333;
+    color: #fff;
+    border-color: #ff6b6b;
+}
+
+[data-theme="dark"] .search-input {
+    background: #2d2d2d;
+    border-color: #444;
+    color: white;
+}
+
+/* User Menu & Icons */
+[data-theme="dark"] .user-menu,
+[data-theme="dark"] .cart-icon,
+[data-theme="dark"] #themeToggle,
+[data-theme="dark"] .text-dark,
+[data-theme="dark"] .text-muted {
+    color: #e0e0e0 !important;
+}
+
+/* Cards (Product, Feature, Payment) */
+[data-theme="dark"] .product-card,
+[data-theme="dark"] .feature-card,
+[data-theme="dark"] .payment-method,
+[data-theme="dark"] .card {
+    background: var(--bg-card);
+    border: 1px solid #333;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .product-title,
+[data-theme="dark"] .feature-title,
+[data-theme="dark"] .payment-name,
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] h5,
+[data-theme="dark"] h6 {
+    color: #fff;
+}
+
+[data-theme="dark"] .section-title {
+    color: #fff;
+}
+
+[data-theme="dark"] .section-subtitle {
+    color: #aaa;
+}
+
+[data-theme="dark"] .product-description,
+[data-theme="dark"] .feature-description {
+    color: #bbb;
+}
+
+/* Menus & Dropdowns */
+[data-theme="dark"] .dropdown-menu {
+    background: #2d2d2d;
+    border: 1px solid #444;
+}
+
+[data-theme="dark"] .dropdown-item {
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .dropdown-item:hover {
+    background: #3d3d3d;
+    color: #fff;
+}
+
+/* Mobile Menu */
+[data-theme="dark"] .mobile-menu {
+    background: var(--bg-card);
+    border-left: 1px solid #333;
+}
+
+[data-theme="dark"] .mobile-menu-item {
+    border-bottom-color: #333;
+}
+
+/* Tables */
+[data-theme="dark"] .table {
+    color: #e0e0e0;
+    background-color: var(--bg-body);
+}
+
+[data-theme="dark"] .theme-toggle-icon:before {
+    content: "\f185";
+    color: #ffd700;
+}
+
+/* Icons specifically in dark mode */
+[data-theme="dark"] .fas,
+[data-theme="dark"] .fab,
+[data-theme="dark"] .far {
+    /* brightness adjustments if needed, usually text color handles it */
+}
+
+/* Payment Section specific override */
+[data-theme="dark"] .payment-section {
+    background-color: var(--bg-body) !important;
+}

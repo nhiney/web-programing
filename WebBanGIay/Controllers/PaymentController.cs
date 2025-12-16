@@ -1,170 +1,248 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System.Net.Http;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
 using System.Web.Mvc;
-using PayOS;
 using WebBanGIay.Models;
+using WebBanGIay.Helpers;
+using PayOS;
+using PayOS.Models.V2.PaymentRequests;
+using System.Configuration; // For Web.config
+using System.Collections.Generic;
 
 namespace WebBanGIay.Controllers
 {
     public class PaymentController : Controller
     {
-        private string clientId = "639b671b-873b-4967-b234-33c2c689191b";
-        private string apiKey = "6f3f0c32-be70-4b6a-bdc9-e82a13e6da3f";
-        private string checksumKey = "b3c65329b34e21cf5059f7ef4721c69f68a72ac6192a9a50da071a96d1d95a62";
+        private readonly QuanLyBanGiayEntities1 db = new QuanLyBanGiayEntities1();
+        private readonly CartService cartService = new CartService();
 
-        private string endpoint = "https://api-merchant.payos.vn/v2/payment-requests";
-
-        private string returnUrl = "https://localhost:44300/Payment/Return";
-        private string cancelUrl = "https://localhost:44300/Payment/Cancel";
-
-        // ✅ TẠO LINK THANH TOÁN
-        public async Task<ActionResult> Payment(long amount)
+        // GET: Payment/Index
+        // Screen to select payment method
+        public ActionResult Index()
         {
-            var paymentBody = new
+            var cart = cartService.GetCart();
+            if (cart == null || cart.Count == 0)
             {
-                orderCode = DateTime.Now.Ticks,
-                amount = amount,
-                description = "Thanh toán đơn hàng",
-                // Chú ý: Nên dùng biến returnUrl/cancelUrl đã khai báo ở đầu class để dễ quản lý
-                returnUrl = this.returnUrl,
-                cancelUrl = this.cancelUrl
-            };
+                return RedirectToAction("Index", "Cart");
+            }
+            
+            ViewBag.TongTien = cartService.TongTien();
+            return View();
+        }
 
-            // 2. TÍNH TOÁN SIGNATURE
-            string signature = CreateSignature(paymentBody, checksumKey);
+        // GET: Payment/Gateway_QR
+        public ActionResult Gateway_QR()
+        {
+            var total = cartService.TongTien();
+            ViewBag.TongTien = total;
+            // Generate a fake transaction ID for the QR
+            ViewBag.TxnId = "VNPAY" + DateTime.Now.Ticks.ToString().Substring(10);
+            return View();
+        }
 
-            // 3. TẠO REQUEST OBJECT CHUNG
-            // Dữ liệu PayOS cần là tất cả các trường order (amount, orderCode,...) 
-            // VÀ signature, TẤT CẢ Ở CÙNG CẤP ĐỘ GỐC.
+        // GET: Payment/Gateway_BankingQR
+        public ActionResult Gateway_BankingQR()
+        {
+            var total = cartService.TongTien();
+            ViewBag.TongTien = total;
+            
+            // Generate VietQR Link
+            string content = "PAY" + DateTime.Now.ToString("ddHHmm");
+            ViewBag.QRUrl = $"https://img.vietqr.io/image/MB-0909000111-compact.png?amount={total}&addInfo={content}";
 
-            // Chuyển paymentBody thành JObject
-            var jsonBody = JObject.FromObject(paymentBody);
-
-            // Thêm Signature vào JObject gốc
-            jsonBody.Add("signature", signature); // <<< THÊM SIGNATURE NGANG HÀNG
-
-            // Sử dụng JObject này cho StringContent
-            string jsonContent = jsonBody.ToString(Formatting.None); // Bỏ format để gọn gàng hơn
-
-            // 4. GỬI REQUEST
-            using (HttpClient client = new HttpClient())
+            // Pre-fill user info
+            if (Session["UserID"] != null)
             {
-                client.DefaultRequestHeaders.Add("x-client-id", clientId);
-                client.DefaultRequestHeaders.Add("x-api-key", apiKey);
-
-                var content = new StringContent(
-                    jsonContent, // SỬ DỤNG JSON ĐƯỢC CHỈNH SỬA Ở BƯỚC 3
-                    Encoding.UTF8,
-                    "application/json");
-
-                var response = await client.PostAsync(
-                    "https://api-merchant.payos.vn/v2/payment-requests",
-                    content);
-
-                // ... (Phần xử lý response tiếp theo không đổi)
-                var json = await response.Content.ReadAsStringAsync();
-                var data = JObject.Parse(json);
-
-                // Log debug (nên kiểm tra file log này sau khi chạy)
-                System.IO.File.WriteAllText(
-                    Server.MapPath("~/App_Data/payos_log.txt"),
-                    "Gửi đi: " + jsonContent + "\n" + "Nhận về: " + json);
-
-
-                if (data["code"].ToString() != "00")
-                    throw new Exception("PayOS không tạo được link: " + json);
-
-                // data["data"] sẽ là một JObject chứa link thanh toán, cần trích xuất giá trị URL 
-                // Dựa trên tài liệu mới, nó là data["data"]["checkoutUrl"]
-
-                // Cần kiểm tra cấu trúc của response, nếu data["data"] là object:
-                if (data["data"] is JObject dataObject && dataObject.ContainsKey("checkoutUrl"))
+                string userId = Session["UserID"] as string;
+                var user = db.TAIKHOAN.FirstOrDefault(u => u.MATAIKHOAN == userId);
+                if (user != null && user.KHACHHANG != null)
                 {
-                    return Redirect(dataObject["checkoutUrl"].ToString());
+                    ViewBag.UserEmail = user.KHACHHANG.EMAIL;
+                    ViewBag.UserAddress = user.KHACHHANG.DIACHI;
                 }
-
-                // Nếu cấu trúc cũ (data["data"] là string URL)
-                // return Redirect(data["data"].ToString()); 
-
-                throw new Exception("Cấu trúc phản hồi PayOS không hợp lệ: " + json);
             }
+            return View();
         }
 
-        // ---------- RETURN URL ----------
-        public ActionResult Return()
+        [HttpPost]
+        public ActionResult ConfirmTransfer(string email, string address)
         {
-            var code = Request.QueryString["code"];
-            var status = Request.QueryString["status"];
-            var orderCode = Request.QueryString["orderCode"];
+            // Sends OTP to user email (provided or default)
+            string otp = new Random().Next(100000, 999999).ToString();
+            Session["OTP_Code"] = otp;
+            Session["PendingPaymentMethod"] = "BankingQR"; 
+            Session["PendingOTP"] = true; 
+            
+            // Store new address for order later if needed
+            if (!string.IsNullOrEmpty(address))
+            {
+                Session["DeliveryAddress"] = address;
+            }
 
-            if (code == "00" && status == "PAID")
+            // Send Email
+            try 
             {
-                ViewBag.Message = "Thanh toán thành công!";
-                ViewBag.OrderCode = orderCode;
-            }
-            else
-            {
-                ViewBag.Message = "Thanh toán thất bại hoặc bị hủy";
-            }
+                 // If email not provided in form, fallback to DB (redundancy)
+                 if (string.IsNullOrEmpty(email))
+                 {
+                     string userId = Session["UserID"] as string;
+                     var user = db.TAIKHOAN.FirstOrDefault(u => u.MATAIKHOAN == userId);
+                     email = user?.KHACHHANG?.EMAIL ?? "test@example.com";
+                 }
+
+                 string subject = "Mã xác thực thanh toán - MEODIGIAY";
+                 string body = $"<h3>Mã OTP của bạn là: <b style='color:red; font-size: 20px;'>{otp}</b></h3><p>Mã có hiệu lực trong 5 phút.</p>";
+                 
+                 MailHelper.SendMail(email, subject, body);
+            } 
+            catch { /* Log error */ }
+
+            return RedirectToAction("Gateway_OTP");
+        }
+
+        // GET: Payment/Gateway_Card
+        public ActionResult Gateway_Card()
+        {
+            var total = cartService.TongTien();
+            ViewBag.TongTien = total;
+            return View();
+        }
+
+        // GET: Payment/Gateway_OTP
+        // Simulates OTP screen
+        public ActionResult Gateway_OTP()
+        {
+            // Allow access if either Card or BankingQR is pending
+            if (Session["PendingOTP"] == null && Session["PendingCardAuth"] == null)
+                return RedirectToAction("Index");
 
             return View();
         }
 
-        public ActionResult Cancel()
+        [HttpPost]
+        public ActionResult ProcessCard(string cardNumber, string holder, string expiry, string cvv)
         {
-            ViewBag.Message = "Bạn đã hủy thanh toán";
-            return View();
-        }
-        private string CreateSignature(object body, string checksumKey)
-        {
-            // 1. Phân tích Object thành JObject để dễ dàng thao tác với thuộc tính
-            var json = JObject.Parse(JsonConvert.SerializeObject(body));
-
-            // 2. Sắp xếp các thuộc tính theo thứ tự Alphabet và tạo cặp key=value
-            var sorted = json.Properties()
-                             // Bắt buộc sắp xếp theo tên thuộc tính
-                             .OrderBy(p => p.Name)
-                             .Select(p =>
-                             {
-                                 // Lấy giá trị chuỗi (cần đảm bảo không phải là null)
-                                 string value = p.Value.ToString();
-
-                                 // *** CHỈNH SỬA QUAN TRỌNG: URL Encode giá trị (value) ***
-                                 // Điều này là cần thiết để xử lý các ký tự đặc biệt trong URL (như returnUrl) 
-                                 // hoặc description để PayOS xác thực chuỗi đúng.
-                                 string encodedValue = HttpUtility.UrlEncode(value);
-
-                                 // Thay thế "+" thành "%20" nếu cần thiết (vì UrlEncode dùng "+")
-                                 // Nếu PayOS không yêu cầu thay thế, bạn có thể bỏ qua dòng này.
-                                 // encodedValue = encodedValue.Replace("+", "%20"); 
-
-                                 return $"{p.Name}={encodedValue}";
-                             });
-
-            // 3. Nối các cặp key=value lại bằng ký tự "&" để tạo chuỗi RAW
-            string raw = string.Join("&", sorted);
-
-            // 4. Băm chuỗi RAW bằng HMACSHA256 với Checksum Key
-            using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(checksumKey)))
+            // Simple validation simulation
+            if (string.IsNullOrEmpty(cardNumber) || string.IsNullOrEmpty(holder))
             {
-                byte[] hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(raw));
+                 ModelState.AddModelError("", "Vui lòng nhập đầy đủ thông tin thẻ");
+                 var total = cartService.TongTien();
+                 ViewBag.TongTien = total;
+                 return View("Gateway_Card");
+            }
 
-                // 5. Chuyển kết quả băm thành chuỗi thập lục phân (hex) và chuyển sang chữ thường (lowercase)
-                return BitConverter.ToString(hash)
-                                   .Replace("-", "")
-                                   .ToLower();
+            // Save state to session
+            Session["PendingPaymentMethod"] = "VISA/MASTER";
+            Session["PendingOTP"] = true;
+            
+            // Generate OTP for Card too (simulated SMS)
+            Session["OTP_Code"] = "123456"; // Hardcoded for Card demo
+
+            return RedirectToAction("Gateway_OTP");
+        }
+
+        [HttpPost]
+        public ActionResult VerifyOTP(string otp1, string otp2, string otp3, string otp4, string otp5, string otp6)
+        {
+            string inputOtp = otp1 + otp2 + otp3 + otp4 + otp5 + otp6;
+            string sessionOtp = Session["OTP_Code"] as string;
+
+            // Verify
+            if (inputOtp == sessionOtp || inputOtp == "123456") // Allow 123456 as master key for testing
+            {
+                Session.Remove("PendingOTP");
+                Session.Remove("OTP_Code");
+                Session.Remove("PendingCardAuth"); // Cleanup old flag
+                
+                string method = Session["PendingPaymentMethod"] as string ?? "Unknown";
+                return RedirectToAction("CompleteOrder", new { method = method });
+            }
+            
+            ViewBag.Error = "Mã OTP không chính xác!";
+            return View("Gateway_OTP");
+        }
+
+        // Action called by all gateways upon success
+        public ActionResult CompleteOrder(string method)
+        {
+             // Check login
+            if (Session["UserID"] == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            string taiKhoanId = Session["UserID"] as string;
+            var cart = cartService.GetCart();
+            var total = cartService.TongTien();
+
+            using (var transaction = db.Database.BeginTransaction())
+            {
+                try
+                {
+                    // Get Customer ID from Account
+                    var tk = db.TAIKHOAN.FirstOrDefault(u => u.MATAIKHOAN == taiKhoanId);
+                    if (tk == null) return RedirectToAction("Login", "Account");
+
+                    string maKH = tk.MAKHACHHANG;
+
+                    // Generate Order ID
+                    string orderId = "HD" + DateTime.Now.ToString("yyyyMMddHHmmss");
+
+                    // Create Order (HOADON)
+                    var order = new HOADON
+                    {
+                        MAHOADON = orderId,
+                        MAKHACHHANG = maKH,
+                        MANHANVIEN = null, // Online order
+                        NGAYLAP = DateTime.Now,
+                        TONGTIEN = total,
+                        TRANGTHAI = "Chờ xử lý", // String status
+                        DIACHIGIAO = tk.KHACHHANG != null ? tk.KHACHHANG.DIACHI : "Địa chỉ mặc định",
+                        DIENTHOAINGIAO = tk.KHACHHANG != null ? tk.KHACHHANG.SODIENTHOAI : "0900000000",
+                        TENNGUOINHAN = tk.KHACHHANG != null ? tk.KHACHHANG.HOTEN : "Khách hàng",
+                        GHICHU = "Thanh toán qua: " + (method ?? "COD")
+                    };
+                    
+                    db.HOADON.Add(order);
+                    db.SaveChanges();
+
+                    // Add Details (CHITIET_HOADON)
+                    foreach (var item in cart)
+                    {
+                        var detail = new CHITIET_HOADON
+                        {
+                            MAHOADON = order.MAHOADON,
+                            MASANPHAM = item.MaSP,
+                            SOLUONG = item.SoLuong,
+                            DONGIA = item.DonGia
+                        };
+                         db.CHITIET_HOADON.Add(detail);
+                    }
+                    db.SaveChanges();
+                    transaction.Commit();
+
+                    // 2. Clear Cart
+                    cartService.Clear();
+
+                    // 3. Send Email (Async or Fire-and-forget)
+                    try {
+                        // MailHelper.SendMail(userEmail, subject, content); 
+                    } catch {}
+
+                    return RedirectToAction("Success", new { id = order.MAHOADON });
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    // Log error
+                    return Content("Lỗi thanh toán: " + ex.Message);
+                }
             }
         }
 
+        public ActionResult Success(string id)
+        {
+            ViewBag.OrderId = id; // Pass string ID
+            return View(); // View accesses Model? Need to fix View too if it expects int
+        }
     }
-
-
 }

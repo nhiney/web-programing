@@ -1,0 +1,203 @@
+@{
+    ViewBag.Title = "Thanh toán an toàn";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="payment-page bg-light py-5">
+    <div class="container">
+        <!-- Progress Header -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-md-8">
+                <div class="d-flex justify-content-between position-relative align-items-center mb-3">
+                    <div class="progress-line position-absolute top-50 start-0 w-100 translate-middle-y bg-secondary bg-opacity-25" style="height: 2px; z-index: 1;"></div>
+                    
+                    <div class="step-item text-center position-relative bg-light z-2 px-2">
+                        <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 32px; height: 32px;">
+                            <i class="fas fa-check small"></i>
+                        </div>
+                        <span class="small fw-bold text-success">Giỏ hàng</span>
+                    </div>
+
+                    <div class="step-item text-center position-relative bg-light z-2 px-2">
+                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-2 shadow-sm" style="width: 40px; height: 40px; border: 3px solid #fff;">
+                            <span class="fw-bold">2</span>
+                        </div>
+                        <span class="small fw-bold text-primary">Thanh toán</span>
+                    </div>
+
+                    <div class="step-item text-center position-relative bg-light z-2 px-2">
+                        <div class="rounded-circle bg-secondary bg-opacity-25 text-muted d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 32px; height: 32px;">
+                            <span class="small">3</span>
+                        </div>
+                        <span class="small text-muted">Hoàn tất</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 justify-content-center">
+            <!-- Left Column: Payment Methods -->
+            <div class="col-lg-8">
+                <div class="d-flex align-items-center mb-4">
+                    <h4 class="fw-bold mb-0 text-dark">Phương thức thanh toán</h4>
+                    <span class="badge bg-success ms-3 rounded-pill px-3">An toàn 100%</span>
+                </div>
+
+                <div class="row g-3">
+                    <!-- COD -->
+                    <div class="col-md-6">
+                        <a href="@Url.Action("CompleteOrder", new { method = "COD" })" class="text-decoration-none payment-method-link">
+                            <div class="card h-100 border-0 shadow-sm payment-card hover-lift" onclick="return confirm('Xác nhận đặt hàng thanh toán khi nhận hàng?');">
+                                <div class="card-body p-4 d-flex align-items-start">
+                                    <div class="icon-box bg-primary bg-opacity-10 text-primary rounded-circle p-3 me-3">
+                                        <i class="fas fa-shipping-fast fa-lg"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold text-dark mb-1">Thanh toán khi nhận hàng</h6>
+                                        <p class="text-muted small mb-0">Nhận hàng, kiểm tra rồi mới thanh toán tiền mặt.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- PayOS / VietQR -->
+                    <div class="col-md-6">
+                        <a href="@Url.Action("Gateway_PayOS")" class="text-decoration-none payment-method-link">
+                            <div class="card h-100 border-0 shadow-sm payment-card hover-lift">
+                                <div class="card-body p-4 d-flex align-items-start">
+                                    <div class="icon-box bg-success bg-opacity-10 text-success rounded-circle p-3 me-3">
+                                        <i class="fas fa-qrcode fa-lg"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold text-dark mb-1">Thanh toán PayOS (QR)</h6>
+                                        <p class="text-muted small mb-0">Quét mã VietQR, hỗ trợ mọi ngân hàng & ví điện tử.</p>
+                                        <span class="badge bg-danger bg-opacity-10 text-danger mt-2 rounded-pill small">Khuyên dùng</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Card -->
+                    <div class="col-md-6">
+                        <a href="@Url.Action("Gateway_Card")" class="text-decoration-none payment-method-link">
+                            <div class="card h-100 border-0 shadow-sm payment-card hover-lift">
+                                <div class="card-body p-4 d-flex align-items-start">
+                                    <div class="icon-box bg-info bg-opacity-10 text-info rounded-circle p-3 me-3">
+                                        <i class="far fa-credit-card fa-lg"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold text-dark mb-1">Thẻ Quốc Tế</h6>
+                                        <p class="text-muted small mb-0">Visa, MasterCard, JCB.<br>Bảo mật 3D-Secure.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Banking QR (Replaces FaceID) -->
+                    <div class="col-md-6">
+                        <a href="@Url.Action("Gateway_BankingQR")" class="text-decoration-none payment-method-link">
+                            <div class="card h-100 border-0 shadow-sm payment-card hover-lift">
+                                <div class="card-body p-4 d-flex align-items-start">
+                                    <div class="icon-box bg-warning bg-opacity-10 text-warning rounded-circle p-3 me-3">
+                                        <i class="fas fa-university fa-lg"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold text-dark mb-1">Chuyển khoản QR</h6>
+                                        <p class="text-muted small mb-0">Quét mã VietQR. Xác thực qua Email OTP.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- QR Simulation (Keep for demo/testing) -->
+                     <div class="col-md-12">
+                        <a href="@Url.Action("Gateway_QR")" class="text-decoration-none payment-method-link">
+                             <div class="card border-0 payment-card bg-transparent">
+                                 <div class="card-body p-2 text-center">
+                                      <small class="text-muted"><i class="fas fa-flask me-1"></i> Demo QR Simulation (Testing)</small>
+                                 </div>
+                             </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Order Summary -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm sticky-top" style="top: 100px; border-radius: 1rem;">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold text-dark mb-4">Đơn hàng của bạn</h5>
+                        
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Tạm tính</span>
+                            <span class="fw-bold">@string.Format("{0:N0}", ViewBag.TongTien) ₫</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Phí vận chuyển</span>
+                            <span class="text-success fw-bold">Miễn phí</span>
+                        </div>
+                         <div class="d-flex justify-content-between mb-4">
+                            <span class="text-muted">Thuế VAT</span>
+                            <span class="text-muted">Đã bao gồm</span>
+                        </div>
+                        
+                        <hr class="my-3 opacity-25">
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="h6 mb-0 fw-bold">Tổng cộng</span>
+                            <span class="h4 mb-0 fw-bold text-primary">@string.Format("{0:N0}", ViewBag.TongTien) ₫</span>
+                        </div>
+
+                         <div class="alert alert-info bg-opacity-10 border-0 small mt-4 mb-0">
+                            <i class="fas fa-shield-alt me-2"></i> Thông tin thanh toán của bạn được bảo mật theo tiêu chuẩn quốc tế.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Scoped Styles for Payment Page */
+    .hover-lift {
+        transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.25s ease;
+    }
+    .hover-lift:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 1rem 3rem rgba(0,0,0,.1) !important;
+        border-color: transparent !important;
+    }
+    
+    .payment-card {
+        border-radius: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .payment-card:hover .icon-box {
+        transform: scale(1.1);
+    }
+
+    .icon-box {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.3s ease;
+    }
+
+    .progress-line {
+        background: #e9ecef;
+    }
+    
+    /* Subtle background pattern */
+    .payment-page {
+        background-color: #f8f9fa;
+        min-height: 80vh;
+    }
+</style>

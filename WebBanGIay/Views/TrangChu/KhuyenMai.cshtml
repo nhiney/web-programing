@@ -121,7 +121,60 @@
             color: white;
         }
 
-        @@keyframes pulse {
+        /* HIỆU ỨNG RƠI */
+        .falling-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .falling-item {
+            position: absolute;
+            top: -50px;
+            font-size: 30px;
+            animation: fall linear infinite;
+            opacity: 0.8;
+        }
+
+        @keyframes fall {
+            0% {
+                top: -50px;
+                transform: translateX(0) rotate(0deg);
+            }
+            100% {
+                top: 100vh;
+                transform: translateX(20px) rotate(360deg);
+            }
+        }
+
+        /* Tạo độ trễ và tốc độ ngẫu nhiên cho các items */
+        .falling-item:nth-child(1) { left: 5%; animation-duration: 8s; animation-delay: 0s; }
+        .falling-item:nth-child(2) { left: 15%; animation-duration: 12s; animation-delay: 2s; }
+        .falling-item:nth-child(3) { left: 25%; animation-duration: 10s; animation-delay: 4s; }
+        .falling-item:nth-child(4) { left: 35%; animation-duration: 9s; animation-delay: 1s; }
+        .falling-item:nth-child(5) { left: 45%; animation-duration: 11s; animation-delay: 3s; }
+        .falling-item:nth-child(6) { left: 55%; animation-duration: 13s; animation-delay: 5s; }
+        .falling-item:nth-child(7) { left: 65%; animation-duration: 8s; animation-delay: 2.5s; }
+        .falling-item:nth-child(8) { left: 75%; animation-duration: 10s; animation-delay: 1.5s; }
+        .falling-item:nth-child(9) { left: 85%; animation-duration: 12s; animation-delay: 3.5s; }
+        .falling-item:nth-child(10) { left: 95%; animation-duration: 9s; animation-delay: 0.5s; }
+        .falling-item:nth-child(11) { left: 10%; animation-duration: 11s; animation-delay: 4.5s; }
+        .falling-item:nth-child(12) { left: 20%; animation-duration: 10s; animation-delay: 2s; }
+        .falling-item:nth-child(13) { left: 30%; animation-duration: 13s; animation-delay: 1s; }
+        .falling-item:nth-child(14) { left: 40%; animation-duration: 9s; animation-delay: 3s; }
+        .falling-item:nth-child(15) { left: 50%; animation-duration: 12s; animation-delay: 5s; }
+        .falling-item:nth-child(16) { left: 60%; animation-duration: 8s; animation-delay: 0s; }
+        .falling-item:nth-child(17) { left: 70%; animation-duration: 11s; animation-delay: 2.5s; }
+        .falling-item:nth-child(18) { left: 80%; animation-duration: 10s; animation-delay: 4s; }
+        .falling-item:nth-child(19) { left: 90%; animation-duration: 9s; animation-delay: 1.5s; }
+        .falling-item:nth-child(20) { left: 8%; animation-duration: 13s; animation-delay: 3.5s; }
+
+        @keyframes pulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.05); }
             100% { transform: scale(1); }
@@ -129,6 +182,31 @@
     </style>
 </head>
 <body>
+
+    <!-- HIỆU ỨNG RƠI -->
+    <div class="falling-elements">
+        <div class="falling-item">🌸</div>
+        <div class="falling-item">🧧</div>
+        <div class="falling-item">🌺</div>
+        <div class="falling-item">🧧</div>
+        <div class="falling-item">🌸</div>
+        <div class="falling-item">🍂</div>
+        <div class="falling-item">🧧</div>
+        <div class="falling-item">🌸</div>
+        <div class="falling-item">🌺</div>
+        <div class="falling-item">🧧</div>
+        <div class="falling-item">🌸</div>
+        <div class="falling-item">🍁</div>
+        <div class="falling-item">🧧</div>
+        <div class="falling-item">🌺</div>
+        <div class="falling-item">🌸</div>
+        <div class="falling-item">🧧</div>
+        <div class="falling-item">🌸</div>
+        <div class="falling-item">🌺</div>
+        <div class="falling-item">🧧</div>
+        <div class="falling-item">🌸</div>
+    </div>
+
 
     <!-- HERO 12.12 -->
     <section class="hero-1212">
@@ -216,8 +294,8 @@
             document.getElementById("countdown").innerHTML =
                 days.toString().padStart(2, '0') + " : " +
                 hours.toString().padStart(2, '0') + " : " +
-                minutes.toString().pad(2, '0') + " : " +
-                seconds.toString().pad(2, '0');
+                minutes.toString().padStart(2, '0') + " : " +
+                seconds.toString().padStart(2, '0');
 
             if (distance < 0) {
                 clearInterval(x);

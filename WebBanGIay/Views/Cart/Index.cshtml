@@ -140,86 +140,63 @@
             </div>
         </div>
 
-        <!-- Product Suggestions -->
-        if (listGoiY != null && listGoiY.Count > 0)
-        {
-            <div class="suggestions">
-                <div class="suggestions-header">
-                    <h3 class="suggestions-title">Có thể bạn sẽ thích</h3>
-                    <a href="/Products" class="view-all-btn">Xem tất cả <i class="fas fa-arrow-right"></i></a>
-                </div>
-
-                <div class="product-grid">
-                    @foreach (var sp in listGoiY)
-                    {
-                        double phanTramGiamSP = 0;
-                        if (sp.GIA > 0 && sp.GIAKHUYENMAI > 0 && sp.GIAKHUYENMAI < sp.GIA)
-                        {
-                            phanTramGiamSP = Math.Round((double)((sp.GIA - sp.GIAKHUYENMAI) / sp.GIA * 100));
-                        }
-
-                        <div class="product-card">
-                            <div class="product-image-container">
-                                @if (sp.GIAKHUYENMAI > 0 && sp.GIAKHUYENMAI < sp.GIA)
-                                {
-                                    <div class="product-discount">-@phanTramGiamSP%</div>
-                                }
-                                <img src="@(string.IsNullOrWhiteSpace(sp.HINHANH) ? "/source/images/products/no-image.jpg" : "/source/images/products/" + sp.HINHANH)"
-                                     alt="@sp.TENSANPHAM"
-                                     class="product-image"
-                                     loading="lazy">
-                                <div class="product-actions">
-                                    <button class="product-action-btn" title="Thêm vào yêu thích">
-                                        <i class="far fa-heart"></i>
-                                    </button>
-                                    <button class="product-action-btn" title="Xem nhanh">
-                                        <i class="far fa-eye"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="product-details">
-                                <h4 class="product-name">@sp.TENSANPHAM</h4>
-                                <div class="product-price">
-                                    @if (sp.GIAKHUYENMAI > 0 && sp.GIAKHUYENMAI < sp.GIA)
-                                    {
-                                        <span class="price-current">@String.Format("{0:N0}", sp.GIAKHUYENMAI)đ</span>
-                                        <span class="price-original">@String.Format("{0:N0}", sp.GIA)đ</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="price-current">@String.Format("{0:N0}", sp.GIA)đ</span>
-                                    }
-                                </div>
-                                <button class="add-to-cart-btn" data-id="@sp.MASANPHAM">
-                                    <i class="fas fa-shopping-cart"></i> Thêm vào giỏ
-                                </button>
-                            </div>
-                        </div>
-                    }
-                </div>
-            </div>
-        }
-        else
-        {
-            <div class="empty-cart">
-                <div class="empty-cart-icon">
-                    <i class="fas fa-shopping-cart"></i>
-                </div>
-                <h3 class="empty-cart-title">Giỏ hàng trống</h3>
-                <p class="empty-cart-text">Bạn chưa có sản phẩm nào trong giỏ hàng</p>
-                <a href="/" class="empty-cart-btn">
-                    <i class="fas fa-arrow-left"></i> Tiếp tục mua sắm
-                </a>
-            </div>
-        }
     }
     else
     {
         <div class="empty-cart">
-            <h3>Giỏ hàng của bạn đang trống!</h3>
+            <div class="empty-cart-icon">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+            <h3 class="empty-cart-title">Giỏ hàng trống</h3>
+            <p class="empty-cart-text">Bạn chưa có sản phẩm nào trong giỏ hàng</p>
             <a href="/" class="empty-cart-btn">
                 <i class="fas fa-arrow-left"></i> Tiếp tục mua sắm
             </a>
         </div>
     }
+    @if (listGoiY != null && listGoiY.Any())
+    {
+        <div class="row mt-5">
+            <div class="col-12">
+                <h3 class="mb-4 fw-bold border-bottom pb-2">Có thể bạn sẽ thích</h3>
+            </div>
+            @foreach (var item in listGoiY)
+            {
+                <div class="col-md-3 col-6 mb-4">
+                    <div class="card h-100 border-0 shadow-sm product-card">
+                         <div class="position-relative overflow-hidden">
+                            <img src="@(string.IsNullOrWhiteSpace(item.HINHANH) ? "/source/images/products/no-image.jpg" : "/source/images/products/" + item.HINHANH)"
+                                 class="card-img-top" alt="@item.TENSANPHAM" style="height: 200px; object-fit: cover;">
+                            @if (item.GIAKHUYENMAI > 0)
+                            {
+                                <div class="position-absolute top-0 end-0 bg-danger text-white px-2 py-1 m-2 rounded-pill small fw-bold">Sale</div>
+                            }
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <h6 class="card-title text-truncate">
+                                <a href="@Url.Action("ChiTiet", "Products", new { id = item.MASANPHAM.Trim() })" class="text-dark text-decoration-none">@item.TENSANPHAM</a>
+                            </h6>
+                            <div class="mt-auto">
+                                @if (item.GIAKHUYENMAI.HasValue && item.GIAKHUYENMAI > 0)
+                                {
+                                    <span class="text-danger fw-bold me-2">@string.Format("{0:N0}", item.GIAKHUYENMAI) ₫</span>
+                                    <small class="text-muted text-decoration-line-through">@string.Format("{0:N0}", item.GIA) ₫</small>
+                                }
+                                else
+                                {
+                                    <span class="text-danger fw-bold">@string.Format("{0:N0}", item.GIA) ₫</span>
+                                }
+                            </div>
+                            <a href="@Url.Action("ChiTiet", "Products", new { id = item.MASANPHAM.Trim() })" class="btn btn-outline-primary btn-sm mt-2 rounded-pill w-100">Xem ngay</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
 </div>
+
+<style>
+    .product-card { transition: transform 0.3s; }
+    .product-card:hover { transform: translateY(-5px); }
+</style>

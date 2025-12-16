@@ -16,6 +16,15 @@ namespace WebBanGIay.Controllers
             return View();
         }
 
+        public ActionResult Messages()
+        {
+            if (Session["UserName"] == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+            return View();
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Send(LIENHE model)
@@ -69,12 +78,10 @@ namespace WebBanGIay.Controllers
             try
             {
                 // Auto-fill user info if logged in and fields are empty
-                var user = Session["TaiKhoan"] as TAIKHOAN;
-                if (user != null)
+                var userName = Session["UserName"] as string;
+                if (!string.IsNullOrEmpty(userName))
                 {
-                    if (string.IsNullOrEmpty(model.HoTen)) model.HoTen = user.TENTAIKHOAN; // Or lookup KHACHHANG
-                    // Note: TAIKHOAN might not have Email directly if not joined, but let's assume form handles it or we look it up.
-                    // For simplicity, rely on form data, but we can trust the session for "Registered User" status if needed.
+                    if (string.IsNullOrEmpty(model.HoTen)) model.HoTen = userName;
                 }
 
                 if (string.IsNullOrEmpty(model.HoTen) || string.IsNullOrEmpty(model.NoiDung))
@@ -120,18 +127,18 @@ namespace WebBanGIay.Controllers
         [HttpGet]
         public ActionResult GetHistory()
         {
-            var user = Session["TaiKhoan"] as TAIKHOAN;
-            if (user == null) return Json(new { success = false, message = "Vui lòng đăng nhập" }, JsonRequestBehavior.AllowGet);
+            var userName = Session["UserName"] as string; 
+            if (string.IsNullOrEmpty(userName)) return Json(new { success = false, message = "Vui lòng đăng nhập" }, JsonRequestBehavior.AllowGet);
 
+            // Fetch messages sent by this username (HoTen field in LIENHE often stores the username for logged in users)
+            // Or if we want to be more precise, we should join with TAIKHOAN/KHACHHANG, but for now filtering by HoTen == UserName is the most direct map from SendAjax
             var list = db.LIENHE
-                .Where(m => m.HoTen == user.TENTAIKHOAN || 
-                            (user.KHACHHANG.EMAIL != null && m.Email == user.KHACHHANG.EMAIL) ||
-                            (user.KHACHHANG.HOTEN != null && m.HoTen == user.KHACHHANG.HOTEN))
+                .Where(m => m.HoTen == userName) 
                 .OrderByDescending(m => m.NgayGui)
                 .Select(m => new { 
                     m.MaLH,
                     m.NoiDung,
-                    NgayGui = m.NgayGui.ToString(), // Simplify formatting
+                    NgayGui = m.NgayGui.ToString(), 
                     m.PhanHoi,
                     m.NgayPhanHoi
                 }).ToList();

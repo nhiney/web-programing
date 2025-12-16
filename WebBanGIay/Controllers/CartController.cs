@@ -18,16 +18,15 @@ namespace WebBanGIay.Controllers
             var cart = cartService.GetCart();
             ViewBag.TongTien = cartService.TongTien();
 
-            if (cart == null || cart.Count == 0)
-            {
-                // Nếu giỏ rỗng, gợi ý 4 sản phẩm khuyến mãi còn hàng
-                var sanPhamGoiY = db.SANPHAM
-                    .Where(s => s.GIAKHUYENMAI > 0 && s.SOLUONGTON > 0)
-                    .OrderByDescending(s => s.GIAKHUYENMAI)
-                    .Take(4)
-                    .ToList();
-                ViewBag.SanPhamGoiY = sanPhamGoiY;
-            }
+            ViewBag.TongTien = cartService.TongTien();
+
+            // Luôn gợi ý sản phẩm (Random hoặc mới nhất)
+            var sanPhamGoiY = db.SANPHAM
+                .Where(s => s.SOLUONGTON > 0)
+                .OrderBy(x => Guid.NewGuid()) // Random
+                .Take(4)
+                .ToList();
+            ViewBag.SanPhamGoiY = sanPhamGoiY;
 
             return View(cart);
         }
@@ -112,6 +111,37 @@ namespace WebBanGIay.Controllers
             return RedirectToAction("Index", "Cart");
         }
 
+        // Mua ngay (Thêm vào giỏ + Chuyển đến thanh toán)
+        [HttpPost]
+        public ActionResult AddNOW(string id, int soLuong, int? bienTheId, int? size)
+        {
+             int finalSize = size ?? 0;
+             // Validations
+             if (!bienTheId.HasValue || finalSize == 0) 
+             {
+                 TempData["Error"] = "Vui lòng chọn màu và size!";
+                 return RedirectToAction("ChiTiet", "Products", new { id = id });
+             }
+
+             // Logic retrieval
+             int btId = bienTheId.Value;
+             var sp = db.SANPHAM.FirstOrDefault(x => x.MASANPHAM.Trim() == id.Trim());
+             if (sp == null) return HttpNotFound();
+             
+             var bienThe = db.BIEN_THE_SAN_PHAM.FirstOrDefault(b => b.ID == btId);
+             string mau = bienThe?.MAUSAC?.Trim() ?? "Mặc định";
+             string sizeStr = finalSize.ToString();
+             
+             decimal gia = sp.GIAKHUYENMAI ?? sp.GIA;
+             string tenHienThi = sp.TENSANPHAM;
+
+             // Add using service
+             cartService.Add(sp.MASANPHAM.Trim(), tenHienThi, sp.HINHANH, gia, soLuong, sizeStr, mau);
+             
+             // Redirect to Payment
+             return RedirectToAction("Index", "Payment");
+        }
+
 
 
 
@@ -156,8 +186,8 @@ namespace WebBanGIay.Controllers
             if (cart == null || cart.Count == 0)
                 return RedirectToAction("Index");
 
-            ViewBag.TongTien = cartService.TongTien();
-            return View(cart);
+            // Redirect to Payment Gateway Selection instead of view
+            return RedirectToAction("Index", "Payment");
         }
 
         protected override void Dispose(bool disposing)

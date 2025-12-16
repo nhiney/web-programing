@@ -280,5 +280,61 @@ namespace WebBanGIay.Controllers
             int num = int.Parse(lastId.Substring(2));
             return "KH" + (num + 1).ToString("D3");
         }
+        // GET: Account/OrderHistory
+        public ActionResult OrderHistory()
+        {
+            if (Session["UserID"] == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            string taiKhoanId = Session["UserID"] as string;
+            
+            // 1. Find the Account first to get Customer ID
+            var tk = db.TAIKHOAN.FirstOrDefault(u => u.MATAIKHOAN == taiKhoanId);
+            if (tk == null) return RedirectToAction("Login");
+
+            // 2. Get orders by Customer ID (MAKHACHHANG)
+            // HOADON links to KHACHHANG, not TAIKHOAN directly
+            var orders = db.HOADON
+                           .Where(h => h.MAKHACHHANG == tk.MAKHACHHANG)
+                           .OrderByDescending(h => h.NGAYLAP)
+                           .ToList();
+
+            return View(orders);
+        }
+
+        // GET: Account/OrderDetail/5
+        // GET: Account/OrderDetail/5
+        [HttpGet]
+        public ActionResult OrderDetail(string id)
+        {
+            if (Session["UserID"] == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            if (string.IsNullOrEmpty(id))
+            {
+                return RedirectToAction("OrderHistory");
+            }
+
+            string taiKhoanId = Session["UserID"] as string;
+            var tk = db.TAIKHOAN.FirstOrDefault(u => u.MATAIKHOAN == taiKhoanId);
+            if (tk == null) return RedirectToAction("Login");
+
+            // Find order and include details
+            var order = db.HOADON.Include("CHITIET_HOADON.SANPHAM")
+                                 .FirstOrDefault(h => h.MAHOADON == id);
+
+            // Security check: Ensure order belongs to current user
+            if (order == null || order.MAKHACHHANG != tk.MAKHACHHANG)
+            {
+                TempData["Error"] = "Đơn hàng không tồn tại hoặc bạn không có quyền xem.";
+                return RedirectToAction("OrderHistory");
+            }
+
+            return View(order);
+        }
     }
 }

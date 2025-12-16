@@ -1,0 +1,168 @@
+@{
+    ViewBag.Title = "Thanh toán Thẻ tín dụng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card-gateway-page bg-light py-5">
+    <div class="container">
+        <!-- Progress Steps (Condensed) -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-md-6">
+                 <div class="d-flex justify-content-center align-items-center opacity-75">
+                    <span class="text-success small fw-bold"><i class="fas fa-check-circle me-1"></i> Giỏ hàng</span>
+                    <span class="mx-3 text-muted">/</span>
+                    <span class="text-primary small fw-bold">Thanh thẻ</span>
+                    <span class="mx-3 text-muted">/</span>
+                    <span class="text-muted small">Xác thực</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-5 col-md-8">
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden position-relative auth-card">
+                    
+                    <!-- Decorative Top Shapes -->
+                    <div class="position-absolute top-0 start-0 w-100" style="height: 6px; background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);"></div>
+
+                    <div class="card-body p-4 p-md-5">
+                        <div class="text-center mb-4">
+                            <h4 class="fw-bold text-dark">Thanh toán An toàn</h4>
+                            <p class="text-muted small mb-0">Thông tin thẻ được mã hóa 256-bit SSL</p>
+                        </div>
+
+                        <!-- Card Visual -->
+                        <div class="credit-card-visual mb-4 mx-auto p-4 rounded-4 text-white position-relative shadow-lg" style="background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%); max-width: 350px; height: 210px;">
+                            <!-- Top Row: Chip & Contactless -->
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <img src="https://raw.githubusercontent.com/muhammederdem/credit-card-form/master/src/assets/images/chip.png" alt="Chip" style="height: 35px; opacity: 0.9;">
+                                <i class="fas fa-wifi fa-rotate-90 opacity-50"></i>
+                            </div>
+
+                            <!-- Number -->
+                            <h4 class="mb-4 text-center font-monospace" style="letter-spacing: 3px; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">
+                                @(Request.Form["cardNumber"] ?? "•••• •••• •••• ••••")
+                            </h4>
+
+                            <!-- Bottom Row: Holder, Date, Logo -->
+                            <div class="d-flex justify-content-between align-items-end mt-2">
+                                <div>
+                                    <div class="text-uppercase small opacity-75" style="font-size: 0.65rem;">Card Holder</div>
+                                    <div class="fw-bold font-monospace text-truncate" style="max-width: 140px;">YOUR NAME</div>
+                                </div>
+                                <div class="text-center mx-2">
+                                     <div class="text-uppercase small opacity-75" style="font-size: 0.65rem;">Exp. Date</div>
+                                     <div class="fw-bold font-monospace">MM/YY</div>
+                                </div>
+                                <div>
+                                    <i class="fab fa-cc-visa fa-2x opacity-90"></i>
+                                </div>
+                            </div>
+                            
+                            <!-- Glossy Effect Overlay -->
+                            <div class="position-absolute top-0 start-0 w-100 h-100 rounded-4" style="background: linear-gradient(125deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.05) 30%, transparent 60%); pointer-events: none;"></div>
+                        </div>
+
+                        @using (Html.BeginForm("ProcessCard", "Payment", FormMethod.Post, new { @id = "payment-form", @class = "needs-validation" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            
+                            if (!ViewData.ModelState.IsValid) {
+                                  <div class="alert alert-danger bg-danger bg-opacity-10 border-danger border-opacity-25 text-danger small rounded-3 p-2 mb-3">
+                                      <i class="fas fa-exclamation-circle me-1"></i> @Html.ValidationSummary(true)
+                                  </div>
+                            }
+
+                            <!-- Input Fields -->
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control rounded-3" id="cardNumber" name="cardNumber" placeholder="0000 0000 0000 0000" maxlength="19" required>
+                                <label for="cardNumber" class="text-muted ms-1"><i class="far fa-credit-card me-2"></i>Số thẻ</label>
+                            </div>
+
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control rounded-3 text-uppercase" id="cardHolder" name="holder" placeholder="NGUYEN VAN A" required>
+                                <label for="cardHolder" class="text-muted ms-1"><i class="far fa-user me-2"></i>Tên chủ thẻ</label>
+                            </div>
+
+                            <div class="row g-2">
+                                <div class="col-7">
+                                     <div class="form-floating mb-3">
+                                        <input type="text" class="form-control rounded-3" id="expiry" name="expiry" placeholder="MM/YY" maxlength="5" required>
+                                        <label for="expiry" class="text-muted ms-1"><i class="far fa-calendar-alt me-2"></i>Hết hạn (MM/YY)</label>
+                                    </div>
+                                </div>
+                                <div class="col-5">
+                                     <div class="form-floating mb-3">
+                                        <input type="password" class="form-control rounded-3 font-monospace" id="cvv" name="cvv" placeholder="123" maxlength="3" required>
+                                        <label for="cvv" class="text-muted ms-1"><i class="fas fa-lock me-2"></i>CVV</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-grid mt-2">
+                                <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold shadow-sm py-3 hover-scale">
+                                    Thanh toán @string.Format("{0:N0}", ViewBag.TongTien) đ
+                                </button>
+                            </div>
+                        }
+                        
+                        <div class="text-center mt-4">
+                            <a href="@Url.Action("Index")" class="text-muted text-decoration-none small hover-underline">
+                                <i class="fas fa-arrow-left me-1"></i> Chọn phương thức khác
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="text-center mt-3 text-muted small opacity-75">
+                    <i class="fas fa-lock me-1"></i> Giao dịch được bảo vệ bởi 3D-Secure
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Card Gateway Styles */
+    .card-gateway-page {
+        min-height: 85vh;
+        background-color: #f1f5f9;
+        background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+        background-size: 20px 20px;
+    }
+    
+    .credit-card-visual {
+        transition: transform 0.6s;
+        transform-style: preserve-3d;
+    }
+
+    .form-control:focus {
+        border-color: #4facfe;
+        box-shadow: 0 0 0 0.25rem rgba(79, 172, 254, 0.25);
+    }
+    
+    .hover-scale {
+        transition: transform 0.2s;
+    }
+    .hover-scale:hover {
+        transform: scale(1.02);
+    }
+
+    .hover-underline:hover {
+        text-decoration: underline !important;
+        color: #0f172a !important;
+    }
+</style>
+
+<script>
+    // Simple JS to format inputs (optional enhancement)
+    document.getElementById('cardNumber')?.addEventListener('input', function (e) {
+        e.target.value = e.target.value.replace(/[^\d]/g, '').replace(/(.{4})/g, '$1 ').trim();
+    });
+    
+    document.getElementById('expiry')?.addEventListener('input', function (e) {
+        var input = e.target.value;
+        if (input.length === 2 && !input.includes('/')) e.target.value = input + '/';
+    });
+</script>

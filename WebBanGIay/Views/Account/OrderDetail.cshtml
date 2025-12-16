@@ -1,0 +1,136 @@
+@model WebBanGIay.Models.HOADON
+
+@{
+    ViewBag.Title = "Chi tiết đơn hàng #" + Model.MAHOADON;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container my-5">
+    <!-- Breadcrumb & Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <a href="@Url.Action("OrderHistory")" class="text-decoration-none text-muted small hover-underline mb-2 d-inline-block">
+                <i class="fas fa-arrow-left me-1"></i> Quay lại lịch sử
+            </a>
+            <h2 class="fw-bold mb-0">Chi tiết đơn hàng #@Model.MAHOADON</h2>
+            <div class="text-muted small mt-1">Ngày đặt: @(Model.NGAYLAP.HasValue ? Model.NGAYLAP.Value.ToString("dd/MM/yyyy HH:mm") : "N/A")</div>
+        </div>
+        
+        <!-- Status Badge -->
+        @{
+            string statusClass = "bg-secondary";
+            if (Model.TRANGTHAI == "Đã thanh toán" || Model.TRANGTHAI == "Hoàn thành") { statusClass = "bg-success"; }
+            else if (Model.TRANGTHAI == "Chờ xử lý") { statusClass = "bg-warning text-dark"; }
+            else if (Model.TRANGTHAI == "Đang giao") { statusClass = "bg-info text-dark"; }
+            else if (Model.TRANGTHAI == "Hủy") { statusClass = "bg-danger"; }
+        }
+        <div class="text-end">
+             <span class="badge @statusClass rounded-pill py-2 px-3 fs-6">@Model.TRANGTHAI</span>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left: Items -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold">Sản phẩm</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0 text-start">
+                            <thead class="bg-light text-muted small text-uppercase">
+                                <tr>
+                                    <th class="ps-4 py-3">Sản phẩm</th>
+                                    <th class="py-3 text-center">Giá</th>
+                                    <th class="py-3 text-center">SL</th>
+                                    <th class="pe-4 py-3 text-end">Tạm tính</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.CHITIET_HOADON)
+                                {
+                                    <tr>
+                                        <td class="ps-4 py-3">
+                                            <div class="d-flex align-items-center">
+                                                @if (item.SANPHAM.ANHSANPHAMs.Any())
+                                                {
+                                                    <img src="@item.SANPHAM.ANHSANPHAMs.FirstOrDefault().LINKANH" alt="@item.SANPHAM.TENSANPHAM" class="rounded me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                                                }
+                                                else
+                                                {
+                                                    <div class="bg-light rounded me-3 d-flex align-items-center justify-content-center text-muted" style="width: 50px; height: 50px;">
+                                                        <i class="fas fa-image"></i>
+                                                    </div>
+                                                }
+                                                <div>
+                                                    <div class="fw-bold text-dark">@item.SANPHAM.TENSANPHAM</div>
+                                                    <small class="text-muted">Mã: @item.MASANPHAM</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">@string.Format("{0:N0}", item.DONGIA) ₫</td>
+                                        <td class="text-center">x @item.SOLUONG</td>
+                                        <td class="pe-4 text-end fw-bold">@string.Format("{0:N0}", item.DONGIA * item.SOLUONG) ₫</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Info -->
+        <div class="col-lg-4">
+            <!-- Payment Info -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">Thanh toán</h5>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Tạm tính</span>
+                        <span class="fw-bold">@string.Format("{0:N0}", Model.TONGTIEN) ₫</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Phí vận chuyển</span>
+                        <span class="text-success">Miễn phí</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="h6 fw-bold mb-0">Tổng cộng</span>
+                        <span class="h4 fw-bold text-primary mb-0">@string.Format("{0:N0}", Model.TONGTIEN) ₫</span>
+                    </div>
+                    <div class="alert alert-secondary mt-3 mb-0 small bg-light border-0">
+                        <i class="fas fa-sticky-note me-2 text-muted"></i> @(string.IsNullOrEmpty(Model.GHICHU) ? "Không có ghi chú" : Model.GHICHU)
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Info -->
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">Thông tin giao hàng</h5>
+                    <div class="mb-3">
+                        <label class="small text-muted text-uppercase fw-bold">Người nhận</label>
+                        <div class="fw-bold">@Model.TENNGUOINHAN</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="small text-muted text-uppercase fw-bold">Số điện thoại</label>
+                        <div>@Model.DIENTHOAINGIAO</div>
+                    </div>
+                    <div class="mb-0">
+                        <label class="small text-muted text-uppercase fw-bold">Địa chỉ</label>
+                        <div>@Model.DIACHIGIAO</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-underline:hover {
+        text-decoration: underline !important;
+        color: #0d6efd !important;
+    }
+</style>

@@ -11,6 +11,8 @@ namespace WebBanGIay.Controllers
     public class ChatBotController : Controller
     {
         private string connStr = System.Configuration.ConfigurationManager.ConnectionStrings["ChatBotContext"].ConnectionString;
+        
+        [ChildActionOnly]
         public ActionResult Index()
         {
             return View();
