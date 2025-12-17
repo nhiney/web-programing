@@ -311,7 +311,8 @@
         </div>
     </div>
 
-    @if (ViewContext.RouteData.Values["controller"].ToString() == "TrangChu" && ViewContext.RouteData.Values["action"].ToString() == "Index")
+    @if (string.Equals(ViewContext.RouteData.Values["controller"]?.ToString(), "TrangChu", StringComparison.OrdinalIgnoreCase) && 
+         string.Equals(ViewContext.RouteData.Values["action"]?.ToString(), "Index", StringComparison.OrdinalIgnoreCase))
     {
         <!-- Carousel -->
         <div id="homeCarousel" class="carousel slide" data-bs-ride="carousel">

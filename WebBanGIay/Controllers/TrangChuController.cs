@@ -13,49 +13,92 @@ namespace WebBanGIay.Controllers
     {
         // GET: TrangChu
         QuanLyBanGiayEntities1 db = new QuanLyBanGiayEntities1();
-        public ActionResult Index(string hang = "", string giaTu = "", string giaDen = "")
+        public ActionResult Index(string hang = "", string giaTu = "", string giaDen = "", string TenSP = "", string MucGia = "", string SapXep = "")
         {
-
             var query = db.SANPHAM.Include(s => s.KHUYENMAI).AsQueryable();
 
+            // 1. TÌM KIẾM THEO TÊN (TenSP)
+            if (!string.IsNullOrEmpty(TenSP))
+            {
+                string k = TenSP.Trim();
+                query = query.Where(s => s.TENSANPHAM.Contains(k));
+                ViewBag.TenSP = TenSP; // Giu lai gia tri input
+            }
 
-            // LỌC THEO HÃNG
+            // 2. LỌC THEO HÃNG (hang)
             if (!string.IsNullOrEmpty(hang))
             {
                 query = query.Where(s => s.NHACUNGCAP.TENNHACUNGCAP.Contains(hang));
+                ViewBag.HangSelected = hang;
             }
 
+            // 3. LỌC THEO GIÁ (MucGia & giaTu/giaDen)
             decimal minPrice = 0;
             decimal maxPrice = decimal.MaxValue;
 
-            if (decimal.TryParse(giaTu, out decimal tu))
-                minPrice = tu;
+            // Uu tien Dropdown MucGia
+            if (!string.IsNullOrEmpty(MucGia))
+            {
+                switch (MucGia)
+                {
+                    case "duoi-500":
+                        maxPrice = 500000;
+                        break;
+                    case "500-1tr":
+                        minPrice = 500000;
+                        maxPrice = 1000000;
+                        break;
+                    case "tren-1tr":
+                        minPrice = 1000000;
+                        break;
+                }
+            }
+            // Neu khong co MucGia thi check input tay giaTu/giaDen (ho tro legacy)
+            else
+            {
+                if (decimal.TryParse(giaTu, out decimal tu)) minPrice = tu;
+                if (decimal.TryParse(giaDen, out decimal den)) maxPrice = den;
+            }
 
-            if (decimal.TryParse(giaDen, out decimal den))
-                maxPrice = den;
+            if (maxPrice >= 999999999) maxPrice = decimal.MaxValue;
 
-            if (maxPrice >= 999999999)
-                maxPrice = decimal.MaxValue;
-
+            // Logic loc gia (tinh ca gia khuyen mai)
             query = query.Where(s =>
-                (s.GIAKHUYENMAI ?? 0) > 0 ?
-                (s.GIAKHUYENMAI ?? 0) >= minPrice && (s.GIAKHUYENMAI ?? 0) <= maxPrice :
-                s.GIA >= minPrice && s.GIA <= maxPrice
+                ((s.GIAKHUYENMAI != null && s.GIAKHUYENMAI > 0) ? s.GIAKHUYENMAI : s.GIA) >= minPrice &&
+                ((s.GIAKHUYENMAI != null && s.GIAKHUYENMAI > 0) ? s.GIAKHUYENMAI : s.GIA) <= maxPrice
             );
 
-            var sanPhamBanChay = query.OrderByDescending(s => s.SOLUONGTON).Take(30).ToList();
+            // 4. SẮP XẾP (SapXep)
+            switch (SapXep)
+            {
+                case "gia-tang":
+                    query = query.OrderBy(s => (s.GIAKHUYENMAI != null && s.GIAKHUYENMAI > 0) ? s.GIAKHUYENMAI : s.GIA);
+                    break;
+                case "gia-giam":
+                    query = query.OrderByDescending(s => (s.GIAKHUYENMAI != null && s.GIAKHUYENMAI > 0) ? s.GIAKHUYENMAI : s.GIA);
+                    break;
+                case "moi-nhat":
+                    query = query.OrderByDescending(s => s.NGAYTAO);
+                    break;
+                default:
+                    query = query.OrderByDescending(s => s.SOLUONGTON); // Default: Ban chay / Ton kho
+                    break;
+            }
+
+            // Lay ket qua (phan trang hoac lay 30 sp)
+            var sanPhamBanChay = query.Take(30).ToList();
 
             ViewBag.SanPhamBanChay = sanPhamBanChay;
             ViewBag.HangList = db.NHACUNGCAP.Select(n => n.TENNHACUNGCAP).Distinct().ToList();
 
-            ViewBag.HangSelected = hang;
-            ViewBag.GiaTu = giaTu;  
+            // ViewBag giu state filter
             ViewBag.HangSelected = hang;
             ViewBag.GiaTu = giaTu;  
             ViewBag.GiaDen = giaDen;
+            ViewBag.MucGia = MucGia;
+            ViewBag.SapXep = SapXep;
 
             // FEATURED PROMOTION (for Banner)
-            // Logic: Highest discount active promotion
             var featuredPromo = db.KHUYENMAI
                 .Where(p => p.TRANGTHAI == true && p.NGAYBATDAU <= DateTime.Now && p.NGAYKETTHUC >= DateTime.Now)
                 .OrderByDescending(p => p.PHANTRAMGIAM)

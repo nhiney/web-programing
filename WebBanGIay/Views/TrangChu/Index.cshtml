@@ -132,11 +132,26 @@
     <div class="filter-bar">
         @using (Html.BeginForm("Index", "TrangChu", FormMethod.Get, new { @class = "row g-3 align-items-end" }))
         {
-            <div class="col-md-4 col-lg-3">
+            <div class="col-md-3">
                 <label class="form-label">Tên sản phẩm</label>
                 <input type="text" name="TenSP" class="form-control form-select shadow-none" placeholder="Nhập tên giày..." value="@Request.QueryString["TenSP"]">
             </div>
-            <div class="col-md-3 col-lg-2">
+            
+            <div class="col-md-2">
+                <label class="form-label">Thương hiệu</label>
+                <select name="hang" class="form-select shadow-none">
+                    <option value="">Tất cả</option>
+                    @if (ViewBag.HangList != null)
+                    {
+                        foreach (var brand in ViewBag.HangList as List<string>)
+                        {
+                            <option value="@brand" @(Request.QueryString["hang"] == brand ? "selected" : "")>@brand</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-2">
                 <label class="form-label">Mức giá</label>
                 <select name="MucGia" class="form-select shadow-none">
                     <option value="">Tất cả</option>
@@ -145,7 +160,7 @@
                     <option value="tren-1tr" @(Request.QueryString["MucGia"] == "tren-1tr" ? "selected" : "")>Trên 1 triệu</option>
                 </select>
             </div>
-            <div class="col-md-3 col-lg-2">
+            <div class="col-md-2">
                 <label class="form-label">Sắp xếp</label>
                 <select name="SapXep" class="form-select shadow-none">
                     <option value="">Mặc định</option>
@@ -154,17 +169,20 @@
                     <option value="moi-nhat" @(Request.QueryString["SapXep"] == "moi-nhat" ? "selected" : "")>Mới nhất</option>
                 </select>
             </div>
-            <div class="col-md-2 col-lg-2">
-                 <!-- Nút tìm kiếm -->
-                <button type="submit" class="btn btn-danger w-100 h-100 d-flex align-items-center justify-content-center">
-                    <i class="fas fa-filter me-2"></i> Lọc
-                </button>
-            </div>
-             <div class="col-md-2 col-lg-3 text-end d-none d-lg-block">
-                @if (Request.QueryString.Count > 0)
-                {
-                     <a href="@Url.Action("Index")" class="btn btn-outline-secondary rounded-pill px-4"><i class="fas fa-undo me-1"></i> Xóa lọc</a>
-                }
+            <div class="col-md-3">
+                 <!-- Nút tìm kiếm & Xóa -->
+                 <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-danger flex-grow-1 d-flex align-items-center justify-content-center">
+                        <i class="fas fa-filter me-2"></i> Lọc
+                    </button>
+                    @if (Request.QueryString.Count > 0 && 
+                        (!string.IsNullOrEmpty(Request.QueryString["TenSP"]) || 
+                         !string.IsNullOrEmpty(Request.QueryString["MucGia"]) || 
+                         !string.IsNullOrEmpty(Request.QueryString["hang"])))
+                    {
+                         <a href="@Url.Action("Index")" class="btn btn-outline-secondary" title="Xóa bộ lọc"><i class="fas fa-undo"></i></a>
+                    }
+                 </div>
             </div>
         }
     </div>
@@ -173,7 +191,11 @@
 
     @if (banChay.Count > 0)
     {
-        <h2 class="section-title" id="featured-products">Sản phẩm nổi bật</h2>
+        var isFiltering = !string.IsNullOrEmpty(Request.QueryString["TenSP"]) || 
+                          !string.IsNullOrEmpty(Request.QueryString["hang"]) || 
+                          !string.IsNullOrEmpty(Request.QueryString["MucGia"]);
+
+        <h2 class="section-title" id="featured-products">@(isFiltering ? "Kết quả tìm kiếm" : "Sản phẩm nổi bật")</h2>
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 mb-5">
             @foreach (var item in banChay)
             {
@@ -234,7 +256,7 @@
         </div>
         
         <div class="text-center mb-5">
-             <a href="@Url.Action("Index", "Products")" class="btn btn-buy px-5 py-3 shadow-sm" style="font-size: 1.1rem;">
+             <a href="@Url.Action("SPhamTHuongHieu", "Products")" class="btn btn-buy px-5 py-3 shadow-sm" style="font-size: 1.1rem;">
                 <i class="fas fa-store me-2"></i> Tới cửa hàng
             </a>
         </div>
