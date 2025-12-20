@@ -243,7 +243,9 @@ namespace WebBanGIay.Controllers
                 return HttpNotFound();
 
             id = id.Trim();
-            var user = db.TAIKHOAN.AsEnumerable().FirstOrDefault(t => t.MATAIKHOAN != null && t.MATAIKHOAN.Trim() == id);
+            var user = db.TAIKHOAN.FirstOrDefault(t => t.MATAIKHOAN == id) ?? 
+                       db.TAIKHOAN.FirstOrDefault(t => t.MATAIKHOAN.Trim() == id);
+            
             if (user == null)
                 return HttpNotFound();
 
@@ -296,15 +298,37 @@ namespace WebBanGIay.Controllers
         }
 
         // ====================== DELETE USER ======================
+        [Route("Admin/DeleteUser/{id}")]
         public ActionResult DeleteUser(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
                 return HttpNotFound();
 
             id = id.Trim();
-            var user = db.TAIKHOAN.AsEnumerable().FirstOrDefault(t => t.MATAIKHOAN != null && t.MATAIKHOAN.Trim() == id);
+            
+            // Try multiple lookup strategies
+            var user = db.TAIKHOAN.FirstOrDefault(t => t.MATAIKHOAN == id);
+            
             if (user == null)
-                return HttpNotFound();
+            {
+                // Try with trimmed comparison
+                user = db.TAIKHOAN.AsEnumerable()
+                    .FirstOrDefault(t => t.MATAIKHOAN != null && t.MATAIKHOAN.Trim() == id);
+            }
+
+            if (user == null)
+            {
+                // Last resort: case-insensitive search
+                user = db.TAIKHOAN.AsEnumerable()
+                    .FirstOrDefault(t => t.MATAIKHOAN != null && 
+                                       t.MATAIKHOAN.Trim().Equals(id, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (user == null)
+            {
+                TempData["Error"] = $"Không tìm thấy tài khoản với mã: {id}";
+                return RedirectToAction("Users");
+            }
 
             return View(user);
         }

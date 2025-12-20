@@ -367,6 +367,16 @@
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
+            /* Dark Mode Fixes for Bootstrap Utilities */
+            .text-muted { color: var(--text-muted) !important; }
+            .text-dark { color: var(--text-main) !important; }
+            .text-secondary { color: var(--text-muted) !important; }
+            
+            /* Table Hover Fix */
+            .table-hover > tbody > tr:hover > * {
+                color: var(--text-main) !important;
+                box-shadow: inset 0 0 0 9999px var(--bg-hover) !important;
+            }
     </style>
 </head>
 
@@ -540,6 +550,9 @@
         @RenderBody()
     </div>
 
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     

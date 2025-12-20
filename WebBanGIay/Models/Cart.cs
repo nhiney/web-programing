@@ -15,6 +15,7 @@ namespace WebBanGIay.Models
         public int SoLuong { get; set; }       // Số lượng
         public string Size { get; set; }       // Size
         public string Mau { get; set; }        // Màu sắc
+        public int BienTheId { get; set; }     // ID Biến thể (để trừ kho chính xác)
 
         public decimal ThanhTien => DonGia * SoLuong;
     }
@@ -36,15 +37,19 @@ namespace WebBanGIay.Models
         }
 
         // Thêm sản phẩm
-        public void Add(string maSP, string tenSP, string hinhAnh, decimal donGia, int soLuong, string size = "", string mau = "")
+        public void Add(string maSP, string tenSP, string hinhAnh, decimal donGia, int soLuong, string size = "", string mau = "", int bienTheId = 0)
         {
             if (string.IsNullOrWhiteSpace(maSP)) return;
-
+            
             var cart = GetCart();
 
-            // Tạo ID biến thể để phân biệt size + màu
-            string itemId = $"{maSP.Trim()}-{size}-{mau}";
-            var item = cart.FirstOrDefault(x => x.MaSP != null && $"{x.MaSP}-{x.Size}-{x.Mau}" == itemId);
+            // Tạo ID biến thể để phân biệt size + màu (Ưu tiên dùng BienTheId nếu có)
+            string itemId = (bienTheId > 0) ? $"{maSP.Trim()}-{bienTheId}-{size}" : $"{maSP.Trim()}-{size}-{mau}";
+            
+            var item = cart.FirstOrDefault(x => 
+                (bienTheId > 0 && x.BienTheId == bienTheId && x.Size == size) || 
+                (x.MaSP != null && $"{x.MaSP}-{x.Size}-{x.Mau}" == itemId)
+            );
 
             if (item == null)
             {
@@ -56,7 +61,8 @@ namespace WebBanGIay.Models
                     DonGia = donGia,
                     SoLuong = soLuong,
                     Size = size,
-                    Mau = mau
+                    Mau = mau,
+                    BienTheId = bienTheId // Lưu ID biến thể
                 });
             }
             else

@@ -59,7 +59,10 @@ namespace WebBanGIay.Controllers
             string tenHienThi = $"{sp.TENSANPHAM} (Size: {sizeStr}, Màu: {mau})";
             decimal gia = bienThe.GIATHEOMAU;
 
-            cartService.Add(sp.MASANPHAM.Trim(), tenHienThi, sp.HINHANH, gia, soLuong, sizeStr, mau);
+
+            
+            // Pass BienTheId explicitly
+            cartService.Add(sp.MASANPHAM.Trim(), tenHienThi, sp.HINHANH, gia, soLuong, sizeStr, mau, btId);
 
             if (Request.UrlReferrer != null)
                 return Redirect(Request.UrlReferrer.ToString());
@@ -105,10 +108,11 @@ namespace WebBanGIay.Controllers
                 gia,
                 soLuong,
                 sizeStr,
-                mau
+                mau,
+                bienTheId // Pass explicit BienTheId
             );
 
-            return RedirectToAction("Index", "Cart");
+            return RedirectToAction("Checkout", "Cart");
         }
 
         // Mua ngay (Thêm vào giỏ + Chuyển đến thanh toán)
@@ -135,11 +139,11 @@ namespace WebBanGIay.Controllers
              decimal gia = sp.GIAKHUYENMAI ?? sp.GIA;
              string tenHienThi = sp.TENSANPHAM;
 
-             // Add using service
-             cartService.Add(sp.MASANPHAM.Trim(), tenHienThi, sp.HINHANH, gia, soLuong, sizeStr, mau);
+             // Add using service with BienTheId
+             cartService.Add(sp.MASANPHAM.Trim(), tenHienThi, sp.HINHANH, gia, soLuong, sizeStr, mau, btId);
              
              // Redirect to Payment
-             return RedirectToAction("Index", "Payment");
+             return RedirectToAction("Checkout", "Cart");
         }
 
 
@@ -180,14 +184,60 @@ namespace WebBanGIay.Controllers
         }
 
         // Checkout
+        [HttpGet]
         public ActionResult Checkout()
         {
             var cart = cartService.GetCart();
             if (cart == null || cart.Count == 0)
                 return RedirectToAction("Index");
 
-            // Redirect to Payment Gateway Selection instead of view
-            return RedirectToAction("Index", "Payment");
+            var model = new CheckoutVM
+            {
+                Items = cart,
+                TongTien = cartService.TongTien()
+            };
+
+            // Pre-fill from session if exists (user navigated back or error)
+            var sessionInfo = Session["CheckoutInfo"] as CheckoutVM;
+            if (sessionInfo != null)
+            {
+                model.HoTen = sessionInfo.HoTen;
+                model.DienThoai = sessionInfo.DienThoai;
+                model.Email = sessionInfo.Email;
+                model.DiaChi = sessionInfo.DiaChi;
+                model.GhiChu = sessionInfo.GhiChu;
+            }
+            // Otherwise pre-fill from user record if logged in
+            else if (Session["UserID"] != null)
+            {
+                string userId = Session["UserID"].ToString();
+                var user = db.TAIKHOAN.FirstOrDefault(u => u.MATAIKHOAN == userId);
+                if (user != null && user.KHACHHANG != null)
+                {
+                    model.HoTen = user.KHACHHANG.HOTEN;
+                    model.DienThoai = user.KHACHHANG.SODIENTHOAI;
+                    model.Email = user.KHACHHANG.EMAIL;
+                    model.DiaChi = user.KHACHHANG.DIACHI;
+                }
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Checkout(CheckoutVM info)
+        {
+            if (ModelState.IsValid)
+            {
+                // Store checkout info in session for PaymentController to use
+                Session["CheckoutInfo"] = info;
+                return RedirectToAction("Index", "Payment");
+            }
+
+            info.Items = cartService.GetCart();
+            info.TongTien = cartService.TongTien();
+            return View(info);
         }
 
         protected override void Dispose(bool disposing)

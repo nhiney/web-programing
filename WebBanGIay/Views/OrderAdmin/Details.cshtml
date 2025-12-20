@@ -75,7 +75,18 @@
                         </tr>
                         <tr>
                             <th>Khách hàng:</th>
-                            <td>@(Model.KHACHHANG?.HOTEN ?? "Khách vãng lai")</td>
+                            <td>
+                                <div class="fw-bold">@(string.IsNullOrWhiteSpace(Model.TENNGUOINHAN) ? (Model.KHACHHANG?.HOTEN?.Trim() ?? "Ẩn danh") : Model.TENNGUOINHAN.Trim())</div>
+                                <div class="small text-muted">@(string.IsNullOrWhiteSpace(Model.DIENTHOAINGIAO) ? (Model.KHACHHANG?.SODIENTHOAI?.Trim() ?? "N/A") : Model.DIENTHOAINGIAO.Trim())</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Địa chỉ giao:</th>
+                            <td class="small">@(string.IsNullOrWhiteSpace(Model.DIACHIGIAO) ? (Model.KHACHHANG?.DIACHI?.Trim() ?? "Chưa rõ") : Model.DIACHIGIAO.Trim())</td>
+                        </tr>
+                        <tr>
+                            <th>Ghi chú:</th>
+                            <td class="text-muted small">@(string.IsNullOrEmpty(Model.GHICHU) ? "Không có" : Model.GHICHU)</td>
                         </tr>
                         <tr>
                             <th>Tổng tiền:</th>
@@ -87,7 +98,7 @@
                                 @{
                                     var badgeClass = "bg-secondary";
                                     var statusIcon = "";
-                                    if (Model.TRANGTHAI == "HOÀN THÀNH") { 
+                                    if (Model.TRANGTHAI == "HOÀN THÀNH" || Model.TRANGTHAI == "ĐÃ THANH TOÁN") { 
                                         badgeClass = "bg-success"; 
                                         statusIcon = "bi-check-circle-fill";
                                     }
@@ -95,7 +106,7 @@
                                         badgeClass = "bg-warning text-dark"; 
                                         statusIcon = "bi-hourglass-split";
                                     }
-                                    else if (Model.TRANGTHAI == "ĐÃ GIAO") { 
+                                    else if (Model.TRANGTHAI == "ĐANG GIAO") { 
                                         badgeClass = "bg-info text-dark"; 
                                         statusIcon = "bi-truck";
                                     }
@@ -113,10 +124,10 @@
                     
                     <div class="mt-4 pt-3 border-top" style="border-color: var(--border-color) !important;">
                         <div class="d-grid gap-2">
-                             <a href="@Url.Action("Edit", new { id = Model.MAHOADON })" class="btn btn-warning fw-bold">
+                             <a href="@Url.Action("Edit", "OrderAdmin", new { id = Model.MAHOADON })" class="btn btn-warning fw-bold">
                                 <i class="bi bi-pencil-square me-2"></i>Cập nhật trạng thái
                             </a>
-                             <a href="@Url.Action("Delete", new { id = Model.MAHOADON })" class="btn btn-outline-danger">
+                             <a href="@Url.Action("Delete", "OrderAdmin", new { id = Model.MAHOADON })" class="btn btn-outline-danger">
                                 <i class="bi bi-trash me-2"></i>Xóa đơn hàng
                             </a>
                         </div>

@@ -55,8 +55,9 @@
                                 <label class="form-label-premium">Số lượng tồn</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-transparent border-secondary text-muted" style="border-right:0;"><i class="bi bi-box-seam"></i></span>
-                                    <input type="number" name="SOLUONGTON" class="form-control form-control-premium" value="@Model.SOLUONGTON" min="0" style="border-left:0;" />
+                                    <input type="number" name="SOLUONGTON" class="form-control form-control-premium bg-light" value="@Model.SOLUONGTON" readonly style="border-left:0;" />
                                 </div>
+                                <div class="form-text text-muted small fst-italic"><i class="bi bi-info-circle"></i> Số lượng được quản lý bởi phiếu nhập</div>
                             </div>
                         </div>
 
@@ -133,6 +134,46 @@
     </div>
 </div>
 
+<!-- Modal Manage Sizes -->
+<div class="modal fade" id="modalScanSize" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Quản lý Kho & Size - <span id="modalVariantColor" class="fw-bold text-warning"></span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="currentVariantId" />
+                
+                <!-- Add Size Form -->
+                <div class="row g-3 align-items-end mb-4 p-3 bg-light rounded border">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Kích thước (Size)</label>
+                        <select id="newSize" class="form-select">
+                            <option value="">Chọn Size</option>
+                            @for(int i=35; i<=45; i++){ <option value="@i">@i</option> }
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Số lượng tồn</label>
+                        <input type="number" id="newQty" class="form-control" value="10" min="0" />
+                    </div>
+                    <div class="col-md-4">
+                        <button type="button" class="btn btn-success w-100" onclick="saveSize()">
+                            <i class="bi bi-plus-circle"></i> Lưu kho
+                        </button>
+                    </div>
+                </div>
+
+                <!-- List Current Sizes -->
+                <div id="sizeListContainer">
+                    <!-- JS renders table here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     var currentProductId = '@Model.MASANPHAM.Trim()';
 
@@ -158,7 +199,7 @@
         } else {
             document.getElementById('variantCount').innerText = data.length + ' biến thể';
             
-            html = '<div class="table-responsive"><table class="table mb-0" style="color:var(--text-main)"><thead><tr class="bg-secondary bg-opacity-10"><th class="ps-4">Màu sắc</th><th>Giá riêng</th><th class="text-end pe-4">Hành động</th></tr></thead><tbody>';
+            html = '<div class="table-responsive"><table class="table mb-0" style="color:var(--text-main)"><thead><tr class="bg-secondary bg-opacity-10"><th class="ps-4">Màu sắc</th><th>Giá riêng</th><th class="text-center">Kho hàng</th><th class="text-end pe-4">Hành động</th></tr></thead><tbody>';
             
             data.forEach(item => {
                 html += `
@@ -168,6 +209,11 @@
                         </td>
                         <td class="align-middle text-success fw-bold">
                             ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.GIATHEOMAU)}
+                        </td>
+                         <td class="align-middle text-center">
+                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="openSizeModal(${item.ID}, '${item.MAUSAC}')">
+                                <i class="bi bi-layers-half"></i> Quản lý Size/Kho
+                            </button>
                         </td>
                         <td class="align-middle text-end pe-4">
                             <button type="button" class="btn btn-sm btn-outline-danger border-0" onclick="deleteVariant(${item.ID})" title="Xóa">
@@ -208,7 +254,7 @@
     }
 
     function deleteVariant(id) {
-        if(!confirm('Xóa biến thể này?')) return;
+        if(!confirm('Xóa biến thể này sẽ xóa tất cả tồn kho liên quan?')) return;
         
         fetch('@Url.Action("DeleteVariant", "ProductAdmin")', {
             method: 'POST',
@@ -222,4 +268,98 @@
             }
         });
     }
+
+    // ============ SIZE & STOCK MANAGE Start ============
+    var sizeModal = null;
+    
+    function openSizeModal(variantId, colorName) {
+         document.getElementById('currentVariantId').value = variantId;
+         document.getElementById('modalVariantColor').innerText = colorName;
+         
+         if(!sizeModal) {
+             sizeModal = new bootstrap.Modal(document.getElementById('modalScanSize'));
+         }
+         loadSizes(variantId);
+         sizeModal.show();
+    }
+
+    function loadSizes(variantId) {
+        fetch('@Url.Action("GetSizes", "ProductAdmin")?variantId=' + variantId)
+        .then(res => res.json())
+        .then(res => {
+            if(res.success) {
+                renderSizeTable(res.data);
+            }
+        });
+    }
+
+    function renderSizeTable(data) {
+        var html = '<table class="table table-bordered table-striped text-center align-middle"><thead><tr><th>Size</th><th>Số lượng tồn</th><th>Hành động</th></tr></thead><tbody>';
+        
+        if(!data || data.length === 0) {
+            html += '<tr><td colspan="3" class="text-muted">Chưa có size nào</td></tr>';
+        } else {
+            var totalStock = 0;
+            data.forEach(item => {
+                totalStock += item.SOLUONG;
+                html += `
+                    <tr>
+                        <td class="fw-bold text-primary" style="font-size:1.2rem;">${item.SIZE}</td>
+                        <td class="fw-bold">${item.SOLUONG}</td>
+                        <td>
+                            <button class="btn btn-sm btn-danger" onclick="deleteSize(${item.ID})"><i class="bi bi-x-lg"></i> Xóa</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            html += `<tr class="table-info"><td class="fw-bold">Tổng cộng</td><td colspan="2" class="fw-bold text-start ps-4">${totalStock} sản phẩm</td></tr>`;
+        }
+        
+        html += '</tbody></table>';
+        document.getElementById('sizeListContainer').innerHTML = html;
+    }
+
+    function saveSize() {
+        var variantId = document.getElementById('currentVariantId').value;
+        var size = document.getElementById('newSize').value;
+        var qty = document.getElementById('newQty').value;
+
+        if(!size || !qty) { alert('Vui lòng chọn Size và nhập Số lượng'); return; }
+
+        var formData = new FormData();
+        formData.append('variantId', variantId);
+        formData.append('size', size);
+        formData.append('quantity', qty);
+
+        fetch('@Url.Action("SaveSize", "ProductAdmin")', {
+            method: 'POST',
+            body: formData
+        }).then(res => res.json())
+        .then(data => {
+            if(data.success) {
+                loadSizes(variantId); // Reload table
+                // Optionally clear inputs
+            } else {
+                alert(data.message);
+            }
+        });
+    }
+
+    function deleteSize(id) {
+        if(!confirm('Xóa size này kho?')) return;
+         var variantId = document.getElementById('currentVariantId').value;
+
+         fetch('@Url.Action("DeleteSize", "ProductAdmin")', {
+            method: 'POST',
+            body: new URLSearchParams({ 'id': id })
+        }).then(res => res.json())
+        .then(data => {
+            if(data.success) {
+                loadSizes(variantId);
+            } else {
+                alert(data.message);
+            }
+        });
+    }
+    // ============ SIZE & STOCK MANAGE End ============
 </script>

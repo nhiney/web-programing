@@ -7,17 +7,33 @@ namespace WebBanGIay.Helpers
 {
     public class MailHelper
     {
+        public static bool IsConfigured()
+        {
+            var fromEmailAddress = ConfigurationManager.AppSettings["FromEmailAddress"]?.ToString();
+            var fromEmailPassword = ConfigurationManager.AppSettings["FromEmailPassword"]?.ToString();
+            var enabledVal = ConfigurationManager.AppSettings["Enabled"];
+
+            bool enabled = !string.IsNullOrEmpty(enabledVal) && bool.Parse(enabledVal);
+            if (!enabled) return false;
+
+            if (string.IsNullOrEmpty(fromEmailAddress) || fromEmailAddress.Contains("YOUR_EMAIL")) return false;
+            if (string.IsNullOrEmpty(fromEmailPassword) || fromEmailPassword.Contains("YOUR_APP_PASSWORD")) return false;
+
+            return true;
+        }
+
         public static void SendMail(string toEmail, string subject, string content)
         {
+            if (!IsConfigured())
+            {
+                throw new Exception("SMTP_NOT_CONFIGURED: Vui lòng cấu hình email chính xác trong Web.config.");
+            }
+
             var fromEmailAddress = ConfigurationManager.AppSettings["FromEmailAddress"].ToString();
             var fromEmailDisplayName = ConfigurationManager.AppSettings["FromEmailDisplayName"].ToString();
             var fromEmailPassword = ConfigurationManager.AppSettings["FromEmailPassword"].ToString();
             var smtpHost = ConfigurationManager.AppSettings["SMTPHost"].ToString();
             var smtpPort = ConfigurationManager.AppSettings["SMTPPort"].ToString();
-
-            bool enabled = bool.Parse(ConfigurationManager.AppSettings["Enabled"].ToString());
-
-            if (!enabled) return;
 
             string body = content;
 

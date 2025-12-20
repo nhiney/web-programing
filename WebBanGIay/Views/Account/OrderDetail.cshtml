@@ -26,6 +26,18 @@
         }
         <div class="text-end">
              <span class="badge @statusClass rounded-pill py-2 px-3 fs-6">@Model.TRANGTHAI</span>
+             
+             @if (Model.TRANGTHAI == "Chờ xử lý" || Model.TRANGTHAI == "CHỜ XỬ LÝ")
+             {
+                 using (Html.BeginForm("CancelOrder", "Account", FormMethod.Post, new { style = "display:inline-block; margin-left: 10px;" }))
+                 {
+                     @Html.AntiForgeryToken()
+                     <input type="hidden" name="id" value="@Model.MAHOADON" />
+                     <button type="submit" class="btn btn-danger btn-sm rounded-pill fw-bold" onclick="return confirm('Bạn có chắc muốn hủy đơn hàng này không?');">
+                         <i class="fas fa-times me-1"></i> Hủy đơn hàng
+                     </button>
+                 }
+             }
         </div>
     </div>
 
@@ -53,9 +65,9 @@
                                     <tr>
                                         <td class="ps-4 py-3">
                                             <div class="d-flex align-items-center">
-                                                @if (item.SANPHAM.ANHSANPHAMs.Any())
+                                                @if (!string.IsNullOrWhiteSpace(item.SANPHAM.HINHANH))
                                                 {
-                                                    <img src="@item.SANPHAM.ANHSANPHAMs.FirstOrDefault().LINKANH" alt="@item.SANPHAM.TENSANPHAM" class="rounded me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                                                    <img src="@Url.Content("~/source/images/products/" + item.SANPHAM.HINHANH)" alt="@item.SANPHAM.TENSANPHAM" class="rounded me-3" style="width: 50px; height: 50px; object-fit: cover;">
                                                 }
                                                 else
                                                 {
@@ -106,21 +118,43 @@
                 </div>
             </div>
 
-            <!-- Customer Info -->
+            <!-- Delivery & Customer Info -->
             <div class="card border-0 shadow-sm rounded-4">
                 <div class="card-body p-4">
                     <h5 class="fw-bold mb-4">Thông tin giao hàng</h5>
                     <div class="mb-3">
                         <label class="small text-muted text-uppercase fw-bold">Người nhận</label>
-                        <div class="fw-bold">@Model.TENNGUOINHAN</div>
+                        <div class="fw-bold text-primary">@(string.IsNullOrWhiteSpace(Model.TENNGUOINHAN) ? (Model.KHACHHANG?.HOTEN?.Trim() ?? "Chưa rõ") : Model.TENNGUOINHAN.Trim())</div>
                     </div>
                     <div class="mb-3">
                         <label class="small text-muted text-uppercase fw-bold">Số điện thoại</label>
-                        <div>@Model.DIENTHOAINGIAO</div>
+                        <div class="fw-bold">@(string.IsNullOrWhiteSpace(Model.DIENTHOAINGIAO) ? (Model.KHACHHANG?.SODIENTHOAI?.Trim() ?? "Chưa rõ") : Model.DIENTHOAINGIAO.Trim())</div>
                     </div>
-                    <div class="mb-0">
-                        <label class="small text-muted text-uppercase fw-bold">Địa chỉ</label>
-                        <div>@Model.DIACHIGIAO</div>
+                    <div class="mb-3">
+                        <label class="small text-muted text-uppercase fw-bold">Địa chỉ nhận hàng</label>
+                        <div class="lh-sm">@(string.IsNullOrWhiteSpace(Model.DIACHIGIAO) ? (Model.KHACHHANG?.DIACHI?.Trim() ?? "Chưa rõ") : Model.DIACHIGIAO.Trim())</div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <h5 class="fw-bold mb-3">Thông tin tài khoản</h5>
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-light rounded-circle p-2 me-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-user text-muted"></i>
+                        </div>
+                        <div>
+                            <div class="small text-muted">Họ tên</div>
+                            <div class="fw-bold">@(Model.KHACHHANG?.HOTEN?.Trim() ?? "N/A")</div>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div class="bg-light rounded-circle p-2 me-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-envelope text-muted"></i>
+                        </div>
+                        <div class="text-truncate">
+                            <div class="small text-muted">Email liên hệ</div>
+                            <div class="fw-bold">@(Model.KHACHHANG?.EMAIL?.Trim() ?? "N/A")</div>
+                        </div>
                     </div>
                 </div>
             </div>

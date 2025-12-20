@@ -6,6 +6,7 @@ using WebBanGIay.Models;
 
 namespace WebBanGIay.Controllers
 {
+    [RoutePrefix("OrderAdmin")]
     public class OrderAdminController : BaseAdminController
     {
         private readonly QuanLyBanGiayEntities1 db = new QuanLyBanGiayEntities1();
@@ -13,7 +14,9 @@ namespace WebBanGIay.Controllers
 
 
         // ======================= LIST ORDERS =======================
-        public ActionResult Index(string q = "", string status = "", int page = 1, int pageSize = 15)
+        [Route("")]
+        [Route("Index")]
+        public ActionResult Index(string search = "", string status = "", int page = 1, int pageSize = 15)
         {
             var query = db.HOADON.Include(h => h.KHACHHANG).AsQueryable();
 
@@ -26,12 +29,13 @@ namespace WebBanGIay.Controllers
             }, "Value", "Text", status);
 
             // Search (Mã hóa đơn, tên KH)
-            if (!string.IsNullOrWhiteSpace(q))
+            if (!string.IsNullOrWhiteSpace(search))
             {
-                q = q.Trim();
+                search = search.Trim();
                 query = query.Where(o => 
-                    o.MAHOADON.Contains(q) || 
-                    (o.KHACHHANG != null && o.KHACHHANG.HOTEN.Contains(q))
+                    o.MAHOADON.Contains(search) || 
+                    (o.KHACHHANG != null && o.KHACHHANG.HOTEN.Contains(search)) ||
+                    o.TENNGUOINHAN.Contains(search)
                 );
             }
 
@@ -48,10 +52,20 @@ namespace WebBanGIay.Controllers
                               .Take(pageSize)
                               .ToList();
 
-            ViewBag.Query = q;
-            ViewBag.Status = status;
-            ViewBag.Page = page;
-           ViewBag.PageSize = pageSize;
+            // Fallback for KHACHHANG padding issues
+            foreach (var order in orders)
+            {
+                if (order.KHACHHANG == null && !string.IsNullOrEmpty(order.MAKHACHHANG))
+                {
+                    string mkh = order.MAKHACHHANG.Trim();
+                    order.KHACHHANG = db.KHACHHANG.FirstOrDefault(k => k.MAKHACHHANG.Trim() == mkh);
+                }
+            }
+
+            ViewBag.CurrentSearch = search;
+            ViewBag.CurrentStatus = status;
+            ViewBag.CurrentPage = page;
+            ViewBag.PageSize = pageSize;
             ViewBag.Total = total;
             ViewBag.TotalPages = (int)Math.Ceiling((double)total / pageSize);
 
@@ -59,30 +73,43 @@ namespace WebBanGIay.Controllers
         }
 
         // ======================= DETAILS ORDER =======================
+        [Route("Details/{id}")]
         public ActionResult Details(string id)
         {
             if (string.IsNullOrWhiteSpace(id)) return HttpNotFound();
 
-            id = id.Trim();
+            id = id.Replace(" ", "");
             var order = db.HOADON.Include(h => h.KHACHHANG)
                                  .Include(h => h.CHITIET_HOADON.Select(d => d.SANPHAM))
                                  .FirstOrDefault(h => h.MAHOADON == id);
 
             if (order == null) return HttpNotFound();
 
+            // Fallback for KHACHHANG padding issues
+            if (order.KHACHHANG == null && !string.IsNullOrEmpty(order.MAKHACHHANG))
+            {
+                string mkh = order.MAKHACHHANG.Trim();
+                order.KHACHHANG = db.KHACHHANG.FirstOrDefault(k => k.MAKHACHHANG.Trim() == mkh);
+            }
+
             return View(order);
         }
 
         // ======================= EDIT ORDER (STATUS) =======================
+        [Route("Edit/{id}")]
         public ActionResult Edit(string id)
         {
             if (string.IsNullOrWhiteSpace(id)) return HttpNotFound();
 
-            id = id.Trim();
+            id = id.Replace(" ", "");
             var order = db.HOADON.Include(h => h.KHACHHANG)
                                  .FirstOrDefault(h => h.MAHOADON == id);
 
-            if (order == null) return HttpNotFound();
+            if (order == null) 
+            {
+                TempData["Error"] = "Không tìm thấy đơn hàng #" + id;
+                return RedirectToAction("Index");
+            }
 
             return View(order);
         }
@@ -90,11 +117,16 @@ namespace WebBanGIay.Controllers
         // ======================= UPDATE STATUS =======================
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Route("UpdateStatus")]
         public ActionResult UpdateStatus(string id, string status)
         {
-            id = id?.Trim();
+            id = id?.Replace(" ", "");
             var order = db.HOADON.Find(id);
-            if (order == null) return HttpNotFound();
+            if (order == null)
+            {
+                TempData["Error"] = "Không tìm thấy đơn hàng #" + id;
+                return RedirectToAction("Index");
+            }
 
             order.TRANGTHAI = status;
             
@@ -109,11 +141,12 @@ namespace WebBanGIay.Controllers
         // ======================= APPROVE ORDER (QUICK ACTION) =======================
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Route("Approve")]
         public ActionResult Approve(string id)
         {
             if (string.IsNullOrWhiteSpace(id)) return new HttpStatusCodeResult(400);
 
-            id = id.Trim();
+            id = id.Replace(" ", "");
             var order = db.HOADON.Find(id);
             if (order == null) return HttpNotFound();
 

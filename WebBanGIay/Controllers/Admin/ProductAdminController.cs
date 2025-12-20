@@ -132,7 +132,8 @@ namespace WebBanGIay.Controllers
             product.TENSANPHAM = model.TENSANPHAM;
             product.GIA = model.GIA;
             product.MOTA = model.MOTA;
-            product.SOLUONGTON = model.SOLUONGTON;
+
+            // product.SOLUONGTON = model.SOLUONGTON; // Disabled: Managed by Import/Inventory
 
             if (imageFile != null && imageFile.ContentLength > 0)
             {
@@ -274,7 +275,8 @@ namespace WebBanGIay.Controllers
                 // Check if used in Stocks
                 if (variant.TONKHO_SIZE.Any(t => t.SOLUONG > 0))
                 {
-                    return Json(new { success = false, message = "Không thể xóa: Đang có tồn kho cho biến thể này!" });
+                    // Allow delete but warn, or delete cascade? For safety, let's delete stock first
+                     db.TONKHO_SIZE.RemoveRange(variant.TONKHO_SIZE);
                 }
                 
                 // If 0 stock, we can probably delete the stock records first if FK requires it, 
@@ -286,6 +288,96 @@ namespace WebBanGIay.Controllers
 
                 db.BIEN_THE_SAN_PHAM.Remove(variant);
                 db.SaveChanges();
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        // ===================== STOCK/SIZE MANAGEMENT (AJAX) =====================
+        [HttpGet]
+        public ActionResult GetSizes(int variantId)
+        {
+            var sizes = db.TONKHO_SIZE
+                .Where(t => t.IDBienThe == variantId)
+                .Select(t => new { t.ID, t.SIZE, t.SOLUONG })
+                .OrderBy(t => t.SIZE)
+                .ToList();
+            return Json(new { success = true, data = sizes }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult SaveSize(int variantId, int size, int quantity)
+        {
+            try
+            {
+                var variant = db.BIEN_THE_SAN_PHAM.Find(variantId);
+                if (variant == null) return Json(new { success = false, message = "Biến thể không tồn tại" });
+
+                var exist = db.TONKHO_SIZE.FirstOrDefault(t => t.IDBienThe == variantId && t.SIZE == size);
+                if (exist != null)
+                {
+                    exist.SOLUONG = quantity; // Update
+                }
+                else
+                {
+                    var newStock = new TONKHO_SIZE
+                    {
+                        IDBienThe = variantId,
+                        MASANPHAM = variant.MASANPHAM,
+                        SIZE = size,
+                        SOLUONG = quantity
+                    };
+                    db.TONKHO_SIZE.Add(newStock);
+                }
+                
+                // Update Total Stock of Product
+                var product = db.SANPHAM.Find(variant.MASANPHAM);
+                if(product != null)
+                {
+                    // Recalculate total
+                    // Note: This only counts saved ones. The current transaction includes the new changes.
+                    // But to be safe, we can trigger this after SaveChanges or do math now.
+                    // Let's do simple math for now or re-query.
+                    // Re-query might not see local changes unless we save first.
+                    
+                    // Simple approach: Save first
+                    db.SaveChanges();
+                    
+                    product.SOLUONGTON = db.TONKHO_SIZE.Where(t => t.MASANPHAM == product.MASANPHAM).Sum(t => (int?)t.SOLUONG) ?? 0;
+                }
+
+                db.SaveChanges();
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public ActionResult DeleteSize(int id)
+        {
+            try
+            {
+                var item = db.TONKHO_SIZE.Find(id);
+                if (item == null) return Json(new { success = false, message = "Không tìm thấy" });
+
+                string productId = item.MASANPHAM;
+                db.TONKHO_SIZE.Remove(item);
+                db.SaveChanges();
+
+                // Update Total
+                var product = db.SANPHAM.Find(productId);
+                if (product != null)
+                {
+                    product.SOLUONGTON = db.TONKHO_SIZE.Where(t => t.MASANPHAM == productId).Sum(t => (int?)t.SOLUONG) ?? 0;
+                    db.SaveChanges();
+                }
 
                 return Json(new { success = true });
             }

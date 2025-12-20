@@ -1,45 +1,121 @@
-﻿@model List<WebBanGIay.Models.CartItem>
+﻿@model WebBanGIay.Models.CheckoutVM
 @{
-    ViewBag.Title = "Checkout";
+    ViewBag.Title = "Thông tin thanh toán";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Thanh toán</h2>
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h4 class="mb-0"><i class="fas fa-info-circle me-2"></i>Thông tin nhận hàng</h4>
+                </div>
+                <div class="card-body">
+                    @using (Html.BeginForm("Checkout", "Cart", FormMethod.Post, new { id = "checkoutForm" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger mb-3" })
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Họ tên người nhận <span class="text-danger">*</span></label>
+                            @Html.TextBoxFor(m => m.HoTen, new { @class = "form-control", placeholder = "Nhập họ tên đầy đủ", required = "required" })
+                            @Html.ValidationMessageFor(m => m.HoTen, "", new { @class = "text-danger small" })
+                        </div>
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Sản phẩm</th>
-            <th>Đơn giá</th>
-            <th>Số lượng</th>
-            <th>Thành tiền</th>
-        </tr>
-    </thead>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Số điện thoại <span class="text-danger">*</span></label>
+                                @Html.TextBoxFor(m => m.DienThoai, new { @class = "form-control", placeholder = "Số điện thoại liên lạc", required = "required", type = "tel" })
+                                @Html.ValidationMessageFor(m => m.DienThoai, "", new { @class = "text-danger small" })
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Email</label>
+                                @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = "Email nhận thông báo (tùy chọn)", type = "email" })
+                                @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger small" })
+                            </div>
+                        </div>
 
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.TenSP</td>
-                <td>@item.DonGia.ToString("N0") đ</td>
-                <td>@item.SoLuong</td>
-                <td>@item.ThanhTien.ToString("N0") đ</td>
-            </tr>
-        }
-    </tbody>
-</table>
+                        <div class="mb-3">
+                            <label class="form-label">Địa chỉ giao hàng <span class="text-danger">*</span></label>
+                            @Html.TextAreaFor(m => m.DiaChi, new { @class = "form-control", placeholder = "Địa chỉ chi tiết (số nhà, tên đường, phường/xã...)", required = "required", rows = "3" })
+                            @Html.ValidationMessageFor(m => m.DiaChi, "", new { @class = "text-danger small" })
+                        </div>
 
-@{
-    decimal tongTien = Model.Sum(x => x.ThanhTien);
-}
+                        <div class="mb-3">
+                            <label class="form-label">Ghi chú (tùy chọn)</label>
+                            @Html.TextAreaFor(m => m.GhiChu, new { @class = "form-control", placeholder = "Ghi chú cho đơn hàng hoặc shipper...", rows = "2" })
+                        </div>
 
-<h3 class="text-end mt-3">
-    Tổng tiền: <strong>@tongTien.ToString("N0") đ</strong>
-</h3>
+                        <div class="mt-4 d-flex justify-content-between">
+                            <a href="@Url.Action("Index", "Cart")" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Quay lại giỏ hàng
+                            </a>
+                            <button type="submit" class="btn btn-primary px-4 py-2 fw-bold">
+                                TIẾP THEO: CHỌN PHƯƠNG THỨC THANH TOÁN <i class="fas fa-chevron-right ms-2"></i>
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
 
-<div class="text-end">
-    <a href="@Url.Action("Index", "Payment")"
-       class="btn btn-success btn-lg">
-        Tiến hành thanh toán
-    </a>
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Tóm tắt đơn hàng</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="order-items-list p-3" style="max-height: 400px; overflow-y: auto;">
+                        @foreach (var item in Model.Items)
+                        {
+                            <div class="d-flex mb-3 align-items-center">
+                                <div class="position-relative me-3">
+                                    <img src="@(string.IsNullOrWhiteSpace(item.HinhAnh) ? "/source/images/products/no-image.jpg" : "/source/images/products/" + item.HinhAnh)" 
+                                         alt="@item.TenSP" 
+                                         class="rounded shadow-sm"
+                                         style="width: 60px; height: 60px; object-fit: cover;">
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-secondary">
+                                        @item.SoLuong
+                                    </span>
+                                </div>
+                                <div class="flex-grow-1 min-width-0">
+                                    <h6 class="mb-0 text-truncate" title="@item.TenSP">@item.TenSP</h6>
+                                    <small class="text-muted">Size: @item.Size, Màu: @item.Mau</small>
+                                </div>
+                                <div class="ms-2 fw-bold">
+                                    @item.ThanhTien.ToString("N0") đ
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    
+                    <div class="border-top p-3 bg-light">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Tạm tính</span>
+                            <span>@Model.TongTien.ToString("N0") đ</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Phí vận chuyển</span>
+                            <span class="text-success">Miễn phí</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="h5 mb-0">Tổng cộng</span>
+                            <span class="h4 mb-0 text-primary fw-bold">@Model.TongTien.ToString("N0") đ</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<style>
+    .card { border-radius: 12px; border: none; }
+    .card-header { border-radius: 12px 12px 0 0 !important; }
+    .form-control:focus { box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15); border-color: #0d6efd; }
+    .btn-primary { border-radius: 8px; background: linear-gradient(45deg, #0d6efd, #0b5ed7); border: none; }
+    .btn-primary:hover { background: linear-gradient(45deg, #0b5ed7, #0a58ca); transform: translateY(-1px); }
+</style>
+

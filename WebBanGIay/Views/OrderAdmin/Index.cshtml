@@ -53,15 +53,38 @@
 
     .table-custom tbody td {
         background: var(--bg-card);
-        color: var(--text-main);
+        color: var(--text-main) !important;
         padding: 16px;
         border-bottom: 1px solid var(--border-color);
         vertical-align: middle;
+    }
+    
+    /* Ensure all text in table is visible */
+    .table-custom tbody td *:not(.status-badge) {
+        color: inherit;
+    }
+    
+    .table-custom tbody td .fw-bold,
+    .table-custom tbody td div:not(.status-badge) {
+        color: var(--text-main) !important;
     }
 
     .table-custom tbody tr:hover td {
         background: var(--bg-hover);
     }
+
+    /* Status Badges - Keep original colors */
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: inline-block;
+    }
+    .status-pending { background: rgba(246, 194, 62, 0.15); color: #f6c23e !important; border: 1px solid rgba(246, 194, 62, 0.3); }
+    .status-shipping { background: rgba(54, 185, 204, 0.15); color: #36b9cc !important; border: 1px solid rgba(54, 185, 204, 0.3); }
+    .status-completed { background: rgba(28, 200, 138, 0.15); color: #1cc88a !important; border: 1px solid rgba(28, 200, 138, 0.3); }
+    .status-cancelled { background: rgba(231, 74, 59, 0.15); color: #e74a3b !important; border: 1px solid rgba(231, 74, 59, 0.3); }
 
     /* Status Badges */
     .status-badge {
@@ -169,6 +192,7 @@
                     <tr>
                         <th>Mã Đơn</th>
                         <th>Khách Hàng</th>
+                        <th>Địa Chỉ Giao</th>
                         <th>Ngày Đặt</th>
                         <th>Trạng Thái</th>
                         <th class="text-center">Thao Tác</th>
@@ -185,18 +209,28 @@
                             else if (item.TRANGTHAI == "ĐÃ HỦY") { badgeClass = "status-cancelled"; }
 
                             <tr>
-                                <td class="fw-bold text-primary">#@item.MAHOADON</td>
+                                <td class="fw-bold text-primary">#@item.MAHOADON.Trim()</td>
                                 <td>
-                                    <div class="fw-bold">@item.KHACHHANG.HOTEN</div>
-                                    <div class="small text-muted">@item.KHACHHANG.SODIENTHOAI</div>
+                                    <div style="color: var(--text-main); font-weight: 600;">
+                                        @(string.IsNullOrWhiteSpace(item.TENNGUOINHAN) ? (item.KHACHHANG?.HOTEN?.Trim() ?? "Ẩn danh") : item.TENNGUOINHAN.Trim())
+                                    </div>
+                                    <div class="small text-muted">
+                                        @(string.IsNullOrWhiteSpace(item.DIENTHOAINGIAO) ? (item.KHACHHANG?.SODIENTHOAI?.Trim() ?? "N/A") : item.DIENTHOAINGIAO.Trim())
+                                    </div>
+                                </td>
+                                <td style="max-width: 250px; word-wrap: break-word;">
+                                    <div style="color: var(--text-main); font-size: 0.9rem;">
+                                        <i class="bi bi-geo-alt text-danger"></i> 
+                                        @(string.IsNullOrWhiteSpace(item.DIACHIGIAO) ? (item.KHACHHANG?.DIACHI?.Trim() ?? "Chưa rõ") : item.DIACHIGIAO.Trim())
+                                    </div>
                                 </td>
                                 <td>@item.NGAYLAP.Value.ToString("dd/MM/yyyy HH:mm")</td>
                                 <td><span class="status-badge @badgeClass">@item.TRANGTHAI</span></td>
                                 <td class="text-center">
-                                    <a href="@Url.Action("Details", new { id = item.MAHOADON.Trim() })" class="btn-icon" title="Chi tiết">
+                                    <a href="@Url.Action("Details", "OrderAdmin", new { id = item.MAHOADON.Trim() })" class="btn-icon" title="Chi tiết">
                                         <i class="bi bi-eye"></i>
                                     </a>
-                                    <a href="@Url.Action("Edit", new { id = item.MAHOADON.Trim() })" class="btn-icon" title="Cập nhật trạng thái">
+                                    <a href="@Url.Action("Edit", "OrderAdmin", new { id = item.MAHOADON.Trim() })" class="btn-icon" title="Cập nhật trạng thái">
                                         <i class="bi bi-pencil"></i>
                                     </a>
 

@@ -13,12 +13,41 @@
                             <i class="fas fa-lock"></i>
                         </div>
                         <h4 class="fw-bold">Xác thực OTP</h4>
-                        <p class="text-muted">Mã xác thực đã được gửi đến <strong>Email</strong> đăng ký của bạn.</p>
-                    </div>
-
-                    @if (ViewBag.Error != null)
+                    @if (ViewBag.IsSimulationMode == true)
                     {
-                        <div class="alert alert-danger">@ViewBag.Error</div>
+                        <div class="alert alert-info shadow-sm border-0 mb-4 text-start">
+                            <div class="d-flex">
+                                <i class="fas fa-flask mt-1 me-2 text-info"></i>
+                                <div>
+                                    <strong class="d-block mb-1">CHẾ ĐỘ THỬ NGHIỆM (SIMULATION)</strong>
+                                    <span class="small">Hệ thống nhận thấy Email chưa được cấu hình tại <code>Web.config</code>.</span>
+                                    <hr class="my-2">
+                                    <div class="small">
+                                         Mã xác thực đã được "giả lập" gửi đến: <b>@ViewBag.TargetEmail</b>
+                                         <br>Để tiếp tục, vui lòng dùng mã dự phòng: <span class="badge bg-primary fs-6">123456</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else if (ViewBag.Error != null)
+                    {
+                        <div class="alert alert-danger shadow-sm border-0 mb-4 text-start">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Lỗi hệ thống:</strong> <span class="small">@ViewBag.Error</span>
+                            <hr class="my-2">
+                            <div class="small">
+                                <i class="fas fa-info-circle me-1"></i> 
+                                Vui lòng kiểm tra lại cấu hình <b>Email/Mật khẩu</b> trong tệp <code>Web.config</code>.
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-4">
+                            Mã xác thực đã được gửi đến:<br>
+                            <span class="fw-bold text-dark">@(ViewBag.TargetEmail ?? "Email của bạn")</span>
+                        </p>
                     }
 
                     @using (Html.BeginForm("VerifyOTP", "Payment", FormMethod.Post, new { id = "otpForm" }))
@@ -32,11 +61,12 @@
                             <input type="text" name="otp6" class="form-control text-center otp-input" maxlength="1" required>
                         </div>
 
-                        <button type="submit" class="btn btn-primary w-100 py-3 fw-bold mb-3">Xác Nhân</button>
+                        <button type="submit" class="btn btn-primary w-100 py-3 fw-bold mb-3 rounded-pill shadow-sm">XÁC NHẬN</button>
                     }
 
                     <div class="text-muted small">
-                        Bạn chưa nhận được mã? <a href="#" class="text-decoration-none fw-bold" id="resend-link">Gửi lại (30s)</a>
+                        Bạn chưa nhận được mã? <a href="javascript:void(0)" class="text-decoration-none fw-bold" id="resend-link">Gửi lại (30s)</a>
+                        <div id="resend-status" class="mt-2 small"></div>
                     </div>
                 </div>
             </div>
@@ -47,14 +77,17 @@
 <style>
     .otp-input {
         width: 100%;
-        height: 50px;
-        font-size: 1.5rem;
+        height: 60px;
+        font-size: 1.8rem;
         font-weight: bold;
-        border-radius: 8px;
+        border-radius: 12px;
+        background: #f8f9fa;
+        border: 2px solid #e9ecef;
     }
     .otp-input:focus {
         border-color: #0d6efd;
-        box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.25);
+        background: #fff;
+        box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.15);
     }
 </style>
 
@@ -63,30 +96,66 @@
         const inputs = document.querySelectorAll(".otp-input");
         
         inputs.forEach((input, index) => {
-            input.addEventListener("keyup", (e) => {
-                if (e.key >= 0 && e.key <= 9) {
-                    if (index < inputs.length - 1) inputs[index + 1].focus();
-                } else if (e.key === "Backspace") {
-                    if (index > 0) inputs[index - 1].focus();
+            input.addEventListener("input", (e) => {
+                if (e.target.value.length === 1 && index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                }
+            });
+
+            input.addEventListener("keydown", (e) => {
+                if (e.key === "Backspace" && e.target.value === "" && index > 0) {
+                    inputs[index - 1].focus();
                 }
             });
         });
 
-        // Timer Simulation
+        // Timer and Resend Logic
         let timeLeft = 30;
         const resendLink = document.getElementById('resend-link');
-        const timer = setInterval(() => {
-            if (timeLeft <= 0) {
-                clearInterval(timer);
-                resendLink.innerText = "Gửi lại ngay";
-                resendLink.style.pointerEvents = "auto";
-                resendLink.style.color = "#0d6efd";
-            } else {
-                 resendLink.innerText = `Gửi lại (${timeLeft}s)`;
-                 resendLink.style.pointerEvents = "none";
-                 resendLink.style.color = "#aaa";
-                 timeLeft--;
-            }
-        }, 1000);
+        const resendStatus = document.getElementById('resend-status');
+
+        function startTimer() {
+            const timer = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    resendLink.innerText = "Gửi lại ngay";
+                    resendLink.style.pointerEvents = "auto";
+                    resendLink.style.opacity = "1";
+                } else {
+                    resendLink.innerText = `Gửi lại (${timeLeft}s)`;
+                    resendLink.style.pointerEvents = "none";
+                    resendLink.style.opacity = "0.5";
+                    timeLeft--;
+                }
+            }, 1000);
+        }
+
+        startTimer();
+
+        resendLink.addEventListener("click", () => {
+            resendStatus.innerHTML = '<span class="text-muted"><i class="fas fa-spinner fa-spin me-1"></i> Đang gửi...</span>';
+            
+            fetch('@Url.Action("ResendOTP", "Payment")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.isSimulation) {
+                        resendStatus.innerHTML = '<span class="text-info"><i class="fas fa-flask me-1"></i> Đã giả lập gửi mã mới!</span>';
+                    } else {
+                        resendStatus.innerHTML = '<span class="text-success"><i class="fas fa-check me-1"></i> Mã mới đã được gửi!</span>';
+                    }
+                    timeLeft = 60; // Wait longer for next resend
+                    startTimer();
+                } else {
+                    resendStatus.innerHTML = `<span class="text-danger"><i class="fas fa-times me-1"></i> ${data.message}</span>`;
+                }
+            })
+            .catch(err => {
+                resendStatus.innerHTML = '<span class="text-danger"><i class="fas fa-times me-1"></i> Lỗi kết nối.</span>';
+            });
+        });
     });
 </script>
