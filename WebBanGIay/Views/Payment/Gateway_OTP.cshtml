@@ -24,7 +24,7 @@
                                     <hr class="my-2">
                                     <div class="small">
                                          Mã xác thực đã được "giả lập" gửi đến: <b>@ViewBag.TargetEmail</b>
-                                         <br>Để tiếp tục, vui lòng dùng mã dự phòng: <span class="badge bg-primary fs-6">123456</span>
+                                         <br>Để tiếp tục, vui lòng dùng mã vừa tạo: <span id="simulated-otp-badge" class="badge bg-primary fs-6 tracking-widest">@ViewBag.SimulatedOTP</span>
                                     </div>
                                 </div>
                             </div>
@@ -109,6 +109,14 @@
             });
         });
 
+        // Prevent double submission
+        const otpForm = document.getElementById('otpForm');
+        otpForm.addEventListener("submit", () => {
+             const btn = otpForm.querySelector('button[type="submit"]');
+             btn.disabled = true;
+             btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Đang xử lý...';
+        });
+
         // Timer and Resend Logic
         let timeLeft = 30;
         const resendLink = document.getElementById('resend-link');
@@ -144,6 +152,11 @@
                 if (data.success) {
                     if (data.isSimulation) {
                         resendStatus.innerHTML = '<span class="text-info"><i class="fas fa-flask me-1"></i> Đã giả lập gửi mã mới!</span>';
+                        // Update the displayed code if the badge exists
+                        const badge = document.getElementById('simulated-otp-badge');
+                        if (badge && data.newOtp) {
+                            badge.innerText = data.newOtp;
+                        }
                     } else {
                         resendStatus.innerHTML = '<span class="text-success"><i class="fas fa-check me-1"></i> Mã mới đã được gửi!</span>';
                     }

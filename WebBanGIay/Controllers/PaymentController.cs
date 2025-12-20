@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.Entity.Validation;
 using System.Linq;
 using System.Web.Mvc;
 using WebBanGIay.Models;
@@ -104,7 +105,18 @@ namespace WebBanGIay.Controllers
                 Session["CheckoutInfo"] = checkoutInfo;
             }
 
-            // Send Email
+            // 1. Check Configuration FIRST
+            if (!MailHelper.IsConfigured())
+            {
+                Session["IsSimulationMode"] = true;
+                Session.Remove("OTPError");
+                Session["OTPSentSuccess"] = true;
+                Session["OTPTargetEmail"] = email ?? checkoutInfo?.Email ?? "Demo Mode";
+                return RedirectToAction("Gateway_OTP");
+            }
+
+            // 2. Normal Email Flow
+            Session["IsSimulationMode"] = false;
             try 
             {
                  // If email not provided in form, fallback to session, then DB
@@ -147,18 +159,8 @@ namespace WebBanGIay.Controllers
             } 
             catch (Exception ex)
             { 
-                if (ex.Message.Contains("SMTP_NOT_CONFIGURED"))
-                {
-                    Session["IsSimulationMode"] = true;
-                    Session.Remove("OTPError");
-                    Session["OTPSentSuccess"] = true;
-                }
-                else
-                {
-                    Session["OTPError"] = "Lỗi hệ thống: " + ex.Message;
-                    Session["OTPSentSuccess"] = false;
-                    Session["IsSimulationMode"] = false;
-                }
+                 Session["OTPError"] = "Lỗi hệ thống: " + ex.Message;
+                 Session["OTPSentSuccess"] = false;
             }
 
             return RedirectToAction("Gateway_OTP");
@@ -182,6 +184,12 @@ namespace WebBanGIay.Controllers
             string otp = new Random().Next(100000, 999999).ToString();
             Session["OTP_Code"] = otp;
 
+            // 1. Simulation Check
+            if (!MailHelper.IsConfigured())
+            {
+                return Json(new { success = true, isSimulation = true, newOtp = otp });
+            }
+
             try 
             {
                 string subject = "Gửi lại mã xác thực - MEODIGIAY";
@@ -191,10 +199,6 @@ namespace WebBanGIay.Controllers
             }
             catch (Exception ex)
             {
-                if (ex.Message.Contains("SMTP_NOT_CONFIGURED"))
-                {
-                    return Json(new { success = true, isSimulation = true });
-                }
                 return Json(new { success = false, message = ex.Message });
             }
         }
@@ -222,6 +226,7 @@ namespace WebBanGIay.Controllers
 
             ViewBag.TargetEmail = Session["OTPTargetEmail"];
             ViewBag.IsSimulationMode = Session["IsSimulationMode"] ?? false;
+            ViewBag.SimulatedOTP = Session["OTP_Code"];
 
             return View();
         }
@@ -262,7 +267,8 @@ namespace WebBanGIay.Controllers
                 Session.Remove("PendingCardAuth"); // Cleanup old flag
                 
                 string method = Session["PendingPaymentMethod"] as string ?? "Unknown";
-                return RedirectToAction("CompleteOrder", new { method = method });
+                // Use absolute path for reliability
+                return Redirect("~/Payment/CompleteOrder?method=" + method);
             }
             
             ViewBag.Error = "Mã OTP không chính xác!";
@@ -281,6 +287,12 @@ namespace WebBanGIay.Controllers
             string taiKhoanId = Session["UserID"] as string;
             var cart = cartService.GetCart();
             var total = cartService.TongTien();
+            
+            // Prevent re-processing on refresh
+            if (Session["CurrentOrder_Processed"] != null && Session["CurrentOrder_Processed"].ToString() == "Success")
+            {
+                return RedirectToAction("Index", "Home");
+            }
 
             using (var transaction = db.Database.BeginTransaction())
             {
@@ -291,9 +303,9 @@ namespace WebBanGIay.Controllers
                     if (tk == null) return RedirectToAction("Login", "Account");
 
                     string maKH = tk.MAKHACHHANG?.Trim();
-
-                    // Generate Order ID
-                    string orderId = "HD" + DateTime.Now.ToString("yyyyMMddHHmmss");
+ 
+                    // Use a GUID for absolute uniqueness to prevent ID collisions
+                    string orderId = Guid.NewGuid().ToString("N").Substring(0, 20).ToUpper();
 
                     // Get Checkout Info from Session
                     var checkoutInfo = Session["CheckoutInfo"] as CheckoutVM;
@@ -305,23 +317,33 @@ namespace WebBanGIay.Controllers
                     // Create Order (HOADON)
                     var order = new HOADON
                     {
-                        MAHOADON = orderId,
-                        MAKHACHHANG = maKH,
+                        MAHOADON = Truncate(orderId, 20),
+                        MAKHACHHANG = Truncate(maKH, 20),
                         MANHANVIEN = null, // Online order
                         NGAYLAP = DateTime.Now,
                         TONGTIEN = total,
-                        TRANGTHAI = "Chờ xử lý", // String status
-                        DIACHIGIAO = checkoutInfo != null ? checkoutInfo.DiaChi : (tk.KHACHHANG != null ? tk.KHACHHANG.DIACHI : "Địa chỉ mặc định"),
-                        DIENTHOAINGIAO = checkoutInfo != null ? checkoutInfo.DienThoai : (tk.KHACHHANG != null ? tk.KHACHHANG.SODIENTHOAI : "0900000000"),
-                        TENNGUOINHAN = checkoutInfo != null ? checkoutInfo.HoTen : (tk.KHACHHANG != null ? tk.KHACHHANG.HOTEN : "Khách hàng"),
-                        GHICHU = (checkoutInfo != null && !string.IsNullOrEmpty(checkoutInfo.GhiChu) ? "Ghi chú: " + checkoutInfo.GhiChu + " | " : "") + "Thanh toán qua: " + (method ?? "COD")
+                        TRANGTHAI = Truncate("Chờ xử lý", 50),
+                        DIACHIGIAO = Truncate(checkoutInfo != null ? checkoutInfo.DiaChi : (tk.KHACHHANG != null ? tk.KHACHHANG.DIACHI : "Địa chỉ mặc định"), 300),
+                        DIENTHOAINGIAO = Truncate(checkoutInfo != null ? checkoutInfo.DienThoai : (tk.KHACHHANG != null ? tk.KHACHHANG.SODIENTHOAI : "0900000000"), 11),
+                        TENNGUOINHAN = Truncate(checkoutInfo != null ? checkoutInfo.HoTen : (tk.KHACHHANG != null ? tk.KHACHHANG.HOTEN : "Khách hàng"), 100),
+                        GHICHU = Truncate((checkoutInfo != null && !string.IsNullOrEmpty(checkoutInfo.GhiChu) ? "Ghi chú: " + checkoutInfo.GhiChu + " | " : "") + "Thanh toán qua: " + (method ?? "COD"), 500)
                     };
                     
                     db.HOADON.Add(order);
                     db.SaveChanges();
+ 
+                    // IMPORTANT: Group cart items by MASANPHAM to prevent duplicate keys in CHITIET_HOADON
+                    // (EF errors if multiple records have the same MAHOADON + MASANPHAM)
+                    var groupedCart = cart.GroupBy(c => c.MaSP?.Trim())
+                                          .Select(g => new { 
+                                              MaSP = g.Key, 
+                                              SoLuong = g.Sum(x => x.SoLuong), 
+                                              DonGia = g.First().DonGia,
+                                              OriginalItems = g.ToList() // Keep for stock deduction
+                                          }).ToList();
 
-                     // Add Details (CHITIET_HOADON) & Update Stock
-                    foreach (var item in cart)
+                    // Add Details (CHITIET_HOADON)
+                    foreach (var item in groupedCart)
                     {
                         var detail = new CHITIET_HOADON
                         {
@@ -330,58 +352,45 @@ namespace WebBanGIay.Controllers
                             SOLUONG = item.SoLuong,
                             DONGIA = item.DonGia
                         };
-                         db.CHITIET_HOADON.Add(detail);
+                        db.CHITIET_HOADON.Add(detail);
 
                         // --- STOCK DEDUCTION LOGIC ---
-                        // --- STOCK DEDUCTION LOGIC ---
-                        if (item.BienTheId > 0 && !string.IsNullOrEmpty(item.Size))
+                        foreach(var orig in item.OriginalItems)
                         {
-                            // 1. Use BienTheId directly
-                            int sizeInt = 0;
-                            int.TryParse(item.Size, out sizeInt);
-
-                            var stock = db.TONKHO_SIZE
-                                .FirstOrDefault(t => t.IDBienThe == item.BienTheId && t.SIZE == sizeInt);
-
-                            if (stock != null)
-                            {
-                                if (stock.SOLUONG >= item.SoLuong)
-                                {
-                                    stock.SOLUONG -= item.SoLuong;
-                                }
-                                else
-                                {
-                                    throw new Exception($"Sản phẩm {item.TenSP} không đủ số lượng tồn kho!");
-                                }
-                            }
-                        }
-                        // Fallback for old items without BienTheId
-                        else if (!string.IsNullOrEmpty(item.MaSP) && !string.IsNullOrEmpty(item.Mau) && !string.IsNullOrEmpty(item.Size))
-                        {
-                            // 1. Find Variant by color matching
-                            var variant = db.BIEN_THE_SAN_PHAM
-                                .FirstOrDefault(v => v.MASANPHAM == item.MaSP && v.MAUSAC == item.Mau);
-
-                            if (variant != null)
+                            if (orig.BienTheId > 0 && !string.IsNullOrEmpty(orig.Size))
                             {
                                 int sizeInt = 0;
-                                int.TryParse(item.Size, out sizeInt);
-
-                                // 2. Find Stock Record
+                                int.TryParse(orig.Size, out sizeInt);
                                 var stock = db.TONKHO_SIZE
-                                    .FirstOrDefault(t => t.IDBienThe == variant.ID && t.SIZE == sizeInt);
-
+                                    .FirstOrDefault(t => t.IDBienThe == orig.BienTheId && t.SIZE == sizeInt);
                                 if (stock != null)
                                 {
-                                    if (stock.SOLUONG >= item.SoLuong)
-                                        stock.SOLUONG -= item.SoLuong;
+                                    if (stock.SOLUONG >= orig.SoLuong)
+                                        stock.SOLUONG -= orig.SoLuong;
                                     else
-                                        throw new Exception($"Sản phẩm {item.TenSP} không đủ số lượng tồn kho!");
+                                        throw new Exception($"Sản phẩm {orig.TenSP} không đủ số lượng tồn kho!");
+                                }
+                            }
+                            else if (!string.IsNullOrEmpty(orig.MaSP) && !string.IsNullOrEmpty(orig.Mau) && !string.IsNullOrEmpty(orig.Size))
+                            {
+                                var variant = db.BIEN_THE_SAN_PHAM.FirstOrDefault(v => v.MASANPHAM == orig.MaSP && v.MAUSAC == orig.Mau);
+                                if (variant != null)
+                                {
+                                    int sizeInt = 0;
+                                    int.TryParse(orig.Size, out sizeInt);
+                                    var stock = db.TONKHO_SIZE.FirstOrDefault(t => t.IDBienThe == variant.ID && t.SIZE == sizeInt);
+                                    if (stock != null)
+                                    {
+                                        if (stock.SOLUONG >= orig.SoLuong)
+                                            stock.SOLUONG -= orig.SoLuong;
+                                        else
+                                            throw new Exception($"Sản phẩm {orig.TenSP} không đủ số lượng tồn kho!");
+                                    }
                                 }
                             }
                         }
 
-                        // 3. Update Total Product Stock (Optional but good for sync)
+                        // Update Total Product Stock
                         var product = db.SANPHAM.FirstOrDefault(p => p.MASANPHAM == item.MaSP);
                         if (product != null)
                         {
@@ -391,6 +400,9 @@ namespace WebBanGIay.Controllers
                     }
                     db.SaveChanges();
                     transaction.Commit();
+ 
+                    // Mark as processed to prevent duplicate orders on refresh
+                    Session["CurrentOrder_Processed"] = "Success";
 
                     // 2. Clear Cart
                     cartService.Clear();
@@ -400,21 +412,56 @@ namespace WebBanGIay.Controllers
                         // MailHelper.SendMail(userEmail, subject, content); 
                     } catch {}
 
-                    return RedirectToAction("Success", new { id = order.MAHOADON });
+                    return Redirect("~/Payment/Success?id=" + order.MAHOADON.Trim());
+                }
+                catch (DbEntityValidationException dbEx)
+                {
+                    transaction.Rollback();
+                    var errorMessages = new List<string>();
+                    foreach (var validationErrors in dbEx.EntityValidationErrors)
+                    {
+                        foreach (var validationError in validationErrors.ValidationErrors)
+                        {
+                            errorMessages.Add($"Property: {validationError.PropertyName} Error: {validationError.ErrorMessage}");
+                        }
+                    }
+                    string fullError = "Lỗi Validation: " + string.Join("; ", errorMessages);
+                    return Content(fullError);
                 }
                 catch (Exception ex)
                 {
                     transaction.Rollback();
-                    // Log error
-                    return Content("Lỗi thanh toán: " + ex.Message);
+                    // Provide detailed error message including inner exception if any
+                    string errorMsg = ex.Message + (ex.InnerException != null ? " | Inner: " + ex.InnerException.Message : "");
+                    return Content($@"
+                        <div style='text-align:center; padding: 50px; font-family: sans-serif;'>
+                            <h2 style='color: #dc3545;'>Rất tiếc, đã xảy ra lỗi!</h2>
+                            <p>{errorMsg}</p>
+                            <hr>
+                            <a href='/Cart/Checkout' style='padding: 10px 20px; background: #000; color: #fff; text-decoration: none; border-radius: 5px;'>Quay lại giỏ hàng</a>
+                        </div>");
                 }
             }
         }
 
         public ActionResult Success(string id)
         {
-            ViewBag.OrderId = id; // Pass string ID
-            return View(); // View accesses Model? Need to fix View too if it expects int
+            // Final cleanup of checkout process data
+            Session.Remove("CheckoutInfo");
+            Session.Remove("PendingOTP");
+            Session.Remove("OTP_Code");
+            Session.Remove("OTPTargetEmail");
+            Session.Remove("IsSimulationMode");
+            Session.Remove("CurrentOrder_Processed"); // Reset for next purchase
+
+            ViewBag.OrderId = id?.Trim();
+            return View();
+        }
+
+        private string Truncate(string value, int maxLength)
+        {
+            if (string.IsNullOrEmpty(value)) return value;
+            return value.Length <= maxLength ? value : value.Substring(0, maxLength);
         }
     }
 }
