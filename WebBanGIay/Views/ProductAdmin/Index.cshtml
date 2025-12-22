@@ -298,6 +298,9 @@
                             }
                         </td>
                         <td class="text-center">
+                            <a href="@Url.Action("Create", "ImportAdmin", new { productId = item.MASANPHAM.Trim() })" class="action-btn" title="Nhập hàng" style="color:var(--accent-color); border-color:var(--accent-color);">
+                                <i class="bi bi-box-arrow-in-down"></i>
+                            </a>
                             <a href="@Url.Action("Edit", "ProductAdmin", new { id = item.MASANPHAM.Trim() })" class="action-btn" title="Sửa">
                                 <i class="bi bi-pencil"></i>
                             </a>

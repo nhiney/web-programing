@@ -99,7 +99,11 @@ namespace WebBanGIay.Controllers
 
         public ActionResult DanhSach()
         {
-            var sanPhams = db.SANPHAM.Include(s => s.NHACUNGCAP).Include(s => s.KHUYENMAI).ToList();
+            var sanPhams = db.SANPHAM
+                .Include(s => s.NHACUNGCAP)
+                .Include(s => s.KHUYENMAI)
+                .OrderByDescending(s => s.NGAYTAO)
+                .ToList();
             return View(sanPhams);
         }
 
@@ -117,7 +121,7 @@ namespace WebBanGIay.Controllers
                                       .FirstOrDefault();
                 ViewBag.TenThuongHieu = tenHang;
             }
-            query = query.Include(p => p.KHUYENMAI);
+            query = query.Include(p => p.KHUYENMAI).OrderByDescending(p => p.NGAYTAO);
             var listSanPham = await query.ToListAsync();
 
             return View("SPhamTHuongHieu", listSanPham);

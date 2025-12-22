@@ -68,7 +68,7 @@ namespace WebBanGIay.Controllers
                 ((s.GIAKHUYENMAI != null && s.GIAKHUYENMAI > 0) ? s.GIAKHUYENMAI : s.GIA) <= maxPrice
             );
 
-            // 4. SẮP XẾP (SapXep)
+            // 4. SẮP XẾP (SapXep) - Ưu tiên Mới nhất / Cập nhật mới nhất
             switch (SapXep)
             {
                 case "gia-tang":
@@ -78,17 +78,18 @@ namespace WebBanGIay.Controllers
                     query = query.OrderByDescending(s => (s.GIAKHUYENMAI != null && s.GIAKHUYENMAI > 0) ? s.GIAKHUYENMAI : s.GIA);
                     break;
                 case "moi-nhat":
-                    query = query.OrderByDescending(s => s.NGAYTAO);
+                    query = query.OrderByDescending(s => s.NGAYTAO).ThenByDescending(s => s.MASANPHAM);
                     break;
                 default:
-                    query = query.OrderByDescending(s => s.SOLUONGTON); // Default: Ban chay / Ton kho
+                    // Mặc định luôn ưu tiên sản phẩm mới thêm hoặc mới cập nhật
+                    query = query.OrderByDescending(s => s.NGAYTAO).ThenByDescending(s => s.MASANPHAM);
                     break;
             }
 
-            // Lay ket qua (phan trang hoac lay 30 sp)
-            var sanPhamBanChay = query.Take(30).ToList();
+            // Lấy kết quả (tăng lên 40 sản phẩm để đảm bảo không bị sót sản phẩm mới)
+            var danhSachSanPham = query.Take(40).ToList();
 
-            ViewBag.SanPhamBanChay = sanPhamBanChay;
+            ViewBag.SanPhamBanChay = danhSachSanPham;
             ViewBag.HangList = db.NHACUNGCAP.Select(n => n.TENNHACUNGCAP).Distinct().ToList();
 
             // ViewBag giu state filter
@@ -146,6 +147,7 @@ namespace WebBanGIay.Controllers
 
             var dsSanPham = tatCaSanPham
                 .Where(s => RemoveDiacritics(s.TENSANPHAM).IndexOf(RemoveDiacritics(keyword), StringComparison.OrdinalIgnoreCase) >= 0)
+                .OrderByDescending(s => s.NGAYTAO)
                 .ToList();
 
             ViewBag.Keyword = keyword;

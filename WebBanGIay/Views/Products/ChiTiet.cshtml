@@ -391,7 +391,7 @@
             <!-- Chi tiết sản phẩm -->
             <div class="col-md-6">
                 <h1 class="product-title">@Model.TENSANPHAM</h1>
-                <p class="brand-name">Thương hiệu: <span class="text-dark fw-semibold">@Model.NHACUNGCAP.TENNHACUNGCAP</span></p>
+                <p class="brand-name">Thương hiệu: <span class="text-dark fw-semibold">@(Model.NHACUNGCAP != null ? Model.NHACUNGCAP.TENNHACUNGCAP : "Đang cập nhật")</span></p>
                 <div class="product-meta">
                     <span>Còn hàng</span>
                     <span>Giao hàng miễn phí</span>
@@ -583,7 +583,7 @@
                                 <tbody>
                                     <tr>
                                         <td class="fw-semibold">Thương hiệu</td>
-                                        <td>@Model.NHACUNGCAP.TENNHACUNGCAP</td>
+                                        <td>@(Model.NHACUNGCAP != null ? Model.NHACUNGCAP.TENNHACUNGCAP : "Đang cập nhật")</td>
                                     </tr>
                                     <tr>
                                         <td class="fw-semibold">Xuất xứ</td>

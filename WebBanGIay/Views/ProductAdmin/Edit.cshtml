@@ -21,14 +21,25 @@
 
                 <!-- Product Info Card -->
                 <div class="card card-premium mb-4">
-                    <div class="card-header-premium">
+                    <div class="card-header-premium d-flex justify-content-between align-items-center">
                         <h5><i class="bi bi-pencil-square text-warning"></i> Sửa thông tin sản phẩm</h5>
+                        <a href="@Url.Action("Create", "ImportAdmin", new { productId = Model.MASANPHAM.Trim() })" class="btn btn-sm btn-outline-primary border-primary">
+                            <i class="bi bi-box-arrow-in-down me-1"></i> Nhập hàng vào kho
+                        </a>
                     </div>
                     <div class="card-body p-4">
-                        @if (TempData["Error"] != null)
+                        @if (TempData["Success"] != null)
                         {
-                            <div class="alert alert-danger mb-4 border-0 bg-danger bg-opacity-10 text-danger fw-bold">
-                                <i class="bi bi-exclamation-triangle me-2"></i> @TempData["Error"]
+                            <div class="alert alert-success mb-4 border-0 bg-success bg-opacity-10 text-success fw-bold">
+                                <i class="bi bi-check-circle me-2"></i> @TempData["Success"]
+                            </div>
+                        }
+
+                        @if (Model.SOLUONGTON == 0 || Model.SOLUONGTON == null)
+                        {
+                             <div class="alert alert-info mb-4 border-0 bg-info bg-opacity-10 text-info">
+                                <i class="bi bi-info-circle-fill me-2"></i> 
+                                <strong>Lưu ý chuyên nghiệp:</strong> Sản phẩm này chưa có tồn kho. Hãy <strong>thêm biến thể (Màu sắc)</strong> và sau đó click vào <strong>"Nhập hàng vào kho"</strong> để cập nhật số lượng nhập thực tế.
                             </div>
                         }
 

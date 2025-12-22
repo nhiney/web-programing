@@ -45,6 +45,7 @@ namespace WebBanGIay.Controllers
         // ===================== CREATE PRODUCT =====================
         public ActionResult Create()
         {
+            ViewBag.NHACUNGCAP = db.NHACUNGCAP.ToList();
             return View();
         }
 
@@ -90,8 +91,8 @@ namespace WebBanGIay.Controllers
                 db.SANPHAM.Add(model);
                 db.SaveChanges();
 
-                TempData["Success"] = "Thêm sản phẩm thành công!";
-                return RedirectToAction("Index");
+                TempData["Success"] = "Thêm sản phẩm thành công! Vui lòng thiết lập màu sắc và tồn kho.";
+                return RedirectToAction("Edit", new { id = model.MASANPHAM.Trim() });
             }
             catch (Exception ex)
             {
@@ -110,6 +111,7 @@ namespace WebBanGIay.Controllers
             var product = db.SANPHAM.Find(id);
             if (product == null) return HttpNotFound();
 
+            ViewBag.NHACUNGCAP = db.NHACUNGCAP.ToList();
             return View(product);
         }
 
@@ -132,6 +134,7 @@ namespace WebBanGIay.Controllers
             product.TENSANPHAM = model.TENSANPHAM;
             product.GIA = model.GIA;
             product.MOTA = model.MOTA;
+            product.NGAYTAO = DateTime.Now; // Update timestamp when edited
 
             // product.SOLUONGTON = model.SOLUONGTON; // Disabled: Managed by Import/Inventory
 
@@ -197,13 +200,41 @@ namespace WebBanGIay.Controllers
 
             try
             {
-                db.SANPHAM.Remove(product);
-                db.SaveChanges();
-                TempData["Success"] = "Xóa sản phẩm thành công!";
+                // 1. Kiểm tra chính xác xem có đơn hàng nào không (dùng Trim để tránh lỗi CHAR(20))
+                // Chúng ta sẽ kiểm tra cả trong bộ nhớ để chắc chắn nhất
+                var idTrimmed = id.Trim();
+                bool hasOrders = db.CHITIET_HOADON.AsEnumerable().Any(c => c.MASANPHAM != null && c.MASANPHAM.Trim() == idTrimmed);
+                
+                if (hasOrders)
+                {
+                    TempData["Error"] = "Sản phẩm này đã có đơn hàng thực tế nên không thể xóa!";
+                    return RedirectToAction("Index");
+                }
+
+                // 2. Xóa các bản ghi liên quan (Variants, Stock, Reviews)
+                // Sử dụng SQL trực tiếp để đảm bảo sạch sẽ hoàn toàn dù có lỗi padding
+                db.Database.ExecuteSqlCommand("DELETE FROM TONKHO_SIZE WHERE MASANPHAM = @p0", id);
+                db.Database.ExecuteSqlCommand("DELETE FROM BIEN_THE_SAN_PHAM WHERE MASANPHAM = @p0", id);
+                db.Database.ExecuteSqlCommand("DELETE FROM DANHGIASANPHAM WHERE MASANPHAM = @p0", id);
+
+                // 3. Xóa sản phẩm chính
+                // Tìm lại bản ghi gốc để tránh lỗi cache
+                var productToDelete = db.SANPHAM.ToList().FirstOrDefault(s => s.MASANPHAM.Trim() == idTrimmed);
+                if (productToDelete != null)
+                {
+                    db.SANPHAM.Remove(productToDelete);
+                    db.SaveChanges();
+                    TempData["Success"] = "Xóa sản phẩm '" + productToDelete.TENSANPHAM + "' thành công!";
+                }
+                else
+                {
+                    TempData["Error"] = "Không tìm thấy sản phẩm để xóa (ID: " + id + ")";
+                }
             }
-            catch
+            catch (Exception ex)
             {
-                TempData["Error"] = "Không thể xóa sản phẩm vì đang có đơn hàng liên quan.";
+                // Nếu vẫn lỗi, báo lỗi chi tiết để debug
+                TempData["Error"] = "Lỗi hệ thống: " + ex.Message + (ex.InnerException != null ? " -> " + ex.InnerException.Message : "");
             }
 
             return RedirectToAction("Index");

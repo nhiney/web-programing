@@ -284,9 +284,14 @@
     var products = @Html.Raw(productsJson);
 
     // Initial Row
-    addRow();
+    var preId = '@ViewBag.PreSelectedProductId';
+    if (preId) {
+        addRow(preId);
+    } else {
+        addRow();
+    }
 
-    function addRow() {
+    function addRow(productId = null) {
         document.getElementById("emptyState").style.display = "none";
         
         var tbody = document.getElementById("tableBody");
@@ -335,6 +340,12 @@
         `;
         
         tbody.appendChild(tr);
+
+        if (productId) {
+            var select = tr.querySelector(".product-select");
+            select.value = productId;
+            onProductChange(select);
+        }
     }
 
     function removeRow(btn) {
@@ -366,7 +377,7 @@
 
             // Load Variants
             variantSelect.innerHTML = '<option>Đang tải...</option>';
-            fetch('/ImportAdmin/GetProductVariants?productId=' + productId)
+            fetch('@Url.Action("GetProductVariants", "ImportAdmin")?productId=' + productId)
                 .then(r => r.json())
                 .then(res => {
                     if (res.success) {

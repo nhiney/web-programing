@@ -16,7 +16,7 @@ namespace WebBanGIay.Controllers
         }
 
         // ======================= CREATE IMPORT SLIP =======================
-        public ActionResult Create()
+        public ActionResult Create(string productId = null)
         {
             ViewBag.Suppliers = new SelectList(db.NHACUNGCAP.ToList(), "MANHACUNGCAP", "TENNHACUNGCAP");
             
@@ -30,6 +30,7 @@ namespace WebBanGIay.Controllers
 
             ViewBag.ProductsJson = System.Web.Helpers.Json.Encode(products);
             ViewBag.Products = db.SANPHAM.ToList(); // Fallback/Dropdown
+            ViewBag.PreSelectedProductId = productId?.Trim();
 
             return View();
         }
@@ -82,14 +83,19 @@ namespace WebBanGIay.Controllers
                             productId = productId.Trim();
                             
                             // 1. Find or Create Stock Record (TONKHO_SIZE)
-                            var stockRecord = db.TONKHO_SIZE
-                                .FirstOrDefault(t => t.MASANPHAM == productId && t.IDBienThe == variantId && t.SIZE == size);
+                            // Use a more robust search for MASANPHAM to handle trailing spaces
+                            var stockRecord = db.TONKHO_SIZE.ToList()
+                                .FirstOrDefault(t => t.MASANPHAM.Trim() == productId && t.IDBienThe == variantId && t.SIZE == size);
 
                             if (stockRecord == null)
                             {
+                                // We need the EXACT MASANPHAM from the product record to maintain consistency
+                                var actualProduct = db.SANPHAM.ToList().FirstOrDefault(s => s.MASANPHAM.Trim() == productId);
+                                string correctId = actualProduct != null ? actualProduct.MASANPHAM : productId;
+
                                 stockRecord = new TONKHO_SIZE
                                 {
-                                    MASANPHAM = productId,
+                                    MASANPHAM = correctId,
                                     IDBienThe = variantId,
                                     SIZE = size,
                                     SOLUONG = 0 // Initial
@@ -107,14 +113,15 @@ namespace WebBanGIay.Controllers
                     
                     db.SaveChanges();
 
-                    // 3. Update Aggregate Stock for Products (Optional but good for display)
+                    // 3. Update Aggregate Stock for Products
                     var distinctProductIds = itemProducts.Where(x => !string.IsNullOrEmpty(x)).Select(x => x.Trim()).Distinct().ToList();
                     foreach (var pid in distinctProductIds)
                     {
-                        var p = db.SANPHAM.Find(pid);
+                        var p = db.SANPHAM.ToList().FirstOrDefault(s => s.MASANPHAM.Trim() == pid);
                         if(p != null)
                         {
-                            var totalStock = db.TONKHO_SIZE.Where(t => t.MASANPHAM == pid).Sum(t => (int?)t.SOLUONG) ?? 0;
+                            string exactId = p.MASANPHAM;
+                            var totalStock = db.TONKHO_SIZE.Where(t => t.MASANPHAM == exactId).Sum(t => (int?)t.SOLUONG) ?? 0;
                             p.SOLUONGTON = totalStock;
                         }
                     }
