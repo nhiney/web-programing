@@ -6,7 +6,6 @@ using WebBanGIay.Models;
 
 namespace WebBanGIay.Controllers
 {
-    [RoutePrefix("OrderAdmin")]
     public class OrderAdminController : BaseAdminController
     {
         private readonly QuanLyBanGiayEntities1 db = new QuanLyBanGiayEntities1();
@@ -14,8 +13,6 @@ namespace WebBanGIay.Controllers
 
 
         // ======================= LIST ORDERS =======================
-        [Route("")]
-        [Route("Index")]
         public ActionResult Index(string search = "", string status = "", int page = 1, int pageSize = 15)
         {
             var query = db.HOADON.Include(h => h.KHACHHANG).AsQueryable();
@@ -73,15 +70,21 @@ namespace WebBanGIay.Controllers
         }
 
         // ======================= DETAILS ORDER =======================
-        [Route("Details/{id}")]
         public ActionResult Details(string id)
         {
             if (string.IsNullOrWhiteSpace(id)) return HttpNotFound();
 
-            id = id.Replace(" ", "");
+            // Self-correct URL if it has spaces
+            if (id.Contains(" "))
+            {
+                return Redirect("/OrderAdmin/Details/" + id.Trim());
+            }
+
+            var idTrimmed = id.Trim();
             var order = db.HOADON.Include(h => h.KHACHHANG)
                                  .Include(h => h.CHITIET_HOADON.Select(d => d.SANPHAM))
-                                 .FirstOrDefault(h => h.MAHOADON == id);
+                                 .AsEnumerable()
+                                 .FirstOrDefault(h => h.MAHOADON != null && h.MAHOADON.Trim() == idTrimmed);
 
             if (order == null) return HttpNotFound();
 
@@ -96,18 +99,24 @@ namespace WebBanGIay.Controllers
         }
 
         // ======================= EDIT ORDER (STATUS) =======================
-        [Route("Edit/{id}")]
         public ActionResult Edit(string id)
         {
             if (string.IsNullOrWhiteSpace(id)) return HttpNotFound();
 
-            id = id.Replace(" ", "");
+            // Self-correct URL if it has spaces
+            if (id.Contains(" "))
+            {
+                return Redirect("/OrderAdmin/Edit/" + id.Trim());
+            }
+
+            var idTrimmed = id.Trim();
             var order = db.HOADON.Include(h => h.KHACHHANG)
-                                 .FirstOrDefault(h => h.MAHOADON == id);
+                                 .AsEnumerable()
+                                 .FirstOrDefault(h => h.MAHOADON != null && h.MAHOADON.Trim() == idTrimmed);
 
             if (order == null) 
             {
-                TempData["Error"] = "Không tìm thấy đơn hàng #" + id;
+                TempData["Error"] = "Không tìm thấy đơn hàng #" + idTrimmed;
                 return RedirectToAction("Index");
             }
 
@@ -117,11 +126,11 @@ namespace WebBanGIay.Controllers
         // ======================= UPDATE STATUS =======================
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Route("UpdateStatus")]
         public ActionResult UpdateStatus(string id, string status)
         {
-            id = id?.Replace(" ", "");
-            var order = db.HOADON.Find(id);
+            var idTrimmed = id?.Trim();
+            // Find logic for CHAR PK
+            var order = db.HOADON.AsEnumerable().FirstOrDefault(h => h.MAHOADON != null && h.MAHOADON.Trim() == idTrimmed);
             if (order == null)
             {
                 TempData["Error"] = "Không tìm thấy đơn hàng #" + id;
@@ -131,9 +140,10 @@ namespace WebBanGIay.Controllers
             order.TRANGTHAI = status;
             
             db.SaveChanges();
-            TempData["Success"] = $"Cập nhật đơn hàng {id} sang trạng thái {status} thành công!";
+            var idForRedirect = order.MAHOADON.Trim();
+            TempData["Success"] = $"Cập nhật đơn hàng {idForRedirect} sang trạng thái {status} thành công!";
             
-            return RedirectToAction("Details", new { id = id });
+            return Redirect("/OrderAdmin/Details/" + idForRedirect);
         }
 
 
@@ -141,13 +151,12 @@ namespace WebBanGIay.Controllers
         // ======================= APPROVE ORDER (QUICK ACTION) =======================
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Route("Approve")]
         public ActionResult Approve(string id)
         {
             if (string.IsNullOrWhiteSpace(id)) return new HttpStatusCodeResult(400);
 
-            id = id.Replace(" ", "");
-            var order = db.HOADON.Find(id);
+            var idTrimmed = id.Trim();
+            var order = db.HOADON.AsEnumerable().FirstOrDefault(h => h.MAHOADON != null && h.MAHOADON.Trim() == idTrimmed);
             if (order == null) return HttpNotFound();
 
             if (order.TRANGTHAI == "CHỜ XỬ LÝ")
@@ -161,7 +170,7 @@ namespace WebBanGIay.Controllers
                 TempData["Error"] = $"Đơn hàng #{id} đang ở trạng thái {order.TRANGTHAI}, không thể duyệt lại!";
             }
 
-            return RedirectToAction("Index");
+            return Redirect("/OrderAdmin/Index");
         }
 
         protected override void Dispose(bool disposing)

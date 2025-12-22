@@ -91,6 +91,23 @@ namespace WebBanGIay.Controllers
             ViewBag.Colors = colors;
             ViewBag.ListBienThe = bienTheList;
 
+            // Kiểm tra khách hàng đã mua sản phẩm chưa (để được đánh giá)
+            bool hasPurchased = false;
+            string userId = Session["UserID"]?.ToString();
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var taiKhoan = db.TAIKHOAN.FirstOrDefault(x => x.MATAIKHOAN == userId);
+                if (taiKhoan != null && taiKhoan.MAKHACHHANG != null)
+                {
+                    string maKH = taiKhoan.MAKHACHHANG;
+                    hasPurchased = db.CHITIET_HOADON.Any(ct => 
+                        ct.MASANPHAM.Trim() == validId.Trim() && 
+                        ct.HOADON.MAKHACHHANG == maKH && 
+                        (ct.HOADON.TRANGTHAI == "ĐÃ GIAO" || ct.HOADON.TRANGTHAI == "HOÀN THÀNH"));
+                }
+            }
+            ViewBag.HasPurchased = hasPurchased;
+
             return View(sanPham);
         }
 
@@ -155,6 +172,18 @@ namespace WebBanGIay.Controllers
             {
                 TempData["Error"] = "Không tìm thấy sản phẩm!";
                 return RedirectToAction("Index", "Home");
+            }
+
+            // 3. Kiểm tra đã mua hàng chưa
+            bool hasPurchased = db.CHITIET_HOADON.Any(ct => 
+                        ct.MASANPHAM.Trim() == maSP && 
+                        ct.HOADON.MAKHACHHANG == maKH && 
+                        (ct.HOADON.TRANGTHAI == "ĐÃ GIAO" || ct.HOADON.TRANGTHAI == "HOÀN THÀNH"));
+
+            if (!hasPurchased)
+            {
+                TempData["Error"] = "Bạn chỉ có thể đánh giá sản phẩm sau khi đã mua và nhận hàng thành công!";
+                return RedirectToAction("ChiTiet", "Products", new { id = maSP });
             }
 
             // Thêm đánh giá

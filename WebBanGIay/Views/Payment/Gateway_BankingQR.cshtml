@@ -3,63 +3,109 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-md-5">
-            <div class="card shadow-lg border-0 text-center">
-                <div class="card-header bg-success text-white py-3">
-                    <h5 class="mb-0 fw-bold"><i class="fas fa-university me-2"></i>Chuyển khoản Ngân hàng</h5>
+<div class="banking-qr-page bg-light py-5">
+    <div class="container">
+        <!-- Progress Steps -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-md-8">
+                <div class="payment-steps d-flex justify-content-between position-relative">
+                    <div class="step-item completed">
+                        <div class="step-icon"><i class="fas fa-shopping-cart"></i></div>
+                        <span class="step-label">Giỏ hàng</span>
+                    </div>
+                    <div class="step-item active">
+                        <div class="step-icon"><i class="fas fa-university"></i></div>
+                        <span class="step-label">Chuyển khoản</span>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon"><i class="fas fa-envelope"></i></div>
+                        <span class="step-label">Xác thực</span>
+                    </div>
                 </div>
-                <div class="card-body p-4">
-                    <p class="text-muted mb-3">Mở ứng dụng ngân hàng và quét mã QR bên dưới để thanh toán.</p>
-                    
-                    <div class="qr-container mb-4 p-3 bg-white rounded shadow-sm border position-relative">
-                        <img src="@ViewBag.QRUrl" alt="VietQR Code" class="img-fluid rounded" style="max-height: 300px;">
-                        <div class="mt-2 small text-muted"><i class="fas fa-bolt text-warning me-1"></i>VietQR hỗ trợ 24/7</div>
-                    </div>
+            </div>
+        </div>
 
-                    <div class="bank-details mb-4 p-3 rounded-4" style="background: rgba(13, 110, 253, 0.03); border: 1px dashed #0d6efd;">
-                        <div class="small text-muted mb-1 text-uppercase fw-bold">Thông tin chuyển khoản</div>
-                        <div class="fw-bold text-dark">@ViewBag.BankInfo</div>
-                        <div class="mt-2 pt-2 border-top">
-                            <div class="small text-muted">Nội dung chuyển khoản (Đã đính kèm trong QR):</div>
-                            <div class="fw-bold text-primary fs-5">@ViewBag.QRContent</div>
-                        </div>
-                    </div>
-
-                    <div class="d-flex justify-content-between align-items-center mb-3 px-3">
-                        <span class="text-muted">Tổng cộng:</span>
-                        <span class="h3 fw-bold text-danger mb-0">@string.Format("{0:N0}", ViewBag.TongTien) ₫</span>
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                    <div class="card-header bg-dark text-white p-4 text-center border-0">
+                        <h4 class="fw-bold mb-0">Quét mã VietQR</h4>
+                        <p class="text-white-50 small mb-0 mt-1">Sử dụng mọi ứng dụng Ngân hàng để quét</p>
                     </div>
                     
-                    <div class="alert alert-warning bg-opacity-10 text-start border-warning border-opacity-25 small mb-4">
-                        <i class="fas fa-shield-alt me-2"></i>Sau khi bấm "Xác nhận", hệ thống sẽ gửi mã xác thực (OTP) về email của bạn để hoàn tất đơn hàng.
-                    </div>
-
-                    @using (Html.BeginForm("ConfirmTransfer", "Payment", FormMethod.Post))
-                    {
-                        @Html.AntiForgeryToken()
-                        
-                        <div class="row g-2 mb-3 text-start">
-                            <div class="col-12">
-                                <label class="small text-muted text-uppercase fw-bold mb-1">Email nhận OTP</label>
-                                <input type="email" name="email" class="form-control form-control-sm bg-light" value="@ViewBag.UserEmail" placeholder="Email của bạn" required>
+                    <div class="card-body p-4 p-md-5">
+                        <div class="row g-4 align-items-center">
+                            <!-- Left: QR Code -->
+                            <div class="col-md-6 text-center">
+                                <div class="qr-wrapper p-3 bg-white border rounded-4 shadow-sm position-relative">
+                                    <img src="@ViewBag.QRUrl" alt="VietQR" class="img-fluid rounded-3 mb-2">
+                                    <div class="small fw-bold text-muted"><i class="fas fa-bolt text-warning me-1"></i>Xử lý tức thì 24/7</div>
+                                    
+                                    <!-- Scan guide overlay hint -->
+                                    <div class="qr-glow"></div>
+                                </div>
                             </div>
-                            <div class="col-12 mt-2">
-                                <label class="small text-muted text-uppercase fw-bold mb-1">Địa chỉ nhận hàng (Xác nhận lại)</label>
-                                <input type="text" name="address" class="form-control form-control-sm bg-light" value="@ViewBag.UserAddress" placeholder="Địa chỉ giao hàng" required>
+                            
+                            <!-- Right: Bank Info -->
+                            <div class="col-md-6">
+                                <div class="info-block mb-4">
+                                    <label class="small text-uppercase fw-bold text-muted mb-2 d-block">Ngân hàng thụ hưởng</label>
+                                    <div class="p-3 bg-light rounded-3 border-start border-4 border-success">
+                                        <div class="fw-bold text-dark mb-1">MB Bank (Quân Đội)</div>
+                                        <div class="h5 fw-bold text-primary mb-0 font-monospace">0909000111</div>
+                                        <div class="small text-muted mt-1">NGUYEN THI YEN NHI</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="info-block mb-4">
+                                    <label class="small text-uppercase fw-bold text-muted mb-2 d-block">Số tiền thanh toán</label>
+                                    <div class="h3 fw-bold text-danger mb-0">@string.Format("{0:N0}", ViewBag.TongTien) ₫</div>
+                                </div>
+                                
+                                <div class="info-block">
+                                    <label class="small text-uppercase fw-bold text-muted mb-2 d-block">Nội dung chuyển khoản</label>
+                                    <div class="position-relative">
+                                        <input type="text" class="form-control fw-bold text-primary bg-light border-0 py-3" value="@ViewBag.QRContent" readonly id="qr-content-input">
+                                        <button class="btn btn-sm btn-outline-primary position-absolute end-0 top-50 translate-middle-y me-2" onclick="copyContent()">Sao chép</button>
+                                    </div>
+                                    <small id="copy-msg" class="text-success mt-1 d-none">Đã sao chép!</small>
+                                </div>
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary w-100 py-3 fw-bold shadow-sm hover-scale rounded-pill">
-                            <i class="fas fa-check-circle me-2"></i>XÁC NHẬN ĐÃ CHUYỂN KHOẢN
-                        </button>
-                    }
-                    
-                    <div class="text-center mt-3">
-                         <a href="@Url.Action("Index")" class="text-muted small text-decoration-none hover-underline">
-                              <i class="fas fa-arrow-left me-1"></i> Chọn phương thức khác
-                         </a>
+                        <hr class="my-5 opacity-25">
+
+                        @using (Html.BeginForm("ConfirmTransfer", "Payment", FormMethod.Post, new { id = "transfer-form" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            
+                            <h5 class="fw-bold mb-4 text-dark"><i class="fas fa-user-check text-primary me-2"></i>Xác nhận thông tin</h5>
+                            
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-12">
+                                    <div class="form-floating">
+                                        <input type="email" name="email" class="form-control border-0 bg-light fw-bold" id="emailInput" value="@ViewBag.UserEmail" placeholder="Email" required>
+                                        <label for="emailInput">Email nhận mã OTP</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-floating">
+                                        <input type="text" name="address" class="form-control border-0 bg-light fw-bold" id="addressInput" value="@ViewBag.UserAddress" placeholder="Địa chỉ" required>
+                                        <label for="addressInput">Địa chỉ nhận hàng (Xác nhận)</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-success w-100 py-3 rounded-pill fw-bold shadow-sm hover-up transition-base">
+                                <i class="fas fa-check-double me-2"></i>XÁC NHẬN ĐÃ CHUYỂN KHOẢN
+                            </button>
+                        }
+
+                        <div class="text-center mt-4">
+                            <a href="@Url.Action("Index")" class="text-muted text-decoration-none small hover-primary transition-base">
+                                <i class="fas fa-arrow-left me-1"></i> Chọn phương thức khác
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -68,14 +114,60 @@
 </div>
 
 <style>
-    .hover-scale {
-        transition: transform 0.2s;
+    .banking-qr-page {
+        min-height: 85vh;
     }
-    .hover-scale:hover {
-        transform: scale(1.02);
+    
+    .qr-wrapper {
+        transition: transform 0.3s ease;
     }
-    .hover-underline:hover {
-        text-decoration: underline !important;
-        color: #0f172a !important;
+    .qr-wrapper:hover {
+        transform: scale(1.03);
     }
+    
+    .qr-glow {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        border-radius: 1rem;
+        box-shadow: 0 0 20px rgba(13, 110, 253, 0.1);
+        z-index: -1;
+    }
+
+    /* Reuse steps CSS from card */
+    .payment-steps::before {
+        content: ''; position: absolute; top: 20px; left: 0; width: 100%; height: 2px;
+        background: #e2e8f0; z-index: 1;
+    }
+    .step-item { position: relative; z-index: 2; text-align: center; width: 80px; }
+    .step-icon {
+        width: 40px; height: 40px; background: white; border: 2px solid #e2e8f0;
+        border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 8px; color: #94a3b8;
+    }
+    .step-item.active .step-icon { border-color: #3b82f6; color: #3b82f6; box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); }
+    .step-item.completed .step-icon { background: #3b82f6; border-color: #3b82f6; color: white; }
+    .step-label { font-size: 0.75rem; font-weight: 600; color: #64748b; }
+
+    .hover-up:hover { transform: translateY(-3px); }
+    .transition-base { transition: all 0.2s ease; }
+    .hover-primary:hover { color: #3b82f6 !important; }
 </style>
+
+<script>
+    function copyContent() {
+        var copyText = document.getElementById("qr-content-input");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999);
+        navigator.clipboard.writeText(copyText.value);
+        
+        var msg = document.getElementById("copy-msg");
+        msg.classList.remove("d-none");
+        setTimeout(() => msg.classList.add("d-none"), 2000);
+    }
+
+    document.getElementById('transfer-form').addEventListener('submit', function() {
+        const btn = this.querySelector('button');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Đang xác nhận giao dịch...';
+    });
+</script>

@@ -46,9 +46,19 @@
                         @Html.ValidationMessageFor(m => m.GIA, "", new { @class = "text-danger" })
                     </div>
 
+                    <!-- Supplier -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Thương hiệu / Nhà cung cấp</label>
+                        @Html.DropDownListFor(m => m.MANHACUNGCAP, 
+                            new SelectList(ViewBag.NHACUNGCAP, "MANHACUNGCAP", "TENNHACUNGCAP"), 
+                            "-- Chọn thương hiệu --", 
+                            new { @class = "form-select form-select-lg" })
+                        @Html.ValidationMessageFor(m => m.MANHACUNGCAP, "", new { @class = "text-danger" })
+                    </div>
+
                     <!-- Quantity -->
                     <div class="col-md-3">
-                        <label class="form-label fw-bold">Số lượng</label>
+                        <label class="form-label fw-bold">Số lượng ban đầu</label>
                         @Html.TextBoxFor(m => m.SOLUONGTON, new
                         {
                             @class = "form-control form-control-lg",

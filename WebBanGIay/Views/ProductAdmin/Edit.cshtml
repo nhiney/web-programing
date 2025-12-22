@@ -63,6 +63,21 @@
                                 </div>
                             </div>
                             <div class="col-md-6 mb-4">
+                                <label class="form-label-premium">Thương hiệu / Nhà cung cấp <span class="text-danger">*</span></label>
+                                <select name="MANHACUNGCAP" class="form-select form-select-premium" required>
+                                    <option value="">-- Chọn thương hiệu --</option>
+                                    @foreach (var ncc in ViewBag.NHACUNGCAP as List<WebBanGIay.Models.NHACUNGCAP>)
+                                    {
+                                        <option value="@ncc.MANHACUNGCAP.Trim()" @(Model.MANHACUNGCAP != null && Model.MANHACUNGCAP.Trim() == ncc.MANHACUNGCAP.Trim() ? "selected" : "")>
+                                            @ncc.TENNHACUNGCAP
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
                                 <label class="form-label-premium">Số lượng tồn</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-transparent border-secondary text-muted" style="border-right:0;"><i class="bi bi-box-seam"></i></span>

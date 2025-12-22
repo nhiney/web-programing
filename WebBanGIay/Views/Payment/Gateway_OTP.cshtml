@@ -1,73 +1,111 @@
 @{
-    ViewBag.Title = "Xác thực OTP";
+    ViewBag.Title = "Xác thực Giao dịch";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-md-5">
-            <div class="card shadow-lg border-0 text-center">
-                <div class="card-body p-5">
-                    <div class="mb-4">
-                        <div class="icon-circle bg-primary bg-opacity-10 text-primary mx-auto mb-3" style="width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem;">
-                            <i class="fas fa-lock"></i>
+<div class="otp-verification-page bg-light py-5">
+    <div class="container">
+        <!-- Progress Steps -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-md-8">
+                <div class="payment-steps d-flex justify-content-between position-relative">
+                    <div class="step-item completed">
+                        <div class="step-icon"><i class="fas fa-shopping-cart"></i></div>
+                        <span class="step-label">Giỏ hàng</span>
+                    </div>
+                    <div class="step-item completed">
+                        <div class="step-icon"><i class="fas fa-credit-card"></i></div>
+                        <span class="step-label">Thanh toán</span>
+                    </div>
+                    <div class="step-item active">
+                        <div class="step-icon"><i class="fas fa-lock"></i></div>
+                        <span class="step-label">Xác thực</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-5 col-md-8">
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                    <div class="card-body p-4 p-md-5 text-center">
+                        <div class="mb-4">
+                            <div class="security-pulse mx-auto mb-4">
+                                <i class="fas fa-shield-alt text-primary h1 mb-0"></i>
+                            </div>
+                            <h3 class="fw-bold text-dark">Xác thực mã OTP</h3>
+                            <p class="text-muted">Chúng tôi đã gửi mã xác thực gồm 6 chữ số để bảo mật giao dịch của bạn.</p>
                         </div>
-                        <h4 class="fw-bold">Xác thực OTP</h4>
-                    @if (ViewBag.IsSimulationMode == true)
-                    {
-                        <div class="alert alert-info shadow-sm border-0 mb-4 text-start">
-                            <div class="d-flex">
-                                <i class="fas fa-flask mt-1 me-2 text-info"></i>
-                                <div>
-                                    <strong class="d-block mb-1">CHẾ ĐỘ THỬ NGHIỆM (SIMULATION)</strong>
-                                    <span class="small">Hệ thống nhận thấy Email chưa được cấu hình tại <code>Web.config</code>.</span>
-                                    <hr class="my-2">
-                                    <div class="small">
-                                         Mã xác thực đã được "giả lập" gửi đến: <b>@ViewBag.TargetEmail</b>
-                                         <br>Để tiếp tục, vui lòng dùng mã vừa tạo: <span id="simulated-otp-badge" class="badge bg-primary fs-6 tracking-widest">@ViewBag.SimulatedOTP</span>
+
+                        @if (ViewBag.IsSimulationMode == true)
+                        {
+                            <div class="alert alert-warning border-0 shadow-sm mb-4 text-start rounded-4 p-3 pulse-border">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-flask-vial text-warning me-2 fs-4"></i>
+                                    <strong class="text-dark small text-uppercase fw-bold">Chế độ Thử nghiệm (Simulation)</strong>
+                                </div>
+                                <div class="small text-secondary">
+                                    @{
+                                        string method = ViewBag.PaymentMethod as string ?? "";
+                                        string msg = (method.Contains("VISA") || method.Contains("MASTER")) 
+                                            ? "Mã xác thực đã được gửi giả lập qua SMS." 
+                                            : "Hệ thống Mail chưa cấu hình. Mã đã được tạo giả lập.";
+                                    }
+                                    @msg Sử dụng mã bên dưới:
+                                    <div class="mt-2 d-flex align-items-center justify-content-center gap-2">
+                                        <div class="h4 font-monospace fw-bold text-primary mb-0 bg-white py-2 px-4 rounded shadow-sm border" id="simulated-otp-display">
+                                            @ViewBag.SimulatedOTP
+                                        </div>
+                                        <button type="button" class="btn btn-sm btn-dark rounded-pill px-3" onclick="autoFillOTP('@ViewBag.SimulatedOTP')">
+                                            <i class="fas fa-magic me-1"></i> Tự điền
+                                        </button>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    }
-                    else if (ViewBag.Error != null)
-                    {
-                        <div class="alert alert-danger shadow-sm border-0 mb-4 text-start">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            <strong>Lỗi hệ thống:</strong> <span class="small">@ViewBag.Error</span>
-                            <hr class="my-2">
-                            <div class="small">
-                                <i class="fas fa-info-circle me-1"></i> 
-                                Vui lòng kiểm tra lại cấu hình <b>Email/Mật khẩu</b> trong tệp <code>Web.config</code>.
+                        }
+                        else if (ViewBag.Error != null)
+                        {
+                            <div class="alert alert-danger border-0 shadow-sm mb-4 text-start rounded-4">
+                                <div class="fw-bold mb-1"><i class="fas fa-times-circle me-2"></i>Lỗi xác thực</div>
+                                <div class="small">@ViewBag.Error</div>
                             </div>
+                        }
+                        else
+                        {
+                            <div class="email-hint bg-light p-3 rounded-4 mb-4 border">
+                                <i class="far fa-envelope text-primary me-2"></i>
+                                <span class="text-muted small">Mã gửi tới:</span>
+                                <span class="fw-bold text-dark d-block">@ViewBag.TargetEmail</span>
+                            </div>
+                        }
+
+                        @using (Html.BeginForm("VerifyOTP", "Payment", FormMethod.Post, new { id = "otpForm" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            <div class="d-flex justify-content-between gap-2 mb-4 otp-group">
+                                <input type="text" name="otp1" class="form-control otp-input" maxlength="1" pattern="\d*" inputmode="numeric" required autofocus id="otp1">
+                                <input type="text" name="otp2" class="form-control otp-input" maxlength="1" pattern="\d*" inputmode="numeric" required id="otp2">
+                                <input type="text" name="otp3" class="form-control otp-input" maxlength="1" pattern="\d*" inputmode="numeric" required id="otp3">
+                                <input type="text" name="otp4" class="form-control otp-input" maxlength="1" pattern="\d*" inputmode="numeric" required id="otp4">
+                                <input type="text" name="otp5" class="form-control otp-input" maxlength="1" pattern="\d*" inputmode="numeric" required id="otp5">
+                                <input type="text" name="otp6" class="form-control otp-input" maxlength="1" pattern="\d*" inputmode="numeric" required id="otp6">
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm hover-up transition-base mb-4">
+                                <i class="fas fa-shield-check me-2"></i>HOÀN TẤT THANH TOÁN
+                            </button>
+                        }
+
+                        <div class="resend-section">
+                            <p class="text-muted small mb-1">Bạn chưa nhận được mã?</p>
+                            <a href="javascript:void(0)" class="text-decoration-none fw-bold" id="resend-link">Gửi lại (30s)</a>
+                            <div id="resend-status" class="mt-2 small"></div>
                         </div>
-                    }
-                    else
-                    {
-                        <p class="text-muted mb-4">
-                            Mã xác thực đã được gửi đến:<br>
-                            <span class="fw-bold text-dark">@(ViewBag.TargetEmail ?? "Email của bạn")</span>
-                        </p>
-                    }
-
-                    @using (Html.BeginForm("VerifyOTP", "Payment", FormMethod.Post, new { id = "otpForm" }))
-                    {
-                        <div class="d-flex justify-content-between gap-2 mb-4 otp-container">
-                            <input type="text" name="otp1" class="form-control text-center otp-input" maxlength="1" required autofocus>
-                            <input type="text" name="otp2" class="form-control text-center otp-input" maxlength="1" required>
-                            <input type="text" name="otp3" class="form-control text-center otp-input" maxlength="1" required>
-                            <input type="text" name="otp4" class="form-control text-center otp-input" maxlength="1" required>
-                            <input type="text" name="otp5" class="form-control text-center otp-input" maxlength="1" required>
-                            <input type="text" name="otp6" class="form-control text-center otp-input" maxlength="1" required>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary w-100 py-3 fw-bold mb-3 rounded-pill shadow-sm">XÁC NHẬN</button>
-                    }
-
-                    <div class="text-muted small">
-                        Bạn chưa nhận được mã? <a href="javascript:void(0)" class="text-decoration-none fw-bold" id="resend-link">Gửi lại (30s)</a>
-                        <div id="resend-status" class="mt-2 small"></div>
                     </div>
+                </div>
+
+                <div class="text-center mt-4">
+                     <p class="text-muted small"><i class="fas fa-lock me-1"></i> Kết nối được mã hóa với tiêu chuẩn tài chính quốc tế.</p>
                 </div>
             </div>
         </div>
@@ -76,22 +114,77 @@
 
 <style>
     .otp-input {
-        width: 100%;
         height: 60px;
         font-size: 1.8rem;
-        font-weight: bold;
+        font-weight: 800;
+        text-align: center;
         border-radius: 12px;
-        background: #f8f9fa;
-        border: 2px solid #e9ecef;
+        background: #f1f5f9;
+        border: 2px solid transparent;
+        transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
+    
     .otp-input:focus {
-        border-color: #0d6efd;
         background: #fff;
-        box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.15);
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 5px rgba(59, 130, 246, 0.1);
+        transform: translateY(-2px);
     }
+
+    .security-pulse {
+        width: 100px; height: 100px;
+        background: rgba(59, 130, 246, 0.05);
+        border: 2px solid rgba(59, 130, 246, 0.1);
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        animation: pulse 2s infinite;
+    }
+
+    @@keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+        70% { box-shadow: 0 0 0 20px rgba(59, 130, 246, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+    }
+
+    .pulse-border {
+        animation: borderPulse 3s infinite;
+    }
+    @@keyframes borderPulse {
+        0%, 100% { border: 1px solid rgba(255, 193, 7, 0.2); }
+        50% { border: 1px solid rgba(255, 193, 7, 0.8); }
+    }
+
+    /* Reuse steps from gateways */
+    .payment-steps::before {
+        content: ''; position: absolute; top: 20px; left: 0; width: 100%; height: 2px;
+        background: #e2e8f0; z-index: 1;
+    }
+    .step-item { position: relative; z-index: 2; text-align: center; width: 80px; }
+    .step-icon {
+        width: 40px; height: 40px; background: white; border: 2px solid #e2e8f0;
+        border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 8px; color: #94a3b8;
+    }
+    .step-item.active .step-icon { border-color: #3b82f6; color: #3b82f6; box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); }
+    .step-item.completed .step-icon { background: #3b82f6; border-color: #3b82f6; color: white; }
+    .step-label { font-size: 0.75rem; font-weight: 600; color: #64748b; }
+
+    .hover-up:hover { transform: translateY(-3px); }
 </style>
 
 <script>
+    function autoFillOTP(code) {
+        const digits = code.split('');
+        digits.forEach((digit, i) => {
+            const input = document.getElementById(`otp${i + 1}`);
+            if (input) {
+                input.value = digit;
+            }
+        });
+        // Focus the last input or the confirm button
+        document.getElementById('otp6').focus();
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
         const inputs = document.querySelectorAll(".otp-input");
         
@@ -107,17 +200,31 @@
                     inputs[index - 1].focus();
                 }
             });
+            
+            // Allow pasting 6 digits
+            input.addEventListener("paste", (e) => {
+                e.preventDefault();
+                const data = e.clipboardData.getData("text").slice(0, 6).split("");
+                data.forEach((char, i) => {
+                    if (inputs[index + i]) {
+                        inputs[index + i].value = char;
+                    }
+                });
+                if (inputs[index + data.length - 1]) {
+                    inputs[index + data.length - 1].focus();
+                }
+            });
         });
 
-        // Prevent double submission
+        // OTP Form Handling
         const otpForm = document.getElementById('otpForm');
         otpForm.addEventListener("submit", () => {
              const btn = otpForm.querySelector('button[type="submit"]');
              btn.disabled = true;
-             btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Đang xử lý...';
+             btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Đang xác thực...';
         });
 
-        // Timer and Resend Logic
+        // Resend Timer Logic
         let timeLeft = 30;
         const resendLink = document.getElementById('resend-link');
         const resendStatus = document.getElementById('resend-status');
@@ -137,37 +244,23 @@
                 }
             }, 1000);
         }
-
         startTimer();
 
         resendLink.addEventListener("click", () => {
             resendStatus.innerHTML = '<span class="text-muted"><i class="fas fa-spinner fa-spin me-1"></i> Đang gửi...</span>';
-            
-            fetch('@Url.Action("ResendOTP", "Payment")', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
-            })
+            fetch('@Url.Action("ResendOTP", "Payment")', { method: 'POST' })
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    if (data.isSimulation) {
-                        resendStatus.innerHTML = '<span class="text-info"><i class="fas fa-flask me-1"></i> Đã giả lập gửi mã mới!</span>';
-                        // Update the displayed code if the badge exists
-                        const badge = document.getElementById('simulated-otp-badge');
-                        if (badge && data.newOtp) {
-                            badge.innerText = data.newOtp;
-                        }
-                    } else {
-                        resendStatus.innerHTML = '<span class="text-success"><i class="fas fa-check me-1"></i> Mã mới đã được gửi!</span>';
+                    resendStatus.innerHTML = '<span class="text-success"><i class="fas fa-check me-1"></i> Mã mới đã được gửi!</span>';
+                    if (data.isSimulation && data.newOtp) {
+                         document.getElementById('simulated-otp-display').innerText = data.newOtp;
                     }
-                    timeLeft = 60; // Wait longer for next resend
+                    timeLeft = 60;
                     startTimer();
                 } else {
-                    resendStatus.innerHTML = `<span class="text-danger"><i class="fas fa-times me-1"></i> ${data.message}</span>`;
+                    resendStatus.innerHTML = `<span class="text-danger">${data.message}</span>`;
                 }
-            })
-            .catch(err => {
-                resendStatus.innerHTML = '<span class="text-danger"><i class="fas fa-times me-1"></i> Lỗi kết nối.</span>';
             });
         });
     });

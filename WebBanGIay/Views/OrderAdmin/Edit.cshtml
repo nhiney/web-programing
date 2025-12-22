@@ -53,7 +53,7 @@
                         <div class="row g-2">
                             <div class="col-6">
                                 <small class="text-label d-block mb-1">Mã đơn</small>
-                                <span class="fw-bold text-primary">@Model.MAHOADON</span>
+                                <span class="fw-bold text-primary">@Model.MAHOADON.Trim()</span>
                             </div>
                              <div class="col-6 text-end">
                                 <small class="text-label d-block mb-1">Ngày lập</small>
@@ -71,7 +71,7 @@
                     <!-- Status Update Form -->
                     <form method="post" action="@Url.Action("UpdateStatus", "OrderAdmin")">
                         @Html.AntiForgeryToken()
-                        <input type="hidden" name="id" value="@Model.MAHOADON" />
+                        <input type="hidden" name="id" value="@Model.MAHOADON.Trim()" />
 
                         <div class="mb-4">
                             <label class="form-label text-label fw-bold mb-2">Trạng thái hiện tại</label>
@@ -102,7 +102,7 @@
                             <button type="submit" class="btn btn-primary fw-bold py-2">
                                 <i class="bi bi-check-circle me-2"></i>Lưu thay đổi
                             </button>
-                            <a href="@Url.Action("Details", "OrderAdmin", new { id = Model.MAHOADON })" class="btn btn-outline-secondary">
+                            <a href="@Url.Action("Details", "OrderAdmin", new { id = Model.MAHOADON.Trim() })" class="btn btn-outline-secondary">
                                 Quay lại chi tiết
                             </a>
                         </div>

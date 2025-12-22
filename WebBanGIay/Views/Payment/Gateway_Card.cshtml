@@ -1,122 +1,148 @@
 @{
-    ViewBag.Title = "Thanh toán Thẻ tín dụng";
+    ViewBag.Title = "Thanh toán Thẻ ngân hàng";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="card-gateway-page bg-light py-5">
+<div class="card-gateway-page py-5">
     <div class="container">
-        <!-- Progress Steps (Condensed) -->
-        <div class="row justify-content-center mb-4">
-            <div class="col-md-6">
-                 <div class="d-flex justify-content-center align-items-center opacity-75">
-                    <span class="text-success small fw-bold"><i class="fas fa-check-circle me-1"></i> Giỏ hàng</span>
-                    <span class="mx-3 text-muted">/</span>
-                    <span class="text-primary small fw-bold">Thanh thẻ</span>
-                    <span class="mx-3 text-muted">/</span>
-                    <span class="text-muted small">Xác thực</span>
+        <!-- Progress Steps -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-md-8">
+                 <div class="payment-steps d-flex justify-content-between position-relative">
+                    <div class="step-item completed">
+                        <div class="step-icon"><i class="fas fa-shopping-cart"></i></div>
+                        <span class="step-label">Giỏ hàng</span>
+                    </div>
+                    <div class="step-item active">
+                        <div class="step-icon"><i class="fas fa-credit-card"></i></div>
+                        <span class="step-label">Thanh toán</span>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon"><i class="fas fa-shield-alt"></i></div>
+                        <span class="step-label">Xác thực</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="row justify-content-center">
-            <div class="col-lg-5 col-md-8">
-                <div class="card border-0 shadow-lg rounded-4 overflow-hidden position-relative auth-card">
-                    
-                    <!-- Decorative Top Shapes -->
-                    <div class="position-absolute top-0 start-0 w-100" style="height: 6px; background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);"></div>
-
-                    <div class="card-body p-4 p-md-5">
-                        <div class="text-center mb-4">
-                            <h4 class="fw-bold text-dark">Thanh toán An toàn</h4>
-                            <p class="text-muted small mb-0">Thông tin thẻ được mã hóa 256-bit SSL</p>
-                        </div>
-
-                        <!-- Card Visual -->
-                        <div class="credit-card-visual mb-4 mx-auto p-4 rounded-4 text-white position-relative shadow-lg" style="background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%); max-width: 350px; height: 210px;">
-                            <!-- Top Row: Chip & Contactless -->
-                            <div class="d-flex justify-content-between align-items-center mb-4">
-                                <img src="https://raw.githubusercontent.com/muhammederdem/credit-card-form/master/src/assets/images/chip.png" alt="Chip" style="height: 35px; opacity: 0.9;">
-                                <i class="fas fa-wifi fa-rotate-90 opacity-50"></i>
-                            </div>
-
-                            <!-- Number -->
-                            <h4 class="mb-4 text-center font-monospace" style="letter-spacing: 3px; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">
-                                @(Request.Form["cardNumber"] ?? "•••• •••• •••• ••••")
-                            </h4>
-
-                            <!-- Bottom Row: Holder, Date, Logo -->
-                            <div class="d-flex justify-content-between align-items-end mt-2">
-                                <div>
-                                    <div class="text-uppercase small opacity-75" style="font-size: 0.65rem;">Card Holder</div>
-                                    <div class="fw-bold font-monospace text-truncate" style="max-width: 140px;">YOUR NAME</div>
+        <div class="row g-4 justify-content-center">
+            <!-- Left Side: Card Visual & Security -->
+            <div class="col-lg-5 order-lg-1 order-2">
+                <div class="card-preview-container mb-4">
+                    <div class="flip-card" id="card-preview">
+                        <div class="flip-card-inner">
+                            <!-- Card Front -->
+                            <div class="flip-card-front card-skin-premium p-4 rounded-4 shadow-lg text-white">
+                                <div class="d-flex justify-content-between align-items-start mb-5">
+                                    <div class="card-type-logo">
+                                        <i class="fab fa-cc-visa fa-3x" id="card-logo-type"></i>
+                                    </div>
+                                    <img src="https://raw.githubusercontent.com/muhammederdem/credit-card-form/master/src/assets/images/chip.png" alt="Chip" style="height: 40px;">
                                 </div>
-                                <div class="text-center mx-2">
-                                     <div class="text-uppercase small opacity-75" style="font-size: 0.65rem;">Exp. Date</div>
-                                     <div class="fw-bold font-monospace">MM/YY</div>
+                                
+                                <div class="card-number-display mb-4 h3 font-monospace" id="display-number">
+                                    •••• •••• •••• ••••
                                 </div>
-                                <div>
-                                    <i class="fab fa-cc-visa fa-2x opacity-90"></i>
-                                </div>
-                            </div>
-                            
-                            <!-- Glossy Effect Overlay -->
-                            <div class="position-absolute top-0 start-0 w-100 h-100 rounded-4" style="background: linear-gradient(125deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.05) 30%, transparent 60%); pointer-events: none;"></div>
-                        </div>
-
-                        @using (Html.BeginForm("ProcessCard", "Payment", FormMethod.Post, new { @id = "payment-form", @class = "needs-validation" }))
-                        {
-                            @Html.AntiForgeryToken()
-                            
-                            if (!ViewData.ModelState.IsValid) {
-                                  <div class="alert alert-danger bg-danger bg-opacity-10 border-danger border-opacity-25 text-danger small rounded-3 p-2 mb-3">
-                                      <i class="fas fa-exclamation-circle me-1"></i> @Html.ValidationSummary(true)
-                                  </div>
-                            }
-
-                            <!-- Input Fields -->
-                            <div class="form-floating mb-3">
-                                <input type="text" class="form-control rounded-3" id="cardNumber" name="cardNumber" placeholder="0000 0000 0000 0000" maxlength="19" required>
-                                <label for="cardNumber" class="text-muted ms-1"><i class="far fa-credit-card me-2"></i>Số thẻ</label>
-                            </div>
-
-                            <div class="form-floating mb-3">
-                                <input type="text" class="form-control rounded-3 text-uppercase" id="cardHolder" name="holder" placeholder="NGUYEN VAN A" required>
-                                <label for="cardHolder" class="text-muted ms-1"><i class="far fa-user me-2"></i>Tên chủ thẻ</label>
-                            </div>
-
-                            <div class="row g-2">
-                                <div class="col-7">
-                                     <div class="form-floating mb-3">
-                                        <input type="text" class="form-control rounded-3" id="expiry" name="expiry" placeholder="MM/YY" maxlength="5" required>
-                                        <label for="expiry" class="text-muted ms-1"><i class="far fa-calendar-alt me-2"></i>Hết hạn (MM/YY)</label>
+                                
+                                <div class="d-flex justify-content-between align-items-end">
+                                    <div class="flex-grow-1">
+                                        <div class="text-uppercase opacity-75" style="font-size: 0.7rem;">Chủ thẻ</div>
+                                        <div class="fw-bold text-uppercase text-truncate" id="display-name" style="max-width: 200px;">HỌ TÊN CỦA BẠN</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-uppercase opacity-75" style="font-size: 0.7rem;">Hết hạn</div>
+                                        <div class="fw-bold" id="display-expiry">MM/YY</div>
                                     </div>
                                 </div>
-                                <div class="col-5">
-                                     <div class="form-floating mb-3">
-                                        <input type="password" class="form-control rounded-3 font-monospace" id="cvv" name="cvv" placeholder="123" maxlength="3" required>
-                                        <label for="cvv" class="text-muted ms-1"><i class="fas fa-lock me-2"></i>CVV</label>
+                                
+                                <div class="glass-overlay"></div>
+                            </div>
+                            
+                            <!-- Card Back -->
+                            <div class="flip-card-back card-skin-premium rounded-4 shadow-lg text-white">
+                                <div class="black-strip mt-4"></div>
+                                <div class="p-4">
+                                    <div class="text-end opacity-75 small mb-1">CVV</div>
+                                    <div class="cvv-strip bg-white text-dark p-2 rounded-1 text-end fw-bold font-monospace" id="display-cvv">
+                                        •••
+                                    </div>
+                                    <div class="mt-4 opacity-50 small" style="font-size: 0.6rem;">
+                                        Thẻ này là tài sản của ngân hàng phát hành. Việc sử dụng thẻ tuân theo các điều khoản và điều kiện của ngân hàng.
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="d-grid mt-2">
-                                <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold shadow-sm py-3 hover-scale">
-                                    Thanh toán @string.Format("{0:N0}", ViewBag.TongTien) đ
-                                </button>
-                            </div>
-                        }
-                        
-                        <div class="text-center mt-4">
-                            <a href="@Url.Action("Index")" class="text-muted text-decoration-none small hover-underline">
-                                <i class="fas fa-arrow-left me-1"></i> Chọn phương thức khác
-                            </a>
                         </div>
-
                     </div>
                 </div>
 
-                <div class="text-center mt-3 text-muted small opacity-75">
-                    <i class="fas fa-lock me-1"></i> Giao dịch được bảo vệ bởi 3D-Secure
+                <div class="security-badges d-flex flex-wrap justify-content-center gap-3 mt-4">
+                    <div class="badge-item"><i class="fas fa-lock text-success"></i> SSL 256-bit</div>
+                    <div class="badge-item"><i class="fas fa-check-shield text-primary"></i> PCI DSS Compliant</div>
+                    <div class="badge-item"><i class="fas fa-user-shield text-info"></i> 3D Secure</div>
+                </div>
+                
+                <div class="text-center mt-4 opacity-75">
+                    <img src="https://cdn-icons-png.flaticon.com/512/179/179457.png" height="30" class="me-2 grayscale" title="Visa">
+                    <img src="https://cdn-icons-png.flaticon.com/512/179/179431.png" height="30" class="me-2 grayscale" title="Mastercard">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRz-q-uG2k8WJ_hYkIeI6B0wS6Y_k0zMvL_oA&s" height="20" class="me-2 grayscale" title="Napas">
+                </div>
+            </div>
+
+            <!-- Right Side: Input Form -->
+            <div class="col-lg-5 order-lg-2 order-1">
+                <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+                    <h4 class="fw-bold mb-4 text-dark"><i class="fas fa-wallet text-primary me-2"></i>Thông tin thẻ</h4>
+
+                    @using (Html.BeginForm("ProcessCard", "Payment", FormMethod.Post, new { @id = "card-form" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        
+                        <div class="form-floating mb-4">
+                            <input type="text" class="form-control premium-input" id="cardNumber" name="cardNumber" placeholder="xxxx xxxx xxxx xxxx" maxlength="19" required autocomplete="cc-number">
+                            <label for="cardNumber">Số thẻ</label>
+                            <div class="input-icon-right"><i class="far fa-credit-card"></i></div>
+                        </div>
+
+                        <div class="form-floating mb-4">
+                            <input type="text" class="form-control premium-input text-uppercase" id="cardHolder" name="holder" placeholder="NGUYEN VAN A" required autocomplete="cc-name">
+                            <label for="cardHolder">Tên in trên thẻ</label>
+                            <div class="input-icon-right"><i class="far fa-user"></i></div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-7">
+                                <div class="form-floating mb-4">
+                                    <input type="text" class="form-control premium-input" id="expiry" name="expiry" placeholder="MM/YY" maxlength="5" required autocomplete="cc-exp">
+                                    <label for="expiry">Hết hạn (MM/YY)</label>
+                                    <div class="input-icon-right"><i class="far fa-calendar"></i></div>
+                                </div>
+                            </div>
+                            <div class="col-5">
+                                <div class="form-floating mb-4">
+                                    <input type="password" class="form-control premium-input" id="cvv" name="cvv" placeholder="***" maxlength="3" required autocomplete="cc-csc">
+                                    <label for="cvv">CVV</label>
+                                    <div class="input-icon-right"><i class="fas fa-shield-alt"></i></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="amount-summary p-3 rounded-3 bg-light mb-4 border-start border-4 border-primary">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted small">Tổng thanh toán:</span>
+                                <span class="h4 mb-0 fw-bold text-primary">@string.Format("{0:N0}", ViewBag.TongTien) đ</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm hover-up transition-base">
+                            <i class="fas fa-lock me-2"></i>THANH TOÁN AN TOÀN
+                        </button>
+                    }
+                    
+                    <div class="text-center mt-4">
+                        <a href="@Url.Action("Index")" class="text-muted text-decoration-none small hover-primary transition-base">
+                            <i class="fas fa-chevron-left me-1"></i> Thay đổi phương thức thanh toán
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -124,45 +150,239 @@
 </div>
 
 <style>
-    /* Card Gateway Styles */
-    .card-gateway-page {
-        min-height: 85vh;
-        background-color: #f1f5f9;
-        background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
-        background-size: 20px 20px;
+    :root {
+        --primary-gradient: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+        --card-gold: linear-gradient(135deg, #b8860b 0%, #ffdf00 50%, #b8860b 100%);
+        --card-dark: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+        --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    
-    .credit-card-visual {
-        transition: transform 0.6s;
+
+    .card-gateway-page {
+        background-color: #f8fafc;
+        min-height: 80vh;
+    }
+
+    /* Flip Card CSS */
+    .card-preview-container {
+        perspective: 1000px;
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+
+    .flip-card {
+        width: 100%;
+        height: 240px;
+        transition: transform 0.8s;
+        transform-style: preserve-3d;
+        cursor: pointer;
+    }
+
+    .flip-card.flipped {
+        transform: rotateY(180deg);
+    }
+
+    .flip-card-inner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        transition: transform 0.8s;
         transform-style: preserve-3d;
     }
 
-    .form-control:focus {
-        border-color: #4facfe;
-        box-shadow: 0 0 0 0.25rem rgba(79, 172, 254, 0.25);
-    }
-    
-    .hover-scale {
-        transition: transform 0.2s;
-    }
-    .hover-scale:hover {
-        transform: scale(1.02);
+    .flip-card-front, .flip-card-back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+        border-radius: 1.25rem !important;
     }
 
-    .hover-underline:hover {
-        text-decoration: underline !important;
-        color: #0f172a !important;
+    .card-skin-premium {
+        background: var(--card-dark);
+        position: relative;
+        overflow: hidden;
     }
+
+    .flip-card-back {
+        transform: rotateY(180deg);
+        background: #1e293b;
+    }
+
+    .glass-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%);
+        pointer-events: none;
+    }
+
+    .black-strip {
+        background: #000;
+        height: 45px;
+        width: 100%;
+    }
+
+    .cvv-strip {
+        height: 40px;
+        background-image: repeating-linear-gradient(45deg, #eee, #eee 10px, #e5e5e5 10px, #e5e5e5 20px);
+    }
+
+    /* Steps UI */
+    .payment-steps::before {
+        content: '';
+        position: absolute;
+        top: 20px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: #e2e8f0;
+        z-index: 1;
+    }
+
+    .step-item {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        width: 80px;
+    }
+
+    .step-icon {
+        width: 40px;
+        height: 40px;
+        background: white;
+        border: 2px solid #e2e8f0;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 8px;
+        color: #94a3b8;
+        transition: var(--transition);
+    }
+
+    .step-item.active .step-icon {
+        border-color: #3b82f6;
+        color: #3b82f6;
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+    }
+
+    .step-item.completed .step-icon {
+        background: #3b82f6;
+        border-color: #3b82f6;
+        color: white;
+    }
+
+    .step-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #64748b;
+    }
+
+    /* Input Styling */
+    .premium-input {
+        background-color: #f1f5f9 !important;
+        border: 1px solid transparent !important;
+        font-weight: 600;
+        transition: var(--transition);
+    }
+
+    .premium-input:focus {
+        background-color: #fff !important;
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1) !important;
+    }
+
+    .input-icon-right {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        font-size: 1.1rem;
+    }
+
+    .badge-item {
+        padding: 6px 14px;
+        background: white;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #64748b;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .grayscale { filter: grayscale(1); opacity: 0.6; transition: 0.3s; }
+    .grayscale:hover { filter: grayscale(0); opacity: 1; }
+
+    .hover-up:hover { transform: translateY(-2px); }
+    .hover-primary:hover { color: #3b82f6 !important; }
+    .transition-base { transition: all 0.2s ease-in-out; }
 </style>
 
 <script>
-    // Simple JS to format inputs (optional enhancement)
-    document.getElementById('cardNumber')?.addEventListener('input', function (e) {
-        e.target.value = e.target.value.replace(/[^\d]/g, '').replace(/(.{4})/g, '$1 ').trim();
-    });
-    
-    document.getElementById('expiry')?.addEventListener('input', function (e) {
-        var input = e.target.value;
-        if (input.length === 2 && !input.includes('/')) e.target.value = input + '/';
+    document.addEventListener('DOMContentLoaded', function() {
+        const card = document.getElementById('card-preview');
+        const numInput = document.getElementById('cardNumber');
+        const nameInput = document.getElementById('cardHolder');
+        const expInput = document.getElementById('expiry');
+        const cvvInput = document.getElementById('cvv');
+
+        const displayNum = document.getElementById('display-number');
+        const displayName = document.getElementById('display-name');
+        const displayExp = document.getElementById('display-expiry');
+        const displayCvv = document.getElementById('display-cvv');
+        const cardLogo = document.getElementById('card-logo-type');
+
+        // Card Number Mask & Logo detection
+        numInput.addEventListener('input', function(e) {
+            let val = e.target.value.replace(/\D/g, '');
+            let formatted = val.match(/.{1,4}/g)?.join(' ') || '';
+            e.target.value = formatted;
+            
+            displayNum.textContent = formatted || "•••• •••• •••• ••••";
+
+            // Logo detection
+            if (val.startsWith('4')) {
+                cardLogo.className = 'fab fa-cc-visa fa-3x';
+            } else if (val.startsWith('5')) {
+                cardLogo.className = 'fab fa-cc-mastercard fa-3x';
+            } else {
+                cardLogo.className = 'fas fa-credit-card fa-3x';
+            }
+        });
+
+        // Name
+        nameInput.addEventListener('input', function(e) {
+            displayName.textContent = e.target.value.toUpperCase() || "HỌ TÊN CỦA BẠN";
+        });
+
+        // Expiry
+        expInput.addEventListener('input', function(e) {
+            let val = e.target.value.replace(/\D/g, '');
+            if (val.length >= 2) {
+                val = val.substring(0, 2) + '/' + val.substring(2, 4);
+            }
+            e.target.value = val;
+            displayExp.textContent = val || "MM/YY";
+        });
+
+        // CVV & Flip
+        cvvInput.addEventListener('focus', () => card.classList.add('flipped'));
+        cvvInput.addEventListener('blur', () => card.classList.remove('flipped'));
+        cvvInput.addEventListener('input', function(e) {
+            displayCvv.textContent = e.target.value || "•••";
+        });
+
+        // Form Submission Effect
+        document.getElementById('card-form').addEventListener('submit', function() {
+            const btn = this.querySelector('button');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Đang mã hóa dữ liệu...';
+        });
     });
 </script>

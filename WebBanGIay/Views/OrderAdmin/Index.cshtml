@@ -227,10 +227,10 @@
                                 <td>@item.NGAYLAP.Value.ToString("dd/MM/yyyy HH:mm")</td>
                                 <td><span class="status-badge @badgeClass">@item.TRANGTHAI</span></td>
                                 <td class="text-center">
-                                    <a href="@Url.Action("Details", "OrderAdmin", new { id = item.MAHOADON.Trim() })" class="btn-icon" title="Chi tiết">
+                                    <a href="/OrderAdmin/Details/@item.MAHOADON.Trim()" class="btn-icon" title="Chi tiết">
                                         <i class="bi bi-eye"></i>
                                     </a>
-                                    <a href="@Url.Action("Edit", "OrderAdmin", new { id = item.MAHOADON.Trim() })" class="btn-icon" title="Cập nhật trạng thái">
+                                    <a href="/OrderAdmin/Edit/@item.MAHOADON.Trim()" class="btn-icon" title="Cập nhật trạng thái">
                                         <i class="bi bi-pencil"></i>
                                     </a>
 

@@ -134,6 +134,7 @@ namespace WebBanGIay.Controllers
             product.TENSANPHAM = model.TENSANPHAM;
             product.GIA = model.GIA;
             product.MOTA = model.MOTA;
+            product.MANHACUNGCAP = model.MANHACUNGCAP;
             product.NGAYTAO = DateTime.Now; // Update timestamp when edited
 
             // product.SOLUONGTON = model.SOLUONGTON; // Disabled: Managed by Import/Inventory

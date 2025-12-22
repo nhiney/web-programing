@@ -185,7 +185,8 @@ namespace WebBanGIay.Controllers
             Session["OTP_Code"] = otp;
 
             // 1. Simulation Check
-            if (!MailHelper.IsConfigured())
+            bool isSimulation = Session["IsSimulationMode"] != null && (bool)Session["IsSimulationMode"] == true;
+            if (isSimulation || !MailHelper.IsConfigured())
             {
                 return Json(new { success = true, isSimulation = true, newOtp = otp });
             }
@@ -225,7 +226,17 @@ namespace WebBanGIay.Controllers
             }
 
             ViewBag.TargetEmail = Session["OTPTargetEmail"];
-            ViewBag.IsSimulationMode = Session["IsSimulationMode"] ?? false;
+            ViewBag.PaymentMethod = Session["PendingPaymentMethod"];
+            bool isSimulation = Session["IsSimulationMode"] != null && (bool)Session["IsSimulationMode"] == true;
+            
+            // Refresh OTP on every load in Simulation Mode as requested
+            if (isSimulation)
+            {
+                string newOtp = new Random().Next(100000, 999999).ToString();
+                Session["OTP_Code"] = newOtp;
+            }
+
+            ViewBag.IsSimulationMode = isSimulation;
             ViewBag.SimulatedOTP = Session["OTP_Code"];
 
             return View();
@@ -247,8 +258,13 @@ namespace WebBanGIay.Controllers
             Session["PendingPaymentMethod"] = "VISA/MASTER";
             Session["PendingOTP"] = true;
             
-            // Generate OTP for Card too (simulated SMS)
-            Session["OTP_Code"] = "123456"; // Hardcoded for Card demo
+            // Generate random OTP for Card too
+            Session["OTP_Code"] = new Random().Next(100000, 999999).ToString();
+            
+            // Note: Card always uses simulation UI in this demo version
+            Session["IsSimulationMode"] = true; 
+            Session["PendingCardAuth"] = true; // Set this flag explicitly
+            Session["OTPTargetEmail"] = "Số điện thoại của bạn";
 
             return RedirectToAction("Gateway_OTP");
         }
