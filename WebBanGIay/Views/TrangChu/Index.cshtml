@@ -14,7 +14,7 @@
         --text-muted: #666;
         --bg-light: #f8f9fa;
     }
-    
+
     /* Styles specific to Home Page */
     .section-title {
         font-weight: 700;
@@ -25,17 +25,18 @@
         color: var(--text-dark);
         position: relative;
     }
-    .section-title:after {
-        content: '';
-        position: absolute;
-        bottom: -10px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 60px;
-        height: 3px;
-        background: var(--primary-gradient);
-        border-radius: 3px;
-    }
+
+        .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: var(--primary-gradient);
+            border-radius: 3px;
+        }
 
     .filter-bar {
         background: white;
@@ -47,21 +48,52 @@
         position: relative;
         overflow: hidden;
     }
-    .filter-bar:before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 5px;
-        height: 100%;
-        background: var(--primary-gradient);
-    }
-    .filter-bar .form-label { font-weight: 600; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem; }
-    .filter-bar .form-select, .filter-bar .btn { border-radius: 30px; font-size: 0.95rem; padding: 0.6rem 1.2rem; }
-    .filter-bar .form-select { border: 2px solid #eee; transition: all 0.3s ease; }
-    .filter-bar .form-select:focus { border-color: var(--primary); box-shadow: 0 0 0 0.2rem rgba(255, 59, 48, 0.25); }
-    .filter-bar .btn-danger { background: var(--primary-gradient); border: none; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 3px 10px rgba(255,59,48,0.3); }
-    .filter-bar .btn-danger:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(255,59,48,0.4); }
+
+        .filter-bar:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: var(--primary-gradient);
+        }
+
+        .filter-bar .form-label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .filter-bar .form-select, .filter-bar .btn {
+            border-radius: 30px;
+            font-size: 0.95rem;
+            padding: 0.6rem 1.2rem;
+        }
+
+        .filter-bar .form-select {
+            border: 2px solid #eee;
+            transition: all 0.3s ease;
+        }
+
+            .filter-bar .form-select:focus {
+                border-color: var(--primary);
+                box-shadow: 0 0 0 0.2rem rgba(255, 59, 48, 0.25);
+            }
+
+        .filter-bar .btn-danger {
+            background: var(--primary-gradient);
+            border: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(255,59,48,0.3);
+        }
+
+            .filter-bar .btn-danger:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 20px rgba(255,59,48,0.4);
+            }
 
     .product-item {
         background: white;
@@ -75,8 +107,15 @@
         text-align: center;
         position: relative;
     }
-    .product-item:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.15); }
-    .product-item:hover .product-img { transform: scale(1.08); }
+
+        .product-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+            .product-item:hover .product-img {
+                transform: scale(1.08);
+            }
 
     .product-img-container {
         position: relative;
@@ -87,10 +126,28 @@
         overflow: hidden;
         margin-bottom: 1rem;
     }
-    .product-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
-    
-    .badge-percent { position: absolute; top: 10px; right: 10px; background: #ff3b30; color: white; padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 0.8rem; box-shadow: 0 4px 10px rgba(255,59,48,0.3); z-index: 2; }
-    
+
+    .product-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .badge-percent {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: #ff3b30;
+        color: white;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.8rem;
+        box-shadow: 0 4px 10px rgba(255,59,48,0.3);
+        z-index: 2;
+    }
+
     .product-title a {
         text-decoration: none;
         color: var(--text-dark);
@@ -103,11 +160,30 @@
         margin-bottom: 0.5rem;
         transition: color 0.2s;
     }
-    .product-title a:hover { color: var(--primary); }
 
-    .price-wrap { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 1rem; }
-    .price { font-weight: 800; font-size: 1.1rem; color: #ff3b30; }
-    .price-old { text-decoration: line-through; color: #aaa; font-size: 0.9rem; }
+        .product-title a:hover {
+            color: var(--primary);
+        }
+
+    .price-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 1rem;
+    }
+
+    .price {
+        font-weight: 800;
+        font-size: 1.1rem;
+        color: #ff3b30;
+    }
+
+    .price-old {
+        text-decoration: line-through;
+        color: #aaa;
+        font-size: 0.9rem;
+    }
 
     .btn-buy {
         margin-top: auto;
@@ -118,25 +194,26 @@
         border: 2px solid #eee;
         transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
-    .btn-buy:hover {
-        background: var(--primary);
-        color: white;
-        border-color: var(--primary);
-        box-shadow: 0 5px 15px rgba(255, 59, 48, 0.2);
-    }
+
+        .btn-buy:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 5px 15px rgba(255, 59, 48, 0.2);
+        }
 </style>
 
 <div class="container my-5">
-    
+
     <!-- Filter Bar -->
     <div class="filter-bar">
-        @using (Html.BeginForm("Index", "TrangChu", FormMethod.Get, new { @class = "row g-3 align-items-end" }))
+        @using (Html.BeginForm("Index", "TrangChu", FormMethod.Get, new { @class = "row g-3 align-items-end", @id = "filterForm" }))
         {
             <div class="col-md-3">
                 <label class="form-label">Tên sản phẩm</label>
                 <input type="text" name="TenSP" class="form-control form-select shadow-none" placeholder="Nhập tên giày..." value="@Request.QueryString["TenSP"]">
             </div>
-            
+
             <div class="col-md-2">
                 <label class="form-label">Thương hiệu</label>
                 <select name="hang" class="form-select shadow-none">
@@ -170,29 +247,27 @@
                 </select>
             </div>
             <div class="col-md-3">
-                 <!-- Nút tìm kiếm & Xóa -->
-                 <div class="d-flex gap-2">
+                <!-- Nút tìm kiếm & Xóa -->
+                <div class="d-flex gap-2">
                     <button type="submit" class="btn btn-danger flex-grow-1 d-flex align-items-center justify-content-center">
                         <i class="fas fa-filter me-2"></i> Lọc
                     </button>
-                    @if (Request.QueryString.Count > 0 && 
-                        (!string.IsNullOrEmpty(Request.QueryString["TenSP"]) || 
-                         !string.IsNullOrEmpty(Request.QueryString["MucGia"]) || 
+                    @if (Request.QueryString.Count > 0 &&
+                        (!string.IsNullOrEmpty(Request.QueryString["TenSP"]) ||
+                         !string.IsNullOrEmpty(Request.QueryString["MucGia"]) ||
                          !string.IsNullOrEmpty(Request.QueryString["hang"])))
                     {
-                         <a href="@Url.Action("Index")" class="btn btn-outline-secondary" title="Xóa bộ lọc"><i class="fas fa-undo"></i></a>
+                        <a href="@Url.Action("Index")" class="btn btn-outline-secondary" title="Xóa bộ lọc"><i class="fas fa-undo"></i></a>
                     }
-                 </div>
+                </div>
             </div>
         }
     </div>
 
-
-
     @if (banChay.Count > 0)
     {
-        var isFiltering = !string.IsNullOrEmpty(Request.QueryString["TenSP"]) || 
-                          !string.IsNullOrEmpty(Request.QueryString["hang"]) || 
+        var isFiltering = !string.IsNullOrEmpty(Request.QueryString["TenSP"]) ||
+                          !string.IsNullOrEmpty(Request.QueryString["hang"]) ||
                           !string.IsNullOrEmpty(Request.QueryString["MucGia"]);
 
         <h2 class="section-title" id="featured-products">@(isFiltering ? "Kết quả tìm kiếm" : "Sản phẩm nổi bật")</h2>
@@ -202,19 +277,19 @@
                 <div class="col">
                     <div class="product-item">
                         @{
-                             decimal finalPrice = item.GIA;
-                             int discountPercent = 0;
-                             if (item.KHUYENMAI != null && item.KHUYENMAI.TRANGTHAI == true && 
-                                 DateTime.Now >= item.KHUYENMAI.NGAYBATDAU && DateTime.Now <= item.KHUYENMAI.NGAYKETTHUC)
-                             {
-                                 discountPercent = item.KHUYENMAI.PHANTRAMGIAM;
-                                 finalPrice = item.GIA * (100 - discountPercent) / 100;
-                             }
-                             else if (item.GIAKHUYENMAI.HasValue && item.GIAKHUYENMAI > 0 && item.GIAKHUYENMAI < item.GIA)
-                             {
-                                 finalPrice = item.GIAKHUYENMAI.Value;
-                                 discountPercent = (int)Math.Round((double)((item.GIA - finalPrice) / item.GIA * 100));
-                             }
+                            decimal finalPrice = item.GIA;
+                            int discountPercent = 0;
+                            if (item.KHUYENMAI != null && item.KHUYENMAI.TRANGTHAI == true &&
+                                DateTime.Now >= item.KHUYENMAI.NGAYBATDAU && DateTime.Now <= item.KHUYENMAI.NGAYKETTHUC)
+                            {
+                                discountPercent = item.KHUYENMAI.PHANTRAMGIAM;
+                                finalPrice = item.GIA * (100 - discountPercent) / 100;
+                            }
+                            else if (item.GIAKHUYENMAI.HasValue && item.GIAKHUYENMAI > 0 && item.GIAKHUYENMAI < item.GIA)
+                            {
+                                finalPrice = item.GIAKHUYENMAI.Value;
+                                discountPercent = (int)Math.Round((double)((item.GIA - finalPrice) / item.GIA * 100));
+                            }
                         }
 
                         @if (discountPercent > 0)
@@ -222,9 +297,9 @@
                             <span class="badge-percent">-@discountPercent%</span>
                         }
                         <div class="product-img-container">
-                             @{
-                                 string imgHinhAnh = !string.IsNullOrEmpty(item.HINHANH) ? "/source/images/products/" + item.HINHANH : "https://via.placeholder.com/300x300?text=No+Image";
-                             }
+                            @{
+                                string imgHinhAnh = !string.IsNullOrEmpty(item.HINHANH) ? "/source/images/products/" + item.HINHANH : "https://via.placeholder.com/300x300?text=No+Image";
+                            }
                             <img src="@imgHinhAnh" class="product-img" alt="@item.TENSANPHAM" loading="lazy">
                         </div>
                         <div class="p-3 d-flex flex-column h-100">
@@ -232,31 +307,31 @@
                                 <a href="@Url.Action("ChiTiet", "Products", new { id = item.MASANPHAM.Trim() })" title="@item.TENSANPHAM">
                                     @item.TENSANPHAM
                                 </a>
-                             </div>
-                            
-                             <div class="price-wrap">
-                                 @if (discountPercent > 0)
-                                 {
-                                     <span class="price">@String.Format("{0:0,0}", finalPrice) ₫</span>
-                                     <span class="price-old">@String.Format("{0:0,0}", item.GIA) ₫</span>
-                                 }
-                                 else
-                                 {
-                                     <span class="price">@String.Format("{0:0,0}", item.GIA) ₫</span>
-                                 }
-                             </div>
+                            </div>
 
-                             <a href="@Url.Action("ChiTiet", "Products", new { id = item.MASANPHAM.Trim() })" class="btn btn-buy w-100 py-2">
+                            <div class="price-wrap">
+                                @if (discountPercent > 0)
+                                {
+                                    <span class="price">@String.Format("{0:0,0}", finalPrice) ₫</span>
+                                    <span class="price-old">@String.Format("{0:0,0}", item.GIA) ₫</span>
+                                }
+                                else
+                                {
+                                    <span class="price">@String.Format("{0:0,0}", item.GIA) ₫</span>
+                                }
+                            </div>
+
+                            <a href="@Url.Action("ChiTiet", "Products", new { id = item.MASANPHAM.Trim() })" class="btn btn-buy w-100 py-2">
                                 <i class="fas fa-info-circle me-1"></i> Xem chi tiết
-                             </a>
+                            </a>
                         </div>
                     </div>
                 </div>
             }
         </div>
-        
+
         <div class="text-center mb-5">
-             <a href="@Url.Action("SPhamTHuongHieu", "Products")" class="btn btn-buy px-5 py-3 shadow-sm" style="font-size: 1.1rem;">
+            <a href="@Url.Action("SPhamTHuongHieu", "Products")" class="btn btn-buy px-5 py-3 shadow-sm" style="font-size: 1.1rem;">
                 <i class="fas fa-store me-2"></i> Tới cửa hàng
             </a>
         </div>
@@ -272,16 +347,46 @@
         pointer-events: none;
         animation: fall linear forwards;
     }
+
     @@keyframes fall {
-        to { transform: translateY(110vh) rotate(360deg); }
+        to {
+            transform: translateY(110vh) rotate(360deg);
+        }
     }
 </style>
+
+<script>
+    // Lưu vị trí cuộn trước khi submit form
+    document.addEventListener("DOMContentLoaded", function () {
+        // Lấy form lọc
+        const filterForm = document.getElementById('filterForm');
+
+        if (filterForm) {
+            // Lắng nghe sự kiện submit form
+            filterForm.addEventListener('submit', function (e) {
+                // Lưu vị trí cuộn hiện tại vào sessionStorage
+                sessionStorage.setItem('scrollPosition', window.scrollY);
+            });
+        }
+
+        // Khôi phục vị trí cuộn sau khi trang tải
+        const savedPosition = sessionStorage.getItem('scrollPosition');
+        if (savedPosition) {
+            // Sử dụng setTimeout để đảm bảo trang đã tải xong
+            setTimeout(function () {
+                window.scrollTo(0, parseInt(savedPosition));
+                // Xóa vị trí đã lưu sau khi đã khôi phục
+                sessionStorage.removeItem('scrollPosition');
+            }, 100);
+        }
+    });
+</script>
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         var promoName = "@(ViewBag.FeaturedPromotion != null ? ((WebBanGIay.Models.KHUYENMAI)ViewBag.FeaturedPromotion).TENKHUYENMAI.ToLower() : "")";
         var icon = "";
-        var count = 30; 
+        var count = 30;
 
         if (promoName.includes("tết") || promoName.includes("tet")) {
             icon = "🧧"; // Lì xì
